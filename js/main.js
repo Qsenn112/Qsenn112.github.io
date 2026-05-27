@@ -46,24 +46,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Game card click -> show embed
   const GAMES = {
-    golgol: 'https://itch.io/embed-upload/17035372?color=333333',
-    pumpumkin: 'https://itch.io/embed-upload/17699633?color=333333'
+    golgol: { embed: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
+    pumpumkin: { embed: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
   };
   const gameCards = document.querySelectorAll('.game-card');
   const gameIframe = document.getElementById('gameIframe');
+  const gameEmbed = document.querySelector('.game-embed');
   const gameCardGrid = document.getElementById('gameCardGrid');
   const gamePlayArea = document.getElementById('gamePlayArea');
   const gameBackBtn = document.getElementById('gameBackBtn');
 
   gameCards.forEach(card => {
     card.addEventListener('click', () => {
-      const game = card.dataset.game;
-      if (game && GAMES[game]) {
-        gameIframe.src = GAMES[game];
+      const key = card.dataset.game;
+      const game = GAMES[key];
+      if (game) {
+        gameIframe.src = game.embed;
+        gameEmbed.classList.toggle('game-embed--portrait', game.portrait);
       }
       gameCardGrid.style.display = 'none';
       gamePlayArea.style.display = 'block';
-      updateSidebarActive(game);
+      updateSidebarActive(key);
     });
   });
 

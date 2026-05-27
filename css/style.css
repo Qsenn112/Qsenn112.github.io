@@ -398,11 +398,15 @@ ul { list-style: none; }
 .game-embed {
   position: relative;
   width: 100%;
-  padding-bottom: 62.5%;
+  padding-bottom: 56.25%;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border-color);
   background: var(--bg-surface);
+}
+
+.game-embed--portrait {
+  padding-bottom: 140%;
 }
 
 .game-embed iframe {
