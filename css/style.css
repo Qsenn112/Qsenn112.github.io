@@ -406,7 +406,8 @@ ul { list-style: none; }
 }
 
 .game-embed--portrait {
-  padding-bottom: 140%;
+  height: min(600px, 80vh);
+  padding-bottom: 0;
 }
 
 .game-embed iframe {
