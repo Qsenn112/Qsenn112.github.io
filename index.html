@@ -14,6 +14,7 @@
       <span class="logo-text">TPGNS</span>
     </div>
     <ul class="nav-links">
+      <li data-target="game">Game</li>
       <li class="active" data-target="projects">Projects</li>
       <li data-target="about">About</li>
       <li data-target="contact">Contact</li>
@@ -55,7 +56,7 @@
 
     <main class="main-content">
 
-      <div class="featured-banner" id="projects">
+      <div class="featured-banner" id="featured">
         <div class="banner-overlay">
           <span class="banner-tag">Play Now</span>
           <a href="https://tpgns3353-ctrl.itch.io/golgol" target="_blank" class="banner-title">GolGol</a>
@@ -63,15 +64,29 @@
         </div>
       </div>
 
-      <section class="section">
-        <h3 class="section-heading">Projects</h3>
-        <div class="game-embed">
-          <iframe src="https://itch.io/embed-upload/17035372?color=333333" allowfullscreen="true" frameborder="0"></iframe>
+      <section class="section" id="game">
+        <h3 class="section-heading">Game</h3>
+        <div class="game-card-list">
+          <div class="card-grid" id="gameCardGrid">
+            <div class="project-card game-card" data-game="golgol">
+              <div class="card-thumb thumb-golgol">G</div>
+              <div class="card-info">
+                <h4 class="card-title">GolGol</h4>
+                <p class="card-meta">2D · Story — 클릭하여 플레이</p>
+              </div>
+            </div>
+          </div>
+          <div class="game-play-area" id="gamePlayArea" style="display:none;">
+            <div class="game-embed">
+              <iframe src="https://itch.io/embed-upload/17035372?color=333333" allowfullscreen="true" frameborder="0"></iframe>
+            </div>
+            <button class="game-back-btn" id="gameBackBtn">← Back</button>
+          </div>
         </div>
       </section>
 
-      <section class="section">
-        <h3 class="section-heading">Project Info</h3>
+      <section class="section" id="projects">
+        <h3 class="section-heading">Projects</h3>
         <div class="card-grid">
           <a href="https://tpgns3353-ctrl.itch.io/golgol" target="_blank" class="project-card">
             <div class="card-thumb thumb-golgol">G</div>

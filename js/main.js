@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('.nav-links li');
   const mainContent = document.querySelector('.main-content');
-  const sections = document.querySelectorAll('.section, .featured-banner');
+  const sections = document.querySelectorAll('.section');
 
   function scrollToSection(id) {
     const el = document.getElementById(id);
@@ -42,5 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelector('.nav-logo')?.addEventListener('click', () => {
     mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Game card click -> show embed
+  const gameCards = document.querySelectorAll('.game-card');
+  const gameCardGrid = document.getElementById('gameCardGrid');
+  const gamePlayArea = document.getElementById('gamePlayArea');
+  const gameBackBtn = document.getElementById('gameBackBtn');
+
+  gameCards.forEach(card => {
+    card.addEventListener('click', () => {
+      gameCardGrid.style.display = 'none';
+      gamePlayArea.style.display = 'block';
+    });
+  });
+
+  gameBackBtn?.addEventListener('click', () => {
+    gamePlayArea.style.display = 'none';
+    gameCardGrid.style.display = '';
   });
 });

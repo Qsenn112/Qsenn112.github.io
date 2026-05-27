@@ -403,6 +403,42 @@ ul { list-style: none; }
   border: none;
 }
 
+/* ===== GAME CARD LIST ===== */
+.game-card-list {
+  position: relative;
+}
+
+.game-play-area {
+  position: relative;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.game-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.game-back-btn:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
 /* ===== ABOUT BOX ===== */
 .about-box {
   background: var(--bg-surface);
