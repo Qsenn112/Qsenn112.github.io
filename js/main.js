@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateActiveNav();
 
   document.querySelector('.nav-logo')?.addEventListener('click', () => {
+    if (gamePlayArea) gamePlayArea.style.display = 'none';
+    if (gameCardGrid) gameCardGrid.style.display = '';
     mainContent.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
