@@ -45,15 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Game card click -> show embed
+  const GAMES = {
+    golgol: 'https://itch.io/embed-upload/17035372?color=333333',
+    pumpumkin: 'https://itch.io/embed-upload/17699633?color=333333'
+  };
   const gameCards = document.querySelectorAll('.game-card');
+  const gameIframe = document.getElementById('gameIframe');
   const gameCardGrid = document.getElementById('gameCardGrid');
   const gamePlayArea = document.getElementById('gamePlayArea');
   const gameBackBtn = document.getElementById('gameBackBtn');
 
   gameCards.forEach(card => {
     card.addEventListener('click', () => {
+      const game = card.dataset.game;
+      if (game && GAMES[game]) {
+        gameIframe.src = GAMES[game];
+      }
       gameCardGrid.style.display = 'none';
       gamePlayArea.style.display = 'block';
+      updateSidebarActive(game);
     });
   });
 
@@ -61,4 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
     gamePlayArea.style.display = 'none';
     gameCardGrid.style.display = '';
   });
+
+  function updateSidebarActive(game) {
+    document.querySelectorAll('.sidebar-item[data-game]').forEach(item => {
+      item.classList.toggle('active', item.dataset.game === game);
+    });
+  }
 });

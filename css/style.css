@@ -227,6 +227,7 @@ ul { list-style: none; }
 .dot-action { background: var(--accent-green); }
 .dot-pixel { background: var(--accent-purple); }
 .dot-story { background: var(--accent-orange); }
+.dot-clicker { background: var(--accent-pink); }
 
 .skill-badge {
   display: inline-block;
@@ -374,6 +375,16 @@ ul { list-style: none; }
     repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px),
     repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px);
   color: var(--accent-green);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.thumb-pumpkin {
+  background: linear-gradient(135deg, #ff6b35, #ff4500);
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 9px),
+    repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 9px);
+  color: #fff;
   font-size: 1.5rem;
   font-weight: 800;
 }

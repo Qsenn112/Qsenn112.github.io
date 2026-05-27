@@ -28,9 +28,13 @@
       <div class="sidebar-section">
         <h3 class="sidebar-title">Projects</h3>
         <ul class="sidebar-list">
-          <li class="sidebar-item active">
+          <li class="sidebar-item active" data-game="golgol">
             <span class="item-thumb thumb-game">G</span>
             <a class="item-label" href="https://tpgns3353-ctrl.itch.io/golgol" target="_blank">GolGol</a>
+          </li>
+          <li class="sidebar-item" data-game="pumpumkin">
+            <span class="item-thumb thumb-pumpkin">P</span>
+            <a class="item-label" href="https://tpgns3353-ctrl.itch.io/pumpumkin" target="_blank">Pumpumkin</a>
           </li>
         </ul>
       </div>
@@ -40,6 +44,7 @@
         <ul class="sidebar-list">
           <li class="sidebar-item cat-tag"><span class="cat-dot dot-action"></span>2D</li>
           <li class="sidebar-item cat-tag"><span class="cat-dot dot-story"></span>Story</li>
+          <li class="sidebar-item cat-tag"><span class="cat-dot dot-clicker"></span>Clicker</li>
         </ul>
       </div>
 
@@ -75,10 +80,17 @@
                 <p class="card-meta">2D · Story — 클릭하여 플레이</p>
               </div>
             </div>
+            <div class="project-card game-card" data-game="pumpumkin">
+              <div class="card-thumb thumb-pumpkin">P</div>
+              <div class="card-info">
+                <h4 class="card-title">Pumpumkin</h4>
+                <p class="card-meta">2D · Clicker — 호박을 키워라</p>
+              </div>
+            </div>
           </div>
           <div class="game-play-area" id="gamePlayArea" style="display:none;">
             <div class="game-embed">
-              <iframe src="https://itch.io/embed-upload/17035372?color=333333" allowfullscreen="true" frameborder="0"></iframe>
+              <iframe id="gameIframe" src="https://itch.io/embed-upload/17035372?color=333333" allowfullscreen="true" frameborder="0"></iframe>
             </div>
             <button class="game-back-btn" id="gameBackBtn">← Back</button>
           </div>
@@ -93,6 +105,13 @@
             <div class="card-info">
               <h4 class="card-title">GolGol</h4>
               <p class="card-meta">2D · Story</p>
+            </div>
+          </a>
+          <a href="https://tpgns3353-ctrl.itch.io/pumpumkin" target="_blank" class="project-card">
+            <div class="card-thumb thumb-pumpkin">P</div>
+            <div class="card-info">
+              <h4 class="card-title">Pumpumkin</h4>
+              <p class="card-meta">2D · Clicker</p>
             </div>
           </a>
         </div>
