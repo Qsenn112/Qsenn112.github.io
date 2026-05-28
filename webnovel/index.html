@@ -328,13 +328,17 @@
     return ch.scenes[state.currentScene] || null;
   }
 
+  let skipTimer = null;
+
   function typeText(element, text, speed = 30, callback) {
     isAnimating = true;
     element.innerHTML = '';
     let i = 0;
+    if (skipTimer) { clearTimeout(skipTimer); skipTimer = null; }
     function addChar() {
       if (i >= text.length) {
         isAnimating = false;
+        skipTimer = null;
         if (callback) callback();
         return;
       }
@@ -342,10 +346,30 @@
       if (ch === '\n') element.innerHTML += '<br>';
       else element.innerHTML += ch;
       i++;
-      setTimeout(addChar, speed);
+      skipTimer = setTimeout(addChar, speed);
     }
     addChar();
   }
+
+  function skipTypeText() {
+    if (!isAnimating || !skipTimer) return;
+    clearTimeout(skipTimer);
+    skipTimer = null;
+    isAnimating = false;
+    const scene = getCurrentScene();
+    if (!scene) return;
+    const text = replaceName(scene.text);
+    $('story-text').innerHTML = text.replace(/\n/g, '<br>');
+    if (scene.choices && scene.choices.length > 0) showChoices(scene.choices);
+    else showNextNav();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && isAnimating) {
+      e.preventDefault();
+      skipTypeText();
+    }
+  });
 
   function renderScene() {
     const scene = getCurrentScene();
