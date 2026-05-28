@@ -187,6 +187,43 @@
     }
     #skip-hint.active { display: block; }
 
+    #help-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); z-index: 1000;
+      justify-content: center; align-items: center;
+    }
+    #help-overlay.active { display: flex; }
+    .help-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 36px 32px; max-width: 420px; width: 90%; text-align: center;
+    }
+    .help-box h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 20px; font-weight: 500; }
+    .help-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .help-row:last-child { border-bottom: none; }
+    .help-key {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 14px; font-size: 0.85rem; color: var(--gold);
+      white-space: nowrap; min-width: 70px; text-align: center; font-weight: 500;
+    }
+    .help-desc { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+    .help-close-btn {
+      margin-top: 24px; background: var(--red); color: white; border: none;
+      padding: 10px 32px; border-radius: 8px; font-size: 0.9rem;
+      cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.2s;
+    }
+    .help-close-btn:hover { background: var(--red-glow); }
+    #help-btn {
+      position: fixed; bottom: 20px; right: 20px; z-index: 100;
+      background: var(--card); border: 1px solid var(--border); color: var(--text-dim);
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1.1rem;
+      cursor: pointer; font-family: inherit; transition: all 0.2s; line-height: 1;
+    }
+    #help-btn:hover { border-color: var(--gold); color: var(--gold); }
+
     @media (max-width: 600px) {
       .container { padding: 12px; }
       #title-screen { padding: 40px 12px 20px; }
@@ -247,6 +284,28 @@
         onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" />
     </div>
     <button id="start-btn">시작하기</button>
+    <button id="help-btn-title" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 24px;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:inherit;margin-top:12px;transition:all 0.2s">도움말</button>
+  </div>
+
+  <button id="help-btn">?</button>
+
+  <div id="help-overlay">
+    <div class="help-box">
+      <h2>조작 방법</h2>
+      <div class="help-row">
+        <span class="help-key">Space</span>
+        <span class="help-desc">텍스트 전체 출력 / 다음 장면 넘어가기</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">1 · 2</span>
+        <span class="help-desc">선택지가 나타났을 때 숫자 키로 선택</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">Enter</span>
+        <span class="help-desc">이름 입력 후 바로 시작</span>
+      </div>
+      <button class="help-close-btn" id="help-close-btn">확인</button>
+    </div>
   </div>
 
   <div id="story-screen">
@@ -597,6 +656,23 @@
   if (saved && saved.started) {
     playerName = saved.playerName || '소라인';
     $('continue-bar').classList.add('active');
+  }
+
+  function toggleHelp(show) {
+    if (show) $('help-overlay').classList.add('active');
+    else $('help-overlay').classList.remove('active');
+  }
+
+  $('help-btn-title').addEventListener('click', () => toggleHelp(true));
+  $('help-btn').addEventListener('click', () => toggleHelp(true));
+  $('help-close-btn').addEventListener('click', () => toggleHelp(false));
+  $('help-overlay').addEventListener('click', (e) => {
+    if (e.target === $('help-overlay')) toggleHelp(false);
+  });
+
+  if (!localStorage.getItem('webnovel_help_seen')) {
+    toggleHelp(true);
+    localStorage.setItem('webnovel_help_seen', '1');
   }
 })();
 </script>
