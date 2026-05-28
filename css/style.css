@@ -414,6 +414,26 @@ ul { list-style: none; }
   font-weight: 800;
 }
 
+.thumb-novel {
+  background: linear-gradient(135deg, #c0392b, #8e44ad);
+  color: #fff;
+  font-weight: 800;
+}
+
+.thumb-novel-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #c0392b, #8e44ad);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .project-card {
   text-decoration: none;
   color: inherit;

@@ -165,6 +165,33 @@ document.addEventListener('DOMContentLoaded', () => {
         { label: '앱 다운로드 (APK)', class: 'btn-apk', url: '/todo/todo-list.apk', external: false, download: true }
       ]
     },
+    webnovel: {
+      thumb: 'R',
+      thumbClass: 'thumb-novel-lg',
+      title: '붉은달의 밤',
+      subtitle: 'Interactive Novel · Story · 9 Chapters',
+      desc: 'AI 기반 인터랙티브 웹소설 시뮬레이터. 오빠의 죽음을 목격한 소녀 소라인이 복수를 위해 검사가 되었지만, 실종된 오빠를 찾는 여정 속에서 아버지가 흑마법으로 오빠의 몸을 조종하고 있음을 알게 되고, 복수와 가족애 사이에서 선택해야 하는 기로에 서는 이야기입니다.',
+      flow: '제1장~제9장 · 선택지 분기 · 스탯 시스템 (체력/정신력/유대) · 다중 엔딩',
+      tags: ['웹소설', '인터랙티브', '선택지 분기', '한국어', 'GitHub Pages'],
+      features: [
+        '총 9장 구성, 선택지에 따라 스토리 전개가 달라집니다',
+        '체력·정신력·유대 스탯 시스템으로 플레이어의 선택이 반영됩니다',
+        '붉은달의 밤 — "당신은 꿈을 위해 무엇까지 희생할 수 있는가?"',
+        '로컬 저장 기능으로 이어서 읽기 가능'
+      ],
+      extraSections: [
+        {
+          label: 'GitHub',
+          items: [
+            '소스 코드: github.com/tpgns3353-ctrl/webnovel',
+            '원본 프로젝트: AI 기반 CLI 시뮬레이터 (Maskweaver/OpenCode)'
+          ]
+        }
+      ],
+      actions: [
+        { label: '소설 읽기', class: 'btn-web', url: '/webnovel/', external: true }
+      ]
+    },
     board: {
       thumb: 'B',
       thumbClass: 'thumb-board-lg',

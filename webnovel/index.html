@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>붉은달의 밤 — 인터랙티브 웹소설</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #12121a;
+      --bg3: #1a1a2e;
+      --text: #e0dcd0;
+      --text-dim: #888;
+      --text-bright: #fff;
+      --red: #c0392b;
+      --red-glow: #e74c3c;
+      --gold: #d4a047;
+      --blue: #4a7fc1;
+      --green: #27ae60;
+      --border: #2a2a3e;
+      --card: #161625;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .moon-bg {
+      position: fixed;
+      top: -100px; right: -100px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, rgba(180,40,40,0.12), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      max-width: 800px; margin: 0 auto; padding: 20px;
+      position: relative; z-index: 1;
+    }
+
+    header {
+      text-align: center; padding: 30px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    header h1 { font-size: 1.5rem; color: var(--red); letter-spacing: 0.1em; font-weight: 700; }
+    header .sub { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+
+    /* Stats bar */
+    #stats-bar {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    #stats-bar.active { display: flex; }
+    .stat-group { flex: 1; min-width: 120px; }
+    .stat-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 2px; }
+    .stat-bar-outer {
+      height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden;
+    }
+    .stat-bar-inner {
+      height: 100%; border-radius: 3px; transition: width 0.5s ease;
+    }
+    .stat-bar-inner.hp { background: var(--green); }
+    .stat-bar-inner.mp { background: var(--blue); }
+    .stat-bar-inner.rp { background: var(--gold); }
+
+    /* Title screen */
+    #title-screen {
+      text-align: center; padding: 80px 20px 40px;
+    }
+    #title-screen .moon-icon { font-size: 4rem; display: block; margin-bottom: 20px; }
+    #title-screen h1 { font-size: 2.2rem; color: var(--red); margin-bottom: 10px; letter-spacing: 0.15em; }
+    #title-screen .tagline { color: var(--text-dim); margin-bottom: 8px; font-size: 0.95rem; }
+    #title-screen .info { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 30px; }
+    #start-btn {
+      background: var(--red); color: white; border: none;
+      padding: 14px 48px; border-radius: 8px; font-size: 1.1rem;
+      font-family: inherit; cursor: pointer; transition: all 0.3s;
+      font-weight: 500;
+    }
+    #start-btn:hover { background: var(--red-glow); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(192,57,43,0.3); }
+
+    /* Story area */
+    #story-screen { display: none; }
+    #story-screen.active { display: block; }
+
+    #chapter-title {
+      font-size: 1.1rem; color: var(--gold); margin-bottom: 16px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+      font-weight: 500;
+    }
+
+    #story-text {
+      line-height: 1.9; font-size: 0.95rem;
+      margin-bottom: 24px; min-height: 200px;
+    }
+    #story-text p { margin-bottom: 1em; }
+    #story-text .highlight { color: var(--red-glow); font-weight: 500; }
+    #story-text .italic { font-style: italic; color: var(--gold); }
+
+    /* Choices */
+    #choices { display: none; margin-bottom: 24px; }
+    #choices.active { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn {
+      background: var(--bg2); color: var(--text); border: 1px solid var(--border);
+      padding: 14px 18px; border-radius: 8px; font-size: 0.9rem;
+      text-align: left; cursor: pointer; font-family: inherit;
+      transition: all 0.2s; line-height: 1.5;
+    }
+    .choice-btn:hover {
+      border-color: var(--red); background: var(--bg3);
+      transform: translateX(4px);
+    }
+    .choice-btn .choice-label {
+      color: var(--red); font-weight: 500; font-size: 0.75rem;
+      display: block; margin-bottom: 2px;
+    }
+
+    /* Navigation */
+    #nav-area {
+      display: none; margin-top: 30px; padding-top: 20px;
+      border-top: 1px solid var(--border);
+      justify-content: space-between; align-items: center;
+    }
+    #nav-area.active { display: flex; }
+    .nav-btn {
+      background: var(--bg2); color: var(--text); border: 1px solid var(--border);
+      padding: 10px 24px; border-radius: 6px; font-size: 0.85rem;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; border-color: var(--border); color: var(--text-dim); }
+
+    #progress-text { font-size: 0.8rem; color: var(--text-dim); }
+
+    /* Continue / reset */
+    #continue-bar {
+      display: none; margin-bottom: 20px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px;
+      align-items: center; justify-content: space-between;
+    }
+    #continue-bar.active { display: flex; }
+    #continue-bar .info { font-size: 0.85rem; color: var(--text-dim); }
+    #continue-btn {
+      background: var(--gold); color: #000; border: none;
+      padding: 8px 20px; border-radius: 6px; font-size: 0.85rem;
+      cursor: pointer; font-family: inherit; font-weight: 500;
+      transition: all 0.2s;
+    }
+    #continue-btn:hover { background: #e2b85c; }
+    #reset-btn {
+      background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 6px; font-size: 0.8rem;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    #reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+    #inventory-area {
+      display: none;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+      font-size: 0.8rem;
+    }
+    #inventory-area.active { display: block; }
+    #inventory-area .inv-title { color: var(--gold); font-weight: 500; margin-bottom: 4px; }
+    #inventory-area .inv-item { color: var(--text-dim); }
+
+    @media (max-width: 600px) {
+      .container { padding: 12px; }
+      #title-screen { padding: 40px 12px 20px; }
+      #title-screen h1 { font-size: 1.5rem; }
+      .stat-group { min-width: 80px; }
+      #story-text { font-size: 0.9rem; line-height: 1.8; }
+      #continue-bar { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="moon-bg"></div>
+<div class="container">
+
+  <header>
+    <h1>붉은달의 밤</h1>
+    <div class="sub">인터랙티브 웹소설 · 제1장 ~ 제9장</div>
+  </header>
+
+  <div id="continue-bar">
+    <div class="info">이전에 읽던 내용이 있습니다.</div>
+    <div style="display:flex;gap:8px">
+      <button id="continue-btn">이어서 읽기</button>
+      <button id="reset-btn">처음부터</button>
+    </div>
+  </div>
+
+  <div id="stats-bar">
+    <div class="stat-group">
+      <div class="stat-label">체력</div>
+      <div class="stat-bar-outer"><div class="stat-bar-inner hp" id="hp-bar" style="width:80%"></div></div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-label">정신력</div>
+      <div class="stat-bar-outer"><div class="stat-bar-inner mp" id="mp-bar" style="width:80%"></div></div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-label">유대</div>
+      <div class="stat-bar-outer"><div class="stat-bar-inner rp" id="rp-bar" style="width:50%"></div></div>
+    </div>
+  </div>
+
+  <div id="inventory-area">
+    <div class="inv-title">▼ 소지품</div>
+    <div class="inv-item" id="inventory-text">-</div>
+  </div>
+
+  <div id="title-screen">
+    <span class="moon-icon">🌙</span>
+    <h1>붉은달의 밤</h1>
+    <p class="tagline">"당신은 꿈을 위해 무엇까지 희생할 수 있는가?"</p>
+    <p class="info">총 9장 · 선택지 분기형 스토리</p>
+    <button id="start-btn">시작하기</button>
+  </div>
+
+  <div id="story-screen">
+    <div id="chapter-title"></div>
+    <div id="story-text"></div>
+    <div id="choices"></div>
+    <div id="nav-area">
+      <span id="progress-text"></span>
+      <button class="nav-btn" id="next-btn">다음 장 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+(function() {
+  const STORY_DATA = window.STORY_DATA;
+  const CHOICES = window.CHOICES;
+
+  let state = loadState() || {
+    currentChapter: 0,
+    currentScene: 0,
+    hp: 100, mp: 100, bond: 50,
+    inventory: ['목걸이 (어머니의 유품)'],
+    flags: {},
+    choiceHistory: [],
+    started: false
+  };
+
+  let isAnimating = false;
+
+  const $ = id => document.getElementById(id);
+
+  function saveState() {
+    try { localStorage.setItem('webnovel_state', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem('webnovel_state');
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function clearState() {
+    try { localStorage.removeItem('webnovel_state'); } catch(e) {}
+  }
+
+  function updateStatsUI() {
+    $('hp-bar').style.width = Math.max(0, Math.min(100, state.hp)) + '%';
+    $('mp-bar').style.width = Math.max(0, Math.min(100, state.mp)) + '%';
+    $('rp-bar').style.width = Math.max(0, Math.min(100, state.bond)) + '%';
+    if (state.hp <= 30) $('hp-bar').style.background = '#c0392b';
+    else if (state.hp <= 60) $('hp-bar').style.background = '#d4a047';
+    else $('hp-bar').style.background = '#27ae60';
+    if (state.mp <= 30) $('mp-bar').style.background = '#c0392b';
+    else if (state.mp <= 60) $('mp-bar').style.background = '#d4a047';
+    else $('mp-bar').style.background = '#4a7fc1';
+  }
+
+  function updateInventoryUI() {
+    if (state.inventory.length > 0) {
+      $('inventory-area').classList.add('active');
+      $('inventory-text').textContent = state.inventory.join(' · ');
+    } else {
+      $('inventory-area').classList.remove('active');
+    }
+  }
+
+  function getCurrentChapter() {
+    return STORY_DATA[state.currentChapter];
+  }
+
+  function getCurrentScene() {
+    const ch = getCurrentChapter();
+    if (!ch) return null;
+    return ch.scenes[state.currentScene] || null;
+  }
+
+  function typeText(element, text, speed = 30, callback) {
+    isAnimating = true;
+    element.innerHTML = '';
+    let i = 0;
+    function addChar() {
+      if (i >= text.length) {
+        isAnimating = false;
+        if (callback) callback();
+        return;
+      }
+      const ch = text[i];
+      if (ch === '\n') element.innerHTML += '<br>';
+      else element.innerHTML += ch;
+      i++;
+      setTimeout(addChar, speed);
+    }
+    addChar();
+  }
+
+  function renderScene() {
+    const scene = getCurrentScene();
+    if (!scene) return;
+
+    const ch = getCurrentChapter();
+    $('chapter-title').textContent = ch.title;
+    $('story-text').innerHTML = '';
+    $('choices').classList.remove('active');
+    $('choices').innerHTML = '';
+    $('nav-area').classList.remove('active');
+
+    const text = scene.text;
+
+    if (scene.choices && scene.choices.length > 0) {
+      typeText($('story-text'), text, 25, () => {
+        showChoices(scene.choices);
+      });
+    } else {
+      typeText($('story-text'), text, 25, () => {
+        showNextNav();
+      });
+    }
+
+    $('stats-bar').classList.add('active');
+    updateStatsUI();
+    updateInventoryUI();
+    saveState();
+  }
+
+  function showChoices(choices) {
+    $('choices').classList.add('active');
+    $('choices').innerHTML = '';
+    choices.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-label">선택 ${i+1}</span>${c.label}`;
+      btn.addEventListener('click', () => makeChoice(c, i));
+      $('choices').appendChild(btn);
+    });
+  }
+
+  function makeChoice(choice, idx) {
+    if (isAnimating) return;
+
+    if (choice.effects) {
+      if (choice.effects.hp) state.hp = Math.max(0, Math.min(100, state.hp + choice.effects.hp));
+      if (choice.effects.mp) state.mp = Math.max(0, Math.min(100, state.mp + choice.effects.mp));
+      if (choice.effects.bond) state.bond = Math.max(0, Math.min(100, state.bond + choice.effects.bond));
+      if (choice.effects.inventory) {
+        choice.effects.inventory.forEach(item => {
+          if (!state.inventory.includes(item)) state.inventory.push(item);
+        });
+      }
+      if (choice.effects.flag) state.flags[choice.effects.flag] = true;
+    }
+
+    state.choiceHistory.push({
+      chapter: state.currentChapter,
+      scene: state.currentScene,
+      choice: idx
+    });
+
+    updateStatsUI();
+    updateInventoryUI();
+
+    if (choice.nextScene !== undefined) {
+      state.currentScene = choice.nextScene;
+      renderScene();
+    } else if (choice.nextChapter !== undefined) {
+      state.currentChapter = choice.nextChapter;
+      state.currentScene = 0;
+      renderScene();
+    }
+    saveState();
+  }
+
+  function showNextNav() {
+    const ch = getCurrentChapter();
+    if (state.currentScene < ch.scenes.length - 1) {
+      $('nav-area').classList.add('active');
+      $('progress-text').textContent = `${ch.title} · 장면 ${state.currentScene + 1} / ${ch.scenes.length}`;
+      $('next-btn').textContent = '다음 장면 →';
+      $('next-btn').onclick = () => {
+        state.currentScene++;
+        renderScene();
+      };
+      $('next-btn').disabled = false;
+    } else if (state.currentChapter < STORY_DATA.length - 1) {
+      $('nav-area').classList.add('active');
+      $('progress-text').textContent = `${ch.title} 완료`;
+      $('next-btn').textContent = '다음 장 →';
+      $('next-btn').onclick = () => {
+        state.currentChapter++;
+        state.currentScene = 0;
+        renderScene();
+      };
+      $('next-btn').disabled = false;
+    } else {
+      $('nav-area').classList.add('active');
+      $('progress-text').textContent = '🎉 완결';
+      $('next-btn').textContent = '처음으로';
+      $('next-btn').onclick = () => {
+        clearState();
+        state.currentChapter = 0;
+        state.currentScene = 0;
+        state.hp = 100; state.mp = 100; state.bond = 50;
+        state.inventory = ['목걸이 (어머니의 유품)'];
+        state.flags = {};
+        state.choiceHistory = [];
+        saveState();
+        $('title-screen').style.display = 'block';
+        $('story-screen').classList.remove('active');
+        $('continue-bar').classList.remove('active');
+      };
+      $('next-btn').disabled = false;
+    }
+  }
+
+  function startStory() {
+    $('title-screen').style.display = 'none';
+    $('story-screen').classList.add('active');
+    $('continue-bar').classList.remove('active');
+    state.started = true;
+    state.currentChapter = 0;
+    state.currentScene = 0;
+    renderScene();
+  }
+
+  function continueStory() {
+    $('title-screen').style.display = 'none';
+    $('story-screen').classList.add('active');
+    $('continue-bar').classList.remove('active');
+    renderScene();
+  }
+
+  $('start-btn').addEventListener('click', () => {
+    clearState();
+    state = {
+      currentChapter: 0, currentScene: 0,
+      hp: 100, mp: 100, bond: 50,
+      inventory: ['목걸이 (어머니의 유품)'],
+      flags: {}, choiceHistory: [], started: true
+    };
+    startStory();
+  });
+
+  $('continue-btn').addEventListener('click', continueStory);
+  $('reset-btn').addEventListener('click', () => {
+    clearState();
+    state = {
+      currentChapter: 0, currentScene: 0,
+      hp: 100, mp: 100, bond: 50,
+      inventory: ['목걸이 (어머니의 유품)'],
+      flags: {}, choiceHistory: [], started: true
+    };
+    startStory();
+  });
+
+  const saved = loadState();
+  if (saved && saved.started) {
+    $('continue-bar').classList.add('active');
+  }
+})();
+</script>
+</body>
+</html>
