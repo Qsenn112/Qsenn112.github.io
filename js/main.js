@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       actions: [
         { label: '웹으로 방문', class: 'btn-web', url: '/todo/', external: true },
-        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: '/todo/todo-list.apk', external: false, download: true }
+        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'http://75.119.135.14/todo/todo-list.apk', external: true, download: true }
       ]
     },
     webnovel: {
