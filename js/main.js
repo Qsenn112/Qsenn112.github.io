@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.nav-logo')?.addEventListener('click', () => {
     if (gamePlayArea) gamePlayArea.style.display = 'none';
     if (gameCardGrid) gameCardGrid.style.display = '';
+    if (projectDetailArea) projectDetailArea.style.display = 'none';
+    if (projectCardGrid) projectCardGrid.style.display = '';
     mainContent.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
@@ -134,4 +136,23 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.toggle('active', item.dataset.game === game);
     });
   }
+
+  const projectDetailCards = document.querySelectorAll('.project-detail-card');
+  const projectDetailArea = document.getElementById('projectDetailArea');
+  const projectCardGrid = document.getElementById('projectCardGrid');
+  const projectBackBtn = document.getElementById('projectBackBtn');
+
+  projectDetailCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const key = card.dataset.project;
+      projectCardGrid.style.display = 'none';
+      projectDetailArea.style.display = 'block';
+      updateSidebarActive(key);
+    });
+  });
+
+  projectBackBtn?.addEventListener('click', () => {
+    projectDetailArea.style.display = 'none';
+    projectCardGrid.style.display = '';
+  });
 });

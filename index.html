@@ -106,7 +106,7 @@
 
       <section class="section" id="projects">
         <h3 class="section-heading">Projects</h3>
-        <div class="card-grid">
+        <div class="card-grid" id="projectCardGrid">
           <a href="https://tpgns3353-ctrl.itch.io/golgol" target="_blank" class="project-card">
             <div class="card-thumb thumb-golgol">G</div>
             <div class="card-info">
@@ -121,13 +121,69 @@
               <p class="card-meta">2D · Clicker</p>
             </div>
           </a>
-          <a href="/todo/" target="_blank" class="project-card">
+          <div class="project-card project-detail-card" data-project="todolist">
             <div class="card-thumb thumb-todo">T</div>
             <div class="card-info">
               <h4 class="card-title">Todo List</h4>
               <p class="card-meta">App · Tauri · Web</p>
             </div>
-          </a>
+          </div>
+        </div>
+        <div class="project-detail-area" id="projectDetailArea" style="display:none;">
+          <div class="project-detail">
+            <div class="detail-header">
+              <div class="detail-thumb thumb-todo-lg">T</div>
+              <div class="detail-title-area">
+                <h2 class="detail-title">Todo List</h2>
+                <p class="detail-subtitle">App · Tauri · Web</p>
+              </div>
+            </div>
+            <div class="detail-body">
+              <div class="detail-section">
+                <h4 class="detail-label">설명</h4>
+                <p class="detail-text">할 일을 관리하는 앱입니다. 추가, 수정, 삭제, 완료 체크 기능과 카테고리/우선순위 분류, 필터링을 지원합니다. 웹 버전과 Android 앱으로 사용 가능합니다.</p>
+              </div>
+              <div class="detail-section">
+                <h4 class="detail-label">앱 흐름</h4>
+                <p class="detail-text">할 일 입력 &rarr; 카테고리(일반/업무/개인/쇼핑/학습)와 우선순위(낮음/보통/높음) 선택 &rarr; 추가 &rarr; 체크박스로 완료 토글 &rarr; 수정 버튼으로 내용/카테고리/우선순위 변경 &rarr; 필터로 카테고리, 우선순위, 상태별 조회</p>
+              </div>
+              <div class="detail-section">
+                <h4 class="detail-label">사용 기술</h4>
+                <div class="detail-tags">
+                  <span class="detail-tag">Vanilla HTML/CSS/JS</span>
+                  <span class="detail-tag">Tauri v2 + Rust</span>
+                  <span class="detail-tag">LocalStorage</span>
+                  <span class="detail-tag">반응형 + 다크모드</span>
+                  <span class="detail-tag">GitHub Pages</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <h4 class="detail-label">주요 기능</h4>
+                <ul class="detail-list">
+                  <li>할 일 CRUD — 추가, 모달 수정, 즉시 삭제</li>
+                  <li>완료 체크 — 체크박스 토글 시 취소선 표시</li>
+                  <li>카테고리 분류 — 일반/업무/개인/쇼핑/학습 태그</li>
+                  <li>우선순위 설정 — 낮음(파랑)/보통(노랑)/높음(빨강) 색상 태그로 시각 구분</li>
+                  <li>필터링 — 카테고리, 우선순위, 상태 조합 필터</li>
+                  <li>통계 — 전체/완료/진행중 개수 실시간 표시</li>
+                </ul>
+              </div>
+              <div class="detail-section">
+                <h4 class="detail-label">아키텍처</h4>
+                <ul class="detail-list">
+                  <li>단일 페이지 앱 — 페이지 이동 없이 DOM 조작으로 화면 전환</li>
+                  <li>단방향 데이터 흐름 — 상태(todos 배열) 변경 시 renderTodos()로 전체 재구성</li>
+                  <li>LocalStorage 동기화 — 모든 조작 후 JSON으로 영구 저장</li>
+                  <li>Tauri 연동 — 웹뷰가 Rust 백엔드 위에서 동작, 순수 웹 코드 그대로 사용</li>
+                </ul>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <a href="/todo/" target="_blank" class="detail-btn btn-web">웹으로 방문</a>
+              <a href="/todo/todo-list.apk" download class="detail-btn btn-apk">앱 다운로드 (APK)</a>
+            </div>
+          </div>
+          <button class="game-back-btn" id="projectBackBtn">&larr; Back</button>
         </div>
       </section>
 
