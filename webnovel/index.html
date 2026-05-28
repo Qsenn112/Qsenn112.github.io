@@ -400,15 +400,26 @@
     else showNextNav();
   }
 
+  let currentChoices = null;
+
   document.addEventListener('keydown', (e) => {
-    if (e.code !== 'Space') return;
-    e.preventDefault();
-    if (isAnimating) {
-      skipTypeText();
-    } else {
-      const nextBtn = $('next-btn');
-      if (nextBtn && !nextBtn.disabled && $('nav-area').classList.contains('active')) {
-        nextBtn.click();
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (isAnimating) {
+        skipTypeText();
+      } else {
+        const nextBtn = $('next-btn');
+        if (nextBtn && !nextBtn.disabled && $('nav-area').classList.contains('active')) {
+          nextBtn.click();
+        }
+      }
+    }
+    if (!isAnimating && currentChoices && currentChoices.length > 0) {
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= currentChoices.length) {
+        e.preventDefault();
+        const btns = $('choices').querySelectorAll('.choice-btn');
+        if (btns[num - 1]) btns[num - 1].click();
       }
     }
   });
@@ -444,6 +455,7 @@
   }
 
   function showChoices(choices) {
+    currentChoices = choices;
     $('choices').classList.add('active');
     $('choices').innerHTML = '';
     choices.forEach((c, i) => {
@@ -457,6 +469,7 @@
 
   function makeChoice(choice, idx) {
     if (isAnimating) return;
+    currentChoices = null;
 
     if (choice.effects) {
       if (choice.effects.hp) state.hp = Math.max(0, Math.min(100, state.hp + choice.effects.hp));
