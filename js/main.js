@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       actions: [
         { label: '웹으로 방문', class: 'btn-web', url: '/todo/', external: true },
-        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'http://75.119.135.14/todo/todo-list.apk', external: true, download: true }
+        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/todo-list.apk', external: true, download: true }
       ]
     },
     webnovel: {
