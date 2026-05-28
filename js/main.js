@@ -189,7 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       ],
       actions: [
-        { label: '소설 읽기', class: 'btn-web', url: '/webnovel/', external: true }
+        { label: '소설 읽기', class: 'btn-web', url: '/webnovel/', external: true },
+        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/red-moon-night.apk', external: true, download: true }
       ]
     },
     board: {
