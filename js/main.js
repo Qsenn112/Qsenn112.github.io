@@ -164,6 +164,45 @@ document.addEventListener('DOMContentLoaded', () => {
         { label: '웹으로 방문', class: 'btn-web', url: '/todo/', external: true },
         { label: '앱 다운로드 (APK)', class: 'btn-apk', url: '/todo/todo-list.apk', external: false, download: true }
       ]
+    },
+    board: {
+      thumb: 'B',
+      thumbClass: 'thumb-board-lg',
+      title: '게시판',
+      subtitle: 'Web App · React · Supabase',
+      desc: 'React + Supabase 기반 풀스택 게시판입니다. 회원가입/로그인, 게시글 CRUD, 대댓글, 카테고리 분류, 파일 첨부, 실시간 알림, 다크모드, 관리자 패널을 지원합니다.',
+      flow: '회원가입 → 로그인 → 게시글 작성(카테고리/파일첨부) → 댓글/대댓글 → 실시간 알림 수신 → 관리자는 전체 관리',
+      tags: ['React 19', 'TypeScript', 'Vite 8', 'Tailwind CSS 4', 'Supabase (PostgreSQL/Auth/Storage/Realtime)', 'Vercel'],
+      features: [
+        '인증 — 이메일 회원가입/로그인, 이메일 인증, 관리자·일반 사용자 권한 분리',
+        '게시글 — CRUD, 카테고리 분류, 검색, 페이지네이션, 공지 고정, 파일 첨부(이미지 리사이징)',
+        '댓글 — 대댓글(스레드) 지원, 작성자·관리자 삭제 가능',
+        '실시간 알림 — 댓글/대댓글 작성 시 Supabase Realtime으로 즉시 푸시 (알림벨 + 토스트)',
+        '사용자 설정 — 프로필 편집, 비밀번호 변경, 알림 on/off, 다크모드(계정별 DB 저장), 계정 탈퇴',
+        '관리자 패널 — 대시보드 통계, 사용자 권한 관리, 게시글/댓글/카테고리 관리'
+      ],
+      extraSections: [
+        {
+          label: '아키텍처',
+          items: [
+            'SPA 구조 — React Router 기반 13개 라우트, ProtectedRoute로 접근 권한 제어',
+            'Context API — AuthContext(인증), ThemeContext(테마), NotificationContext(알림) 전역 상태 관리',
+            'Custom Hooks — usePosts, useComments, useCategories, useProfile로 DB 쿼리 캡슐화',
+            'Supabase BaaS — 백엔드 서버 없이 PostgreSQL + Auth + Storage + Realtime 통합 활용'
+          ]
+        },
+        {
+          label: '보안',
+          items: [
+            'RLS (Row Level Security) — PostgreSQL 수준에서 테이블별 읽기/쓰기/삭제 권한 제어',
+            'DB 트리거 — 회원가입 시 프로필 자동 생성, 댓글 작성 시 알림 자동 생성',
+            'Soft Delete — 계정 탈퇴 시 닉네임을 "탈퇴한 사용자"로 변경, 게시글/댓글은 유지'
+          ]
+        }
+      ],
+      actions: [
+        { label: '웹으로 방문', class: 'btn-web', url: 'https://bulletin-board-peach.vercel.app/', external: true }
+      ]
     }
   };
 
