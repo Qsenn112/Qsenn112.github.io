@@ -228,6 +228,7 @@ ul { list-style: none; }
 .dot-pixel { background: var(--accent-purple); }
 .dot-story { background: var(--accent-orange); }
 .dot-clicker { background: var(--accent-pink); }
+.dot-app { background: var(--accent-blue); }
 
 .skill-badge {
   display: inline-block;
@@ -241,6 +242,7 @@ ul { list-style: none; }
 .badge-lang   { background: rgba(96,165,250,0.12);  color: var(--accent-blue); }
 .badge-art    { background: rgba(167,139,250,0.12); color: var(--accent-purple); }
 .badge-arch   { background: rgba(244,114,182,0.12); color: var(--accent-pink); }
+.badge-tauri  { background: rgba(251,146,60,0.12);  color: var(--accent-orange); }
 
 /* ===== MAIN CONTENT ===== */
 .main-content {
@@ -384,6 +386,13 @@ ul { list-style: none; }
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 9px),
     repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 9px);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.thumb-todo {
+  background: linear-gradient(135deg, #6c5ce7, #a78bfa);
   color: #fff;
   font-size: 1.5rem;
   font-weight: 800;
