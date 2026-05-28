@@ -230,6 +230,13 @@
     <h1>붉은달의 밤</h1>
     <p class="tagline">"당신은 꿈을 위해 무엇까지 희생할 수 있는가?"</p>
     <p class="info">총 9장 · 선택지 분기형 스토리</p>
+    <div style="margin-bottom:24px">
+      <input id="name-input" type="text" placeholder="이름을 입력하세요" maxlength="10"
+        style="background:var(--bg2);color:var(--text);border:1px solid var(--border);
+        padding:12px 18px;border-radius:8px;font-size:1rem;font-family:inherit;
+        text-align:center;width:240px;outline:none;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" />
+    </div>
     <button id="start-btn">시작하기</button>
   </div>
 
@@ -267,6 +274,11 @@
   };
 
   let isAnimating = false;
+  let playerName = state.playerName || '소라인';
+
+  function replaceName(text) {
+    return text.replace(/소라인/g, playerName);
+  }
 
   const $ = id => document.getElementById(id);
 
@@ -346,7 +358,8 @@
     $('choices').innerHTML = '';
     $('nav-area').classList.remove('active');
 
-    const text = scene.text;
+    const rawText = scene.text;
+    const text = replaceName(rawText);
 
     if (scene.choices && scene.choices.length > 0) {
       typeText($('story-text'), text, 25, () => {
@@ -472,29 +485,38 @@
 
   $('start-btn').addEventListener('click', () => {
     clearState();
+    playerName = $('name-input').value.trim() || '소라인';
     state = {
       currentChapter: 0, currentScene: 0,
       hp: 100, mp: 100, bond: 50,
       inventory: ['목걸이 (어머니의 유품)'],
-      flags: {}, choiceHistory: [], started: true
+      flags: {}, choiceHistory: [], started: true,
+      playerName: playerName
     };
     startStory();
   });
 
   $('continue-btn').addEventListener('click', continueStory);
+
+  $('name-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('start-btn').click();
+  });
   $('reset-btn').addEventListener('click', () => {
     clearState();
+    playerName = $('name-input').value.trim() || '소라인';
     state = {
       currentChapter: 0, currentScene: 0,
       hp: 100, mp: 100, bond: 50,
       inventory: ['목걸이 (어머니의 유품)'],
-      flags: {}, choiceHistory: [], started: true
+      flags: {}, choiceHistory: [], started: true,
+      playerName: playerName
     };
     startStory();
   });
 
   const saved = loadState();
   if (saved && saved.started) {
+    playerName = saved.playerName || '소라인';
     $('continue-bar').classList.add('active');
   }
 })();
