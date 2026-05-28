@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>붉은달의 밤 — 인터랙티브 웹소설</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
@@ -178,6 +181,12 @@
     #inventory-area .inv-title { color: var(--gold); font-weight: 500; margin-bottom: 4px; }
     #inventory-area .inv-item { color: var(--text-dim); }
 
+    #skip-hint {
+      display: none; text-align: center; margin-top: 8px;
+      font-size: 0.75rem; color: var(--text-dim); opacity: 0.6;
+    }
+    #skip-hint.active { display: block; }
+
     @media (max-width: 600px) {
       .container { padding: 12px; }
       #title-screen { padding: 40px 12px 20px; }
@@ -248,11 +257,12 @@
       <span id="progress-text"></span>
       <button class="nav-btn" id="next-btn">다음 장 →</button>
     </div>
+    <div id="skip-hint">[ Space ] 전체 출력</div>
   </div>
 
 </div>
 
-<script src="data.js"></script>
+<script src="data.js?v=3"></script>
 <script>
 (function() {
   var STORY_DATA = window.STORY_DATA;
@@ -332,6 +342,7 @@
 
   function typeText(element, text, speed = 30, callback) {
     isAnimating = true;
+    $('skip-hint').classList.add('active');
     element.innerHTML = '';
     let i = 0;
     if (skipTimer) { clearTimeout(skipTimer); skipTimer = null; }
@@ -339,6 +350,7 @@
       if (i >= text.length) {
         isAnimating = false;
         skipTimer = null;
+        $('skip-hint').classList.remove('active');
         if (callback) callback();
         return;
       }
@@ -356,6 +368,7 @@
     clearTimeout(skipTimer);
     skipTimer = null;
     isAnimating = false;
+    $('skip-hint').classList.remove('active');
     const scene = getCurrentScene();
     if (!scene) return;
     const text = replaceName(scene.text);
