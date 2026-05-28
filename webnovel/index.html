@@ -97,6 +97,11 @@
     #start-btn:hover { background: var(--red-glow); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(192,57,43,0.3); }
     #start-btn:active { transform: translateY(0); }
 
+    /* APK download hidden on desktop */
+    .apk-link-wrapper.desktop-only { display: none !important; }
+    .apk-link-wrapper.mobile-only { display: block; }
+    body:not(.mobile-device) .apk-link-wrapper { display: none !important; }
+
     /* Story area */
     #story-screen { display: none; }
     #story-screen.active { display: block; }
@@ -192,57 +197,6 @@
     }
     #skip-hint.active { display: block; }
 
-    /* Mobile touch controls */
-    #mobile-controls {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(10, 10, 15, 0.95);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
-      padding: 10px 16px;
-      gap: 10px;
-      z-index: 500;
-      justify-content: center;
-      align-items: center;
-    }
-    #mobile-controls.active { display: flex; }
-    .touch-btn {
-      flex: 1;
-      max-width: 160px;
-      background: var(--bg2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 14px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .touch-btn:active {
-      background: var(--bg3);
-      border-color: var(--gold);
-      transform: scale(0.97);
-    }
-    .touch-btn.primary {
-      background: var(--red);
-      color: white;
-      border-color: var(--red);
-    }
-    .touch-btn.primary:active {
-      background: var(--red-glow);
-    }
-    .touch-btn:disabled {
-      opacity: 0.3;
-      cursor: default;
-      pointer-events: none;
-    }
-
     /* Help overlay */
     #help-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -290,14 +244,12 @@
     .mobile-device .help-row.mobile-only { display: flex !important; }
 
     @media (max-width: 600px) {
-      .container { padding: 12px; padding-bottom: 80px; }
+      .container { padding: 12px; }
       #title-screen { padding: 40px 12px 20px; }
       #title-screen h1 { font-size: 1.5rem; }
       .stat-group { min-width: 80px; }
       #story-text { font-size: 0.9rem; line-height: 1.8; }
       #continue-bar { flex-direction: column; gap: 10px; }
-      #mobile-controls.active { display: flex; }
-      body.mobile-device .container { padding-bottom: 80px; }
     }
   </style>
 </head>
@@ -351,9 +303,10 @@
         onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" />
     </div>
     <button id="start-btn">시작하기</button>
-    <div style="margin-top:12px">
+    <div class="apk-link-wrapper" style="margin-top:12px">
       <a href="red-moon-night.apk" download style="color:var(--text-dim);font-size:0.8rem;text-decoration:none;border:1px solid var(--border);padding:6px 18px;border-radius:6px;transition:all 0.2s;display:inline-block" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">Android APK 다운로드</a>
-    </div>    <button id="help-btn-title" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 24px;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:inherit;margin-top:12px;transition:all 0.2s">도움말</button>
+    </div>
+    <button id="help-btn-title" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 24px;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:inherit;margin-top:12px;transition:all 0.2s">도움말</button>
   </div>
 
   <button id="help-btn">?</button>
@@ -375,12 +328,6 @@
     <div id="skip-hint"></div>
   </div>
 
-</div>
-
-<!-- Mobile touch controls -->
-<div id="mobile-controls">
-  <button class="touch-btn" id="touch-skip">전체 출력</button>
-  <button class="touch-btn primary" id="touch-next" disabled>다음 장면</button>
 </div>
 
 <script src="data.js?v=3"></script>
@@ -513,7 +460,6 @@
         isAnimating = false;
         skipTimer = null;
         $('skip-hint').classList.remove('active');
-        updateMobileControls();
         if (callback) callback();
         return;
       }
@@ -536,62 +482,47 @@
     if (!scene) return;
     const text = replaceName(scene.text);
     $('story-text').innerHTML = text.replace(/\n/g, '<br>');
-    updateMobileControls();
     if (scene.choices && scene.choices.length > 0) showChoices(scene.choices);
     else showNextNav();
   }
 
-  // 모바일 터치 컨트롤 상태 업데이트
-  function updateMobileControls() {
+  // 화면 전체 터치 = Space 역할 (모바일용)
+  function handleScreenTouch(e) {
     if (!isMobile) return;
-    const touchSkip = $('touch-skip');
-    const touchNext = $('touch-next');
+    // 선택지 버튼이나 내비게이션 버튼, 도움말 버튼, 입력창 등은 무시
+    if (e.target.closest('.choice-btn') ||
+        e.target.closest('.nav-btn') ||
+        e.target.closest('#help-btn') ||
+        e.target.closest('#help-btn-title') ||
+        e.target.closest('.help-close-btn') ||
+        e.target.closest('#start-btn') ||
+        e.target.closest('#continue-btn') ||
+        e.target.closest('#reset-btn') ||
+        e.target.tagName === 'INPUT' ||
+        e.target.tagName === 'A') {
+      return;
+    }
+
     if (isAnimating) {
-      touchSkip.disabled = false;
-      touchSkip.textContent = '전체 출력';
-      touchNext.disabled = true;
+      skipTypeText();
     } else {
-      touchSkip.disabled = true;
       const nextBtn = $('next-btn');
       if (nextBtn && !nextBtn.disabled && $('nav-area').classList.contains('active')) {
-        touchNext.disabled = false;
-        touchNext.textContent = nextBtn.textContent;
-      } else if ($('choices').classList.contains('active')) {
-        touchNext.disabled = true;
-        touchNext.textContent = '선택지를 터치하세요';
-      } else {
-        touchNext.disabled = true;
-        touchNext.textContent = '다음 장면';
+        nextBtn.click();
       }
     }
   }
 
-  // 터치 이벤트 연결
+  // 스토리 영역에 터치 이벤트 등록
   if (isMobile) {
-    $('mobile-controls').classList.add('active');
-
-    $('touch-skip').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (isAnimating) skipTypeText();
-    });
-    $('touch-skip').addEventListener('click', function(e) {
-      e.preventDefault();
-      if (isAnimating) skipTypeText();
-    });
-
-    $('touch-next').addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      if (!this.disabled) {
-        const nextBtn = $('next-btn');
-        if (nextBtn && !nextBtn.disabled) nextBtn.click();
-      }
-    });
-    $('touch-next').addEventListener('click', function(e) {
-      e.preventDefault();
-      if (!this.disabled) {
-        const nextBtn = $('next-btn');
-        if (nextBtn && !nextBtn.disabled) nextBtn.click();
-      }
+    $('story-screen').addEventListener('touchstart', handleScreenTouch);
+    $('story-screen').addEventListener('click', handleScreenTouch);
+    // 도움말 확장 영역도 등록 (선택지 외 부분 터치 시)
+    document.addEventListener('touchstart', function(e) {
+      if (e.target.closest('.choice-btn')) return;
+      if ($('help-overlay').classList.contains('active')) return;
+      if ($('title-screen').style.display !== 'none') return;
+      handleScreenTouch(e);
     });
   }
 
@@ -629,7 +560,6 @@
     $('choices').classList.remove('active');
     $('choices').innerHTML = '';
     $('nav-area').classList.remove('active');
-    updateMobileControls();
 
     const rawText = scene.text;
     const text = replaceName(rawText);
@@ -654,7 +584,6 @@
     currentChoices = choices;
     $('choices').classList.add('active');
     $('choices').innerHTML = '';
-    updateMobileControls();
     choices.forEach((c, i) => {
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
@@ -737,18 +666,15 @@
         $('title-screen').style.display = 'block';
         $('story-screen').classList.remove('active');
         $('continue-bar').classList.remove('active');
-        $('mobile-controls').classList.remove('active');
       };
       $('next-btn').disabled = false;
     }
-    updateMobileControls();
   }
 
   function startStory() {
     $('title-screen').style.display = 'none';
     $('story-screen').classList.add('active');
     $('continue-bar').classList.remove('active');
-    if (isMobile) $('mobile-controls').classList.add('active');
     state.started = true;
     state.currentChapter = 0;
     state.currentScene = 0;
@@ -759,7 +685,6 @@
     $('title-screen').style.display = 'none';
     $('story-screen').classList.add('active');
     $('continue-bar').classList.remove('active');
-    if (isMobile) $('mobile-controls').classList.add('active');
     renderScene();
   }
 
@@ -807,8 +732,8 @@
       box.innerHTML = `
         <h2>조작 방법</h2>
         <div class="help-row mobile-only" style="display:flex">
-          <span class="help-key" style="min-width:auto;padding:6px 10px">👆 터치</span>
-          <span class="help-desc">화면 하단 버튼으로 텍스트 전체 출력 / 다음 장면으로 이동</span>
+          <span class="help-key" style="min-width:auto;padding:6px 10px">👆 화면 터치</span>
+          <span class="help-desc">텍스트 전체 출력 / 다음 장면으로 이동</span>
         </div>
         <div class="help-row mobile-only" style="display:flex">
           <span class="help-key" style="min-width:auto;padding:6px 10px">선택지</span>
@@ -857,7 +782,7 @@
   });
 
   // skip hint 텍스트 설정
-  $('skip-hint').textContent = isMobile ? '아래 버튼을 터치하세요' : '[ Space ] 전체 출력';
+  $('skip-hint').textContent = isMobile ? '화면을 터치하세요' : '[ Space ] 전체 출력';
 
   if (!localStorage.getItem('webnovel_help_seen')) {
     toggleHelp(true);
