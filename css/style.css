@@ -428,9 +428,19 @@ ul { list-style: none; }
   border: none;
 }
 
-/* ===== GAME CARD LIST ===== */
-.game-card-list {
+.game-detail-area {
   position: relative;
+  animation: fadeIn 0.25s ease;
+}
+
+.game-play-area {
+  position: relative;
+  animation: fadeIn 0.25s ease;
+}
+
+.game-detail-area {
+  position: relative;
+  animation: fadeIn 0.25s ease;
 }
 
 .game-play-area {
@@ -590,6 +600,34 @@ ul { list-style: none; }
   height: 64px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #6c5ce7, #a78bfa);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.thumb-golgol-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #1a2332, #0f2027);
+  color: var(--accent-green);
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.thumb-pumpkin-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #ff6b35, #ff4500);
   color: #fff;
   font-size: 1.8rem;
   font-weight: 800;
