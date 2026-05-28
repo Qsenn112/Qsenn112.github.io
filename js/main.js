@@ -47,14 +47,50 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbClass: 'thumb-golgol-lg',
       title: 'GolGol',
       subtitle: '2D · Story',
-      desc: '간단한 2D 스토리 어드벤처 게임입니다. 탭하여 진행하는 인터랙티브 스토리를 경험할 수 있습니다.',
-      flow: '스토리 시작 → 선택지 등장 → 탭으로 진행 → 엔딩 도달',
-      tags: ['Unity', 'C#', '2D', 'Story'],
+      desc: '2D 스토리 어드벤처 게임. 플레이어는 기억을 잃은 주인공이 되어 3개의 스테이지(지옥도·인간도·천상도)를 탐험하고, 전투와 기억 조각 수집을 통해 과거의 진실을 밝혀내는 스토리입니다.',
+      flow: '스테이지 진입 → 탐험 (이동/점프/회피) → 전투 (HellGuard) → 기억 조각 수집 → 스테이지 전환 → 엔딩',
+      tags: ['Unity 6', 'C#', 'DI Container', 'EventBus', 'ScriptableObject', 'Excel ↔ SO', 'Rigidbody2D', 'FSM'],
       features: [
-        '탭 기반 인터랙티브 스토리 진행',
-        '2D 스프라이트 애니메이션',
-        '분기 선택지 시스템',
-        '멀티플 엔딩'
+        '전투 — HellGuard FSM (Idle→Patrol→Chase→Attack→Hurt→Dead), OverlapCircleAll 히트판정',
+        '이동 — WASD + 점프(Space) + 앉기(Ctrl), Rigidbody2D 기반',
+        '기억 조각 — 3D 플로팅+펄스 이펙트, TimeScale 0 플래시백 연출, HashSet 수집 추적',
+        '스테이지 — 4개 MVP 스테이지(뼈무덤/지옥도/인간도/천상도), Portal+Boundary 전환',
+        '엔딩 — 4단계 시퀀스 (기억 슬라이드→계시→정체성 마주→마무리)'
+      ],
+      extraSections: [
+        {
+          label: '아키텍처',
+          items: [
+            'PlayerController 오케스트레이션 — Movement·Combat·Health·Animation 4개 하위 컴포넌트 조율',
+            'Interface 계층 — IDamageable, IEnemy, IGameService, IMemoryService, IData',
+            'EventBus — 14개 이벤트로 컴포넌트 간 느슨한 결합, 발행/구독 패턴',
+            'DI Container — 인프라 구축, CameraFollow Resolve에 사용',
+            'Static Singleton — PlayerHealth, StageTransitionManager 등 핵심 객체'
+          ]
+        },
+        {
+          label: '성능 최적화',
+          items: [
+            'StageActivator — 비활성 스테이지 GameObjects SetActive(false)로 렉 방지',
+            'MemoryFragmentDataCache — Resources 폴더 비동기 로드',
+            'Bootstrap 부트 시퀀스 — Execution Order -1000, DontDestroyOnLoad 싱글톤'
+          ]
+        },
+        {
+          label: '데이터 시스템',
+          items: [
+            'Excel (OleDb) → ScriptableObject (GameData.asset) — ExcelAutoConverter 자동 변환',
+            'StageData, EnemyData, PlayerData, MemoryFragmentData 4종 시트',
+            '런타임 SO 에셋 — EnemyDataSO, MemoryFragmentDataSO, IntroStoryDataSO, EndingSlideDataSO'
+          ]
+        },
+        {
+          label: '씬 구조',
+          items: [
+            'Boot (진입점/분기) → Intro (인트로) → MainMenuScene → Game (메인) → GameOver / Ending',
+            'PlayerPrefs로 첫 실행 여부 확인 → Intro 스킵'
+          ]
+        }
       ],
       actions: [{ label: 'Go to Demo', class: 'btn-web', url: 'https://tpgns3353-ctrl.itch.io/golgol', external: true }]
     },
