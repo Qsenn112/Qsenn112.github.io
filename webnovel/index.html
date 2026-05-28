@@ -401,9 +401,15 @@
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && isAnimating) {
-      e.preventDefault();
+    if (e.code !== 'Space') return;
+    e.preventDefault();
+    if (isAnimating) {
       skipTypeText();
+    } else {
+      const nextBtn = $('next-btn');
+      if (nextBtn && !nextBtn.disabled && $('nav-area').classList.contains('active')) {
+        nextBtn.click();
+      }
     }
   });
 
