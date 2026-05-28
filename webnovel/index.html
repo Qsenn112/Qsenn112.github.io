@@ -286,8 +286,31 @@
   let isAnimating = false;
   let playerName = state.playerName || '소라인';
 
+  function hasBatchim(name) {
+    const code = name.charCodeAt(name.length - 1) - 0xAC00;
+    if (code < 0 || code > 11171) return false;
+    return (code % 28) !== 0;
+  }
+
+  const BATCHIM_MAP = {
+    '은': '는', '이': '가', '을': '를', '과': '와', '아': '야'
+  };
+  const NO_BATCHIM_MAP = {
+    '는': '은', '가': '이', '를': '을', '와': '과', '야': '아'
+  };
+
   function replaceName(text) {
-    return text.replace(/소라인/g, playerName);
+    if (playerName === '소라인') return text;
+    const hasB = hasBatchim(playerName);
+    return text.replace(/(소라인)([은이을과아는가를와야])/g, function(match, name, josa) {
+      if (hasB) {
+        if (NO_BATCHIM_MAP[josa]) return playerName + NO_BATCHIM_MAP[josa];
+        return playerName + josa;
+      } else {
+        if (BATCHIM_MAP[josa]) return playerName + BATCHIM_MAP[josa];
+        return playerName + josa;
+      }
+    }).replace(/소라인/g, playerName);
   }
 
   const $ = id => document.getElementById(id);
