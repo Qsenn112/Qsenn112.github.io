@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbClass: 'thumb-board-lg',
       title: '게시판',
       subtitle: 'Web App · React · Supabase',
-      desc: 'React + Supabase 기반 풀스택 게시판입니다. 회원가입/로그인, 게시글 CRUD, 대댓글, 카테고리 분류, 파일 첨부, 실시간 알림, 다크모드, 관리자 패널을 지원합니다.',
+      desc: 'React + Supabase 기반 풀스택 게시판입니다. 회원가입/로그인, 게시글 CRUD, 대댓글, 카테고리 분류, 파일 첨부, 실시간 알림, 다크모드, 관리자 패널을 지원합니다.<br><br><em style="color: var(--accent-orange); font-size: 0.85rem;">※ Supabase 이메일 개수 제한으로 원활한 테스트를 위해 이메일 인증 기능은 비활성화 상태입니다.</em>',
       flow: '회원가입 → 로그인 → 게시글 작성(카테고리/파일첨부) → 댓글/대댓글 → 실시간 알림 수신 → 관리자는 전체 관리',
       tags: ['React 19', 'TypeScript', 'Vite 8', 'Tailwind CSS 4', 'Supabase (PostgreSQL/Auth/Storage/Realtime)', 'Vercel'],
       features: [
