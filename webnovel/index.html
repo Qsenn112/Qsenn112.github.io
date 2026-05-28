@@ -361,7 +361,11 @@
   function replaceName(text) {
     if (playerName === '소라인') return text;
     const hasB = hasBatchim(playerName);
-    return text.replace(/(소라인)([은이을과아는가를와야])/g, function(match, name, josa) {
+    const shortName = playerName.length >= 3 ? playerName.slice(0, -1) : playerName;
+
+    text = text.replace(/소라인이야/g, hasB ? playerName + '이야' : playerName + '야');
+
+    text = text.replace(/(소라인)([은이을과아는가를와야])/g, function(match, name, josa) {
       if (hasB) {
         if (NO_BATCHIM_MAP[josa]) return playerName + NO_BATCHIM_MAP[josa];
         return playerName + josa;
@@ -369,7 +373,15 @@
         if (BATCHIM_MAP[josa]) return playerName + BATCHIM_MAP[josa];
         return playerName + josa;
       }
-    }).replace(/소라인/g, playerName);
+    });
+
+    text = text.replace(/소라인/g, playerName);
+
+    if (shortName !== '소라') {
+      text = text.replace(/소라(?!인)/g, shortName);
+    }
+
+    return text;
   }
 
   const $ = id => document.getElementById(id);
