@@ -18,22 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       actions: [{ label: 'Go to GitHub', class: 'btn-web', url: 'https://github.com/BomB1961/Ovum-Rumble', external: true }]
     },
-    tangram: {
-      thumb: 'T',
-      thumbClass: 'thumb-tangram-lg',
-      title: '칠교조각 퍼즐',
-      subtitle: '2D · Puzzle · Godot',
-      desc: '고도 엔진으로 제작한 전통 칠교조각 기반 퍼즐 게임. 조각을 회전·이동시켜 목표 도형을 완성합니다.',
-      flow: '스테이지 선택 → 조각 배치 → 회전/이동 → 목표 도형 완성 → 다음 스테이지',
-      tags: ['Godot', 'GDScript', '2D', 'Puzzle'],
-      features: [
-        '드래그 & 드롭 — 조각을 터치/드래그로 자유롭게 이동',
-        '회전 — 더블 탭 또는 버튼으로 45도 단위 회전',
-        '스테이지 — 쉬움/보통/어려움 난이도별 30개 스테이지',
-        'UI — 진행률, 힌트, 리셋 기능'
-      ],
-      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
-    },
     jumprace: {
       thumb: 'J',
       thumbClass: 'thumb-jump-lg',
@@ -297,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const GAME_EMBEDS = {
-    tangram: { src: '/games/tangram/index.html', portrait: false },
     jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
