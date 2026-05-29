@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '스테이지 — 쉬움/보통/어려움 난이도별 30개 스테이지',
         'UI — 진행률, 힌트, 리셋 기능'
       ],
-      actions: [{ label: '스크린샷 준비 중', class: 'btn-web', url: '#', external: false }]
+      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
     },
     jumprace: {
       thumb: 'J',
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '콤보 시스템 — 연속 장애물 회피 시 점수 배율 상승',
         '점수판 — 로컬 최고 점수 저장'
       ],
-      actions: [{ label: '스크린샷 준비 중', class: 'btn-web', url: '#', external: false }]
+      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
     },
     golgol: {
       thumb: 'G',
@@ -297,6 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const GAME_EMBEDS = {
+    tangram: { src: '/games/tangram/index.html', portrait: false },
+    jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
   };
