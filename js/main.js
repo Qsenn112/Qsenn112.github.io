@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const iframeContainer = document.createElement('div');
   iframeContainer.className = 'iframe-container';
   iframeContainer.style.display = 'none';
-  iframeContainer.innerHTML = '<iframe id="game-iframe" width="100%" height="600" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button>';
+  iframeContainer.innerHTML = '<iframe id="game-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button>';
   detailPanel.appendChild(iframeContainer);
 
   document.querySelector('.iframe-container .iframe-close').addEventListener('click', () => {
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const project = PROJECTS[key];
     if (!project) return;
     detailPanel.innerHTML = buildDetailHTML(project) +
-      '<div class="iframe-container" style="display:none;"><iframe id="game-iframe" width="100%" height="600" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button></div>' +
+      '<div class="iframe-container" style="display:none;"><iframe id="game-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button></div>' +
       '<button class="detail-close">← Back to Projects</button>';
     detailPanel.style.display = 'block';
     detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });

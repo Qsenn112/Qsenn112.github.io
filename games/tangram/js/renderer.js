@@ -18,10 +18,10 @@ const Renderer = {
 
   resize() {
     const wrapper = this.canvas.parentElement;
+    // Get available width from wrapper (responsive)
     const wrapperWidth = wrapper ? wrapper.clientWidth : 860;
-    // Use at least 800px width for the canvas
-    const maxW = Math.max(Math.min(wrapperWidth, 860), 800);
-    this.displayWidth = maxW;
+    // Fit within available space, min 500px, max 860px
+    this.displayWidth = Math.max(500, Math.min(wrapperWidth, 860));
     this.displayHeight = Math.round(this.displayWidth * 520 / 860);
 
     this.canvas.style.width = this.displayWidth + 'px';

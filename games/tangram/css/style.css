@@ -23,11 +23,11 @@
 body {
   font-family: var(--font);
   background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #a18cd1 100%);
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+  align-items: flex-start;
+  padding: 10px;
   color: var(--text);
   overflow-x: hidden;
 }
