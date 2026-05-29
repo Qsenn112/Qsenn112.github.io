@@ -18,6 +18,24 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       actions: [{ label: 'Go to GitHub', class: 'btn-web', url: 'https://github.com/BomB1961/Ovum-Rumble', external: true }]
     },
+    tangram: {
+      thumb: '🧩',
+      thumbClass: 'thumb-tangram-lg',
+      title: '칠교조각 퍼즐',
+      subtitle: 'Puzzle · Canvas · Web',
+      desc: '7개의 도형 조각을 드래그&드롭으로 맞춰 10단계를 클리어하는 웹 퍼즐 게임. IoU(면적 기반) 검증, 카운트다운 타이머, 레벨별 점수 시스템을 갖추고 있습니다.',
+      flow: '게임 시작 → 조각 드래그/회전(R키) → 실루엣에 맞춤 → 완성 확인 → IoU 85%↑ 통과 → 다음 레벨',
+      tags: ['JavaScript', 'Canvas API', 'Vanilla JS', 'Puzzle'],
+      features: [
+        '7개 표준 칠교 조각 — 드래그 이동, R키 15° 회전',
+        '10단계 레벨 — 도형(1-3), 사물(4-6), 동물(7-10)',
+        'IoU 검증 — 오프스크린 Canvas로 85% 일치 판정',
+        '스코어링 — 기본점수 × IoU + 시간 보너스',
+        '카운트다운 타이머 — 30% 이하 시 경고 색상',
+        '5개 화면 — 시작/플레이/클리어/게임오버/엔딩'
+      ],
+      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
+    },
     jumprace: {
       thumb: 'J',
       thumbClass: 'thumb-jump-lg',
@@ -281,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const GAME_EMBEDS = {
+    tangram: { src: '/games/tangram/index.html', portrait: false },
     jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
