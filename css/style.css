@@ -425,3 +425,171 @@ footer {
   }
   .skill-box { padding: 20px 10px; }
 }
+
+/* ===== DETAIL PANEL ===== */
+.detail-panel {
+  margin-top: 16px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 32px;
+  animation: fadeUp 0.4s ease;
+}
+
+.detail-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #222;
+}
+
+.detail-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid #2a2a2a;
+}
+
+.detail-title-area h2 {
+  font-size: 24px;
+  margin-bottom: 4px;
+  color: #fff;
+}
+.detail-title-area p {
+  color: #888;
+  font-size: 14px;
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00ff88;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.detail-text {
+  color: #bbb;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-tag {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #aaa;
+  border: 1px solid #333;
+}
+
+.detail-list {
+  list-style: disc;
+  padding-left: 20px;
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.detail-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.detail-btn.btn-web {
+  background: #00ff88;
+  color: #000;
+}
+.detail-btn.btn-web:hover {
+  background: #00e67a;
+  transform: translateY(-2px);
+}
+
+.detail-btn.btn-apk {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #ddd;
+}
+.detail-btn.btn-apk:hover {
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+/* ===== IFRAME CONTAINER ===== */
+.iframe-container {
+  margin-top: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #333;
+  background: #0a0a0a;
+}
+
+.iframe-container iframe {
+  display: block;
+  width: 100%;
+  height: 520px;
+  border: none;
+}
+
+.iframe-close,
+.detail-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.iframe-close:hover,
+.detail-close:hover {
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+@media (max-width: 768px) {
+  .detail-panel { padding: 20px; }
+  .detail-header { flex-direction: column; align-items: flex-start; }
+  .iframe-container iframe { height: 360px; }
+}
