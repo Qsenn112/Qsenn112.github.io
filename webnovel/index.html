@@ -335,8 +335,13 @@
 (function() {
   // 모바일/터치 디바이스 감지
   const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  const isTauriApp = !!(window.__TAURI_INTERNALS__ || window.__TAURI__);
   if (isMobile) {
     document.body.classList.add('mobile-device');
+  }
+  if (isTauriApp) {
+    const w = document.querySelector('.apk-link-wrapper');
+    if (w) w.style.display = 'none';
   }
 
   var STORY_DATA = window.STORY_DATA;
@@ -487,8 +492,9 @@
   }
 
   // 화면 전체 터치 = Space 역할 (모바일용)
+  var touchLocked = false;
   function handleScreenTouch(e) {
-    if (!isMobile) return;
+    if (!isMobile || touchLocked) return;
     // 선택지 버튼이나 내비게이션 버튼, 도움말 버튼, 입력창 등은 무시
     if (e.target.closest('.choice-btn') ||
         e.target.closest('.nav-btn') ||
@@ -502,23 +508,26 @@
         e.target.tagName === 'A') {
       return;
     }
+    e.preventDefault();
 
     if (isAnimating) {
       skipTypeText();
+      touchLocked = true;
+      setTimeout(function() { touchLocked = false; }, 400);
     } else {
       const nextBtn = $('next-btn');
       if (nextBtn && !nextBtn.disabled && $('nav-area').classList.contains('active')) {
         nextBtn.click();
+        touchLocked = true;
+        setTimeout(function() { touchLocked = false; }, 400);
       }
     }
   }
 
   // 스토리 영역에 터치 이벤트 등록
   if (isMobile) {
-    $('story-screen').addEventListener('touchstart', handleScreenTouch);
-    $('story-screen').addEventListener('click', handleScreenTouch);
-    // 도움말 확장 영역도 등록 (선택지 외 부분 터치 시)
-    document.addEventListener('touchstart', function(e) {
+    $('story-screen').addEventListener('touchend', handleScreenTouch);
+    document.addEventListener('touchend', function(e) {
       if (e.target.closest('.choice-btn')) return;
       if ($('help-overlay').classList.contains('active')) return;
       if ($('title-screen').style.display !== 'none') return;
