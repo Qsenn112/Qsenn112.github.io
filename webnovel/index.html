@@ -493,9 +493,27 @@
 
   // 화면 전체 터치 = Space 역할 (모바일용)
   var touchLocked = false;
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchMoved = false;
+
+  if (isMobile) {
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+      if (touchMoved) return;
+      var dx = Math.abs(e.touches[0].clientX - touchStartX);
+      var dy = Math.abs(e.touches[0].clientY - touchStartY);
+      if (dx > 10 || dy > 10) touchMoved = true;
+    }, { passive: true });
+  }
+
   function handleScreenTouch(e) {
-    if (!isMobile || touchLocked) return;
-    // 선택지 버튼이나 내비게이션 버튼, 도움말 버튼, 입력창 등은 무시
+    if (!isMobile || touchLocked || touchMoved) return;
     if (e.target.closest('.choice-btn') ||
         e.target.closest('.nav-btn') ||
         e.target.closest('#help-btn') ||
@@ -508,7 +526,6 @@
         e.target.tagName === 'A') {
       return;
     }
-    e.preventDefault();
 
     if (isAnimating) {
       skipTypeText();
@@ -524,7 +541,6 @@
     }
   }
 
-  // 스토리 영역에 터치 이벤트 등록
   if (isMobile) {
     $('story-screen').addEventListener('touchend', handleScreenTouch);
     document.addEventListener('touchend', function(e) {
