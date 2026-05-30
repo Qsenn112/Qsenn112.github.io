@@ -60,6 +60,9 @@ const Game = {
     document.getElementById('hud-timer').textContent = level.timeLimit;
     document.getElementById('hud-match').textContent = '일치도 --%';
 
+    // Resize canvas now that play screen is visible
+    Renderer.resize();
+
     // Start timer
     Timer.start(level.timeLimit,
       (timeLeft) => this.onTimerTick(timeLeft),
@@ -198,11 +201,16 @@ const Game = {
 };
 
 // ── Boot ──
-document.addEventListener('DOMContentLoaded', () => {
+function bootGame() {
   Game.init();
-  // Delay initial render to ensure CSS layout is settled
-  setTimeout(() => {
-    Renderer.resize();
-    Game.requestRender();
-  }, 100);
+  // Multiple resize attempts for iframe embedding
+  setTimeout(() => { Renderer.resize(); Game.requestRender(); }, 50);
+  setTimeout(() => { Renderer.resize(); Game.requestRender(); }, 200);
+  setTimeout(() => { Renderer.resize(); Game.requestRender(); }, 500);
+}
+
+// Use both DOMContentLoaded and load for iframe compatibility
+document.addEventListener('DOMContentLoaded', bootGame);
+window.addEventListener('load', () => {
+  setTimeout(() => { Renderer.resize(); Game.requestRender(); }, 100);
 });

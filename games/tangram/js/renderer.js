@@ -17,11 +17,20 @@ const Renderer = {
   },
 
   resize() {
+    // Get available width: try wrapper → screen element → window
     const wrapper = this.canvas.parentElement;
-    // Get available width from wrapper (responsive)
-    const wrapperWidth = wrapper ? wrapper.clientWidth : 860;
+    const wrapperWidth = (wrapper && wrapper.clientWidth > 0) ? wrapper.clientWidth : 0;
+    const screenEl = document.querySelector('.screen.active');
+    const screenWidth = (screenEl && screenEl.clientWidth > 0) ? screenEl.clientWidth : 0;
+    const windowWidth = window.innerWidth;
+
+    // Pick the best available width
+    let availWidth = wrapperWidth || screenWidth || windowWidth;
+    // Subtract padding from wrapper (16px × 2 sides)
+    if (wrapperWidth > 0) availWidth -= 32;
+
     // Fit within available space, min 500px, max 860px
-    this.displayWidth = Math.max(500, Math.min(wrapperWidth, 860));
+    this.displayWidth = Math.max(500, Math.min(availWidth, 860));
     this.displayHeight = Math.round(this.displayWidth * 520 / 860);
 
     this.canvas.style.width = this.displayWidth + 'px';
