@@ -152,6 +152,34 @@ document.addEventListener('DOMContentLoaded', () => {
           ]
         }
       ],
+      retrospective: '<div class="retro-section">' +
+        '<p>업그레이드 버튼 디자인은 처음에는 단순하게 레벨 1부터 최대 레벨까지 나열하는 방식으로 제작했습니다. 업그레이드가 완료된 레벨은 불투명 처리와 클릭 불가 상태로 변경해 플레이어가 진행 상황을 직관적으로 확인할 수 있도록 구성했습니다.</p>' +
+        '<p>하지만 호박 아이콘과 사탕 디자인 작업이 끝난 후 문제가 발생했습니다. 사탕 이미지가 107개를 넘어가면서 플레이어가 마지막 레벨까지 업그레이드하려면 스크롤을 지나치게 많이 내려야 했습니다. 또한 107개의 UI 오브젝트를 한 번에 생성하면서 랙까지 발생했습니다.</p>' +
+        '<p>선생님께서 오브젝트 풀링(Object Pooling) 개념을 적용해 보라고 조언해 주셨고, 이를 적용했습니다. 그 결과 버튼 생성과 삭제가 반복되지 않아 랙과 반응 속도가 유의미하게 개선되었고, 게임 플레이에는 문제가 없는 수준까지 최적화할 수 있었습니다.</p>' +
+        '<p>하지만 여전히 플레이어가 107개의 레벨 칸을 직접 스크롤해야 한다는 불편함은 남아 있었습니다. 결국 업그레이드 UI 자체를 다시 설계해야 했습니다.</p>' +
+        '<p>사탕 테마는 10개씩 총 11개의 그룹으로 구성되어 있었기 때문에, 팝업 버튼 역시 11개로 재구성했습니다. 레벨이 1씩 상승할 때마다 동일한 버튼을 재사용하고, 이미지와 텍스트만 다음 레벨의 사탕으로 변경하는 방식을 사용했습니다. 각 테마의 10단계 업그레이드가 완료되면 해당 버튼은 회색 처리와 클릭 불가 상태로 변경했습니다.</p>' +
+        '<p>이 방식으로 변경한 결과 플레이어가 스크롤해야 하는 양이 크게 줄었고, UI 구조 역시 더욱 직관적으로 개선되었습니다. 이번 작업을 통해 단순히 기능을 구현하는 것이 아니라, 플레이어 입장에서 실제 사용 경험(UX)을 고려하는 것이 중요하다는 점을 느낄 수 있었습니다.</p>' +
+        '</div>' +
+        '<div class="retro-section">' +
+        '<h5>🖼️ AI 이미지 제작 워크플로우</h5>' +
+        '<p>사탕 이미지는 스타일 레퍼런스가 될 이미지를 한 장 준비한 뒤, Google Flow, ChatGPT, Freepik을 활용해 제작했습니다.</p>' +
+        '<p>Google Flow는 생성 속도가 빠르다는 장점이 있었지만, 모델이 나노바나나로 제한되어 있었고 이미지 크기를 세밀하게 제어하기 어려웠습니다. ChatGPT는 다른 모델들에 비해 이미지 화질이 상대적으로 낮아 이미지 생성 단계에서는 제외했습니다. 반면 Freepik은 이미지 비율과 크기를 세밀하게 조절할 수 있었고, 결과물의 화질도 가장 만족스러워 최종적으로 선택했습니다.</p>' +
+        '<p><strong>워크플로우:</strong></p>' +
+        '<ol>' +
+        '<li>레퍼런스 이미지를 기반으로 원하는 스타일의 사탕 프롬프트를 생성한다. (예: "마시멜로 분위기의 사탕")</li>' +
+        '<li>생성한 프롬프트를 Freepik에 입력해 원하는 이미지를 출력한다.</li>' +
+        '<li>AI로 생성한 이미지는 확대했을 때 픽셀 마감이 깨지는 문제가 있었기 때문에 후처리 작업을 진행했다.</li>' +
+        '<li>Google AI를 활용해 직접 제작한 "Pixel Snapper Web"에 이미지를 넣어 픽셀을 최대한 깔끔하게 정리했다.</li>' +
+        '<li>정리된 이미지의 배경을 제거해 Unity에서 사용할 수 있도록 투명 PNG 형태로 변환했다.</li>' +
+        '<li>마지막으로 Google AI Studio를 활용해 제작한 스프라이트 자동 스플리터(Sprite Auto Splitter)를 사용해 이미지를 자동으로 분리했다.</li>' +
+        '</ol>' +
+        '<p>위 과정을 통해 필요한 사탕 에셋들을 제작할 수 있었습니다.</p>' +
+        '</div>' +
+        '<div class="retro-section">' +
+        '<h5>💡 회고</h5>' +
+        '<p>아쉬웠던 점도 있었습니다. 직접 제작한 Pixel Snapper의 결과물이 아직 상용 유료 서비스에 비해 품질이 부족했습니다. 여러 차례 수정과 개선을 반복했지만 기술적인 한계가 분명히 존재했습니다.</p>' +
+        '<p>이번 프로젝트는 단순히 게임을 만드는 것보다 "AI를 실제 제작 과정에 어떻게 활용할 수 있는가"에 초점을 맞춘 프로젝트였습니다. 이미지 품질 자체는 다소 아쉬움이 남았지만, AI 기반 워크플로우를 직접 설계하고 실제 게임 제작 과정에 적용해 볼 수 있었다는 점에서 의미 있는 경험이었습니다.</p>' +
+        '</div>',
       actions: [{ label: 'Go to Demo', class: 'btn-web', url: 'https://tpgns3353-ctrl.itch.io/pumpumkin', external: true }]
     },
     todolist: {
@@ -292,6 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
         '<ul class="detail-list">' + featuresHTML + '</ul>' +
       '</div>' +
       extraHTML +
+      (project.retrospective ? (
+        '<div class="detail-section retrospective-wrapper">' +
+          '<button class="retrospective-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\'); this.classList.toggle(\'active\');">' +
+            '📝 프로젝트를 진행하며... <span class="toggle-arrow">▸</span>' +
+          '</button>' +
+          '<div class="retrospective-content">' + project.retrospective + '</div>' +
+        '</div>'
+      ) : '') +
     '</div>' +
     '<div class="detail-actions">' + actionsHTML + '</div>';
   }
