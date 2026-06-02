@@ -241,7 +241,7 @@ function updatePlaying(dt) {
     }
 
     if (bulletManager) bulletManager.update(dt);
-    if (enemyManager) enemyManager.update(dt, player.x);
+    if (enemyManager) enemyManager.update(dt, player.x, player.y);
 
     // 충돌: 총알 vs 적
     if (bulletManager && enemyManager) {
@@ -259,6 +259,35 @@ function updatePlaying(dt) {
             saveHighScore();
             gameState = STATE.GAME_OVER;
             return;
+        }
+    }
+
+    // 적기가 플레이어를 지나쳤는지 체크 (운석은 제외)
+    if (enemyManager && player) {
+        for (const enemy of enemyManager.getEnemies()) {
+            if (enemy instanceof EnemyShip && enemy.alive && enemy.y > player.y + player.size) {
+                enemy.alive = false;
+                saveHighScore();
+                gameState = STATE.GAME_OVER;
+                return;
+            }
+        }
+    }
+
+    // 적 탄막 vs 플레이어 충돌
+    if (enemyManager && player) {
+        const playerBounds = player.getBounds();
+        for (const bullet of enemyManager.getEnemyBullets()) {
+            if (!bullet.alive) continue;
+            if (checkAABB(bullet.getBounds(), playerBounds)) {
+                bullet.alive = false;
+                const dead = player.takeDamage(bullet.damage);
+                if (dead) {
+                    saveHighScore();
+                    gameState = STATE.GAME_OVER;
+                    return;
+                }
+            }
         }
     }
 

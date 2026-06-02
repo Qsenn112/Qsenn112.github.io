@@ -67,9 +67,11 @@ class EnemyShip extends Enemy {
 
         // 점수
         this.scoreValue = 25;
+        this.fireTimer = 0;
+        this.fireInterval = 2.0; // 2초마다 발사
     }
 
-    update(dt) {
+    update(dt, playerX, playerY, manager) {
         this.timeAlive += dt;
 
         // 아래로 이동
@@ -81,11 +83,22 @@ class EnemyShip extends Enemy {
         } else if (this.pattern === 'diagonal') {
             this.x += Math.sin(this.wobbleOffset) * 30 * dt;
         }
-        // 'straight': 그대로 직선
 
         // 화면 경계
         if (this.x < this.size) this.x = this.size;
         if (this.x > canvas.width - this.size) this.x = canvas.width - this.size;
+
+        // 에너지탄 발사 (2초마다 방사형)
+        this.fireTimer -= dt;
+        if (this.fireTimer <= 0 && playerY !== undefined) {
+            this.fireTimer = this.fireInterval;
+            // 플레이어 방향으로 3방향 방사형 발사
+            const baseAngle = Math.atan2(playerY - this.y, playerX - this.x);
+            const spread = Math.PI / 6; // 30도 간격
+            manager.addEnemyBullet(this.x, this.y, baseAngle);
+            manager.addEnemyBullet(this.x, this.y, baseAngle - spread);
+            manager.addEnemyBullet(this.x, this.y, baseAngle + spread);
+        }
 
         // 화면 아래로 나감
         if (this.y > canvas.height + 50) {
@@ -170,7 +183,7 @@ class Asteroid extends Enemy {
         }
     }
 
-    update(dt) {
+    update(dt, playerX, playerY, manager) {
         this.y += this.speed * dt;
         this.rotation += this.rotSpeed * dt;
 
@@ -247,7 +260,7 @@ class Boss extends Enemy {
         this.moveTimer = 0;
     }
 
-    update(dt) {
+    update(dt, playerX, playerY, manager) {
         // 진입 애니메이션
         if (!this.entered) {
             this.y += this.speed * dt;
@@ -354,17 +367,69 @@ class Boss extends Enemy {
     }
 }
 
+// ========== 적 탄막 (EnemyBullet) ==========
+class EnemyBullet {
+    constructor(x, y, angle) {
+        this.x = x;
+        this.y = y;
+        this.speed = 180; // px/s
+        this.angle = angle; // radians (0=down, PI=up)
+        this.radius = 5;
+        this.damage = 12;
+        this.alive = true;
+    }
+
+    update(dt) {
+        this.x += Math.cos(this.angle) * this.speed * dt;
+        this.y += Math.sin(this.angle) * this.speed * dt;
+        if (this.y > canvas.height + 20 || this.y < -20 ||
+            this.x < -20 || this.x > canvas.width + 20) {
+            this.alive = false;
+        }
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // 주황색 구체
+        const grad = ctx.createRadialGradient(0, 0, this.radius * 0.2, 0, 0, this.radius);
+        grad.addColorStop(0, 'rgba(255,255,200,1)');
+        grad.addColorStop(0.4, 'rgba(255,160,40,0.9)');
+        grad.addColorStop(1, 'rgba(255,80,20,0)');
+        ctx.fillStyle = grad;
+        ctx.shadowColor = 'rgba(255,140,20,0.8)';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.restore();
+    }
+
+    getBounds() {
+        return {
+            x: this.x - this.radius,
+            y: this.y - this.radius,
+            width: this.radius * 2,
+            height: this.radius * 2,
+        };
+    }
+}
+
 // ========== Enemy Manager ==========
 class EnemyManager {
     constructor() {
         this.enemies = [];
+        this.enemyBullets = [];
         this.spawnTimer = 0;
         this.spawnInterval = 2.0;
         this.wave = 1;
         this.bossActive = false;
     }
 
-    update(dt, playerX) {
+    update(dt, playerX, playerY) {
         this.spawnTimer -= dt;
         if (this.spawnTimer <= 0) {
             // 보스 웨이브 (5의 배수)
@@ -379,8 +444,14 @@ class EnemyManager {
         }
 
         for (const enemy of this.enemies) {
-            enemy.update(dt);
+            enemy.update(dt, playerX, playerY, this);
         }
+
+        // 적 탄막 업데이트
+        for (const bullet of this.enemyBullets) {
+            bullet.update(dt);
+        }
+        this.enemyBullets = this.enemyBullets.filter(b => b.alive);
 
         this.enemies = this.enemies.filter(e => e.alive);
 
@@ -415,14 +486,26 @@ class EnemyManager {
         this.enemies.push(boss);
     }
 
+    addEnemyBullet(x, y, angle) {
+        this.enemyBullets.push(new EnemyBullet(x, y, angle));
+    }
+
     draw(ctx) {
         for (const enemy of this.enemies) {
             enemy.draw(ctx);
+        }
+        // 적 탄막 그리기
+        for (const bullet of this.enemyBullets) {
+            bullet.draw(ctx);
         }
     }
 
     getEnemies() {
         return this.enemies;
+    }
+
+    getEnemyBullets() {
+        return this.enemyBullets;
     }
 
     allSpawned() {
