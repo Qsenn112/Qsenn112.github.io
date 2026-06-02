@@ -534,6 +534,18 @@
       '<div class="detail-actions">' + actionsHTML + '</div>';
   }
 
+  var detailPanel = document.createElement('div');
+  detailPanel.className = 'detail-panel';
+  detailPanel.style.display = 'none';
+  var projectList = document.querySelector('.project-list');
+  if (projectList) projectList.after(detailPanel);
+
+  function hideDetailPanel() {
+    detailPanel.style.display = 'none';
+    detailPanel.innerHTML = '';
+    delete detailPanel.dataset.current;
+  }
+
   function openDetail(key) {
     var project = PROJECTS[key];
     if (!project) return;
