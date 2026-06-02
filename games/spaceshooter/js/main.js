@@ -314,23 +314,23 @@ function drawUpgrade() {
     ctx.save();
     ctx.textAlign = 'center';
 
-    ctx.font = '22px "Courier New", monospace';
+    ctx.font = 'bold 28px "Courier New", monospace';
     ctx.fillStyle = '#ffff00';
     ctx.shadowColor = '#ffff00';
     ctx.shadowBlur = 15;
-    ctx.fillText('UPGRADE', canvas.width / 2, 100);
+    ctx.fillText('⚡ UPGRADE ⚡', canvas.width / 2, 90);
     ctx.shadowBlur = 0;
 
-    ctx.font = '13px "Courier New", monospace';
+    ctx.font = '15px "Courier New", monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Choose one upgrade (1 / 2 / 3)', canvas.width / 2, 135);
+    ctx.fillText('Choose one upgrade (1 / 2 / 3)', canvas.width / 2, 125);
 
-    const cardH = 140;
-    const cardW = 130;
+    const cardH = 170;
+    const cardW = 145;
     const gap = 15;
     const totalW = upgradeOptions.length * cardW + (upgradeOptions.length - 1) * gap;
     const startX = canvas.width / 2 - totalW / 2 + cardW / 2;
-    const cardY = 280;
+    const cardY = 300;
 
     for (let i = 0; i < upgradeOptions.length; i++) {
         const opt = upgradeOptions[i];
@@ -349,23 +349,23 @@ function drawUpgrade() {
         ctx.shadowBlur = 0;
 
         // 아이콘
-        ctx.font = '30px serif';
-        ctx.fillText(opt.icon, sx, cardY - 30);
+        ctx.font = '38px serif';
+        ctx.fillText(opt.icon, sx, cardY - 40);
 
         // 이름
-        ctx.font = '13px "Courier New", monospace';
+        ctx.font = 'bold 16px "Courier New", monospace';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(opt.name, sx, cardY + 10);
+        ctx.fillText(opt.name, sx, cardY + 15);
 
         // 설명
-        ctx.font = '10px "Courier New", monospace';
+        ctx.font = '12px "Courier New", monospace';
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillText(opt.desc, sx, cardY + 30);
+        ctx.fillText(opt.desc, sx, cardY + 40);
 
         // 키 힌트
-        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.font = 'bold 16px "Courier New", monospace';
         ctx.fillStyle = isSelected ? '#00ffff' : 'rgba(255,255,255,0.3)';
-        ctx.fillText(`[${i + 1}]`, sx, cardY + 55);
+        ctx.fillText(`[${i + 1}]`, sx, cardY + 65);
     }
 
     ctx.restore();
