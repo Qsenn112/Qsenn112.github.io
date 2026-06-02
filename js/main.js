@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     jumprace: {
       thumb: 'J',
       thumbClass: 'thumb-jump-lg',
+      thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/jump-racing-thumbnail.jpeg',
       title: '2D 점프 레이싱',
       subtitle: '2D · Arcade · Godot',
       desc: '스페이스바로 점프하는 2D 레이싱 게임. 장애물 회피 및 콤보 점수 시스템 구현.',
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pumpumkin: {
       thumb: 'P',
       thumbClass: 'thumb-pumpkin-lg',
+      thumbImage: 'images/pumpumkin-thumbnail.jpeg',
       title: 'Pumpumkin',
       subtitle: '2D · Clicker',
       desc: '할로윈 밤, 마법의 호박밭에서 시작된 클리커 모험. 호박을 클릭하여 사탕을 수집하고, 사탕으로 업그레이드를 구매하여 25단계의 호박을 진화시키는 게임입니다.',
@@ -176,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     todolist: {
       thumb: 'T',
       thumbClass: 'thumb-todo-lg',
+      thumbImage: 'images/todo-list-icon.jpeg',
       title: 'Todo List',
       subtitle: 'App · Tauri · Web',
       desc: '할 일을 관리하는 앱입니다. 추가, 수정, 삭제, 완료 체크 기능과 카테고리/우선순위 분류, 필터링을 지원합니다. 웹 버전과 Android 앱으로 사용 가능합니다.',
@@ -197,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     webnovel: {
       thumb: 'R',
       thumbClass: 'thumb-novel-lg',
+      thumbImage: 'images/red-moon-night-thumbnail.png',
       title: '붉은달의 밤',
       subtitle: 'Interactive Novel · Story · 9 Chapters',
       desc: 'AI 기반 인터랙티브 웹소설 시뮬레이터. 오빠의 죽음을 목격한 소녀 소라인이 복수를 위해 검사가 되었지만, 실종된 오빠를 찾는 여정 속에서 아버지가 흑마법으로 오빠의 몸을 조종하고 있음을 알게 되고, 복수와 가족애 사이에서 선택해야 하는 기로에 서는 이야기입니다.',
@@ -243,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     board: {
       thumb: 'B',
       thumbClass: 'thumb-board-lg',
+      thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/community-board-thumbnail.jpeg',
       title: '게시판',
       subtitle: 'Web App · React · Supabase',
       desc: 'React + Supabase 기반 풀스택 게시판입니다. 회원가입/로그인, 게시글 CRUD, 대댓글, 카테고리 분류, 파일 첨부, 실시간 알림, 다크모드, 관리자 패널을 지원합니다.<br><br><em style="color: var(--accent-orange); font-size: 0.85rem;">※ Supabase 이메일 개수 제한으로 원활한 테스트를 위해 이메일 인증 기능은 비활성화 상태입니다.</em>',
@@ -305,7 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return '<div class="detail-header">' +
-      '<div class="detail-thumb ' + project.thumbClass + '">' + project.thumb + '</div>' +
+      '<div class="detail-thumb ' + project.thumbClass + '" onclick="var p=this.closest(\'.detail-panel\');if(p){p.style.display=\'none\';p.innerHTML=\'\';delete p.dataset.current;}" title="프로젝트 목록으로 돌아가기">' +
+        (project.thumbImage ? '<img src="' + project.thumbImage + '" alt="' + project.title + '">' : project.thumb) +
+      '</div>' +
       '<div class="detail-title-area">' +
         '<h2 class="detail-title">' + project.title + '</h2>' +
         '<p class="detail-subtitle">' + project.subtitle + '</p>' +
