@@ -468,7 +468,9 @@
           ]
         }
       ],
-      actions: []
+      actions: [
+        { label: '지형 뷰어 열기', class: 'btn-web', url: '/cave-viewer.html', external: true }
+      ]
     }
   };
 

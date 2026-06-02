@@ -1,0 +1,881 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackwater Salvage - Terrain Viewer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;color:#e0e8f0}
+#canvas{display:block;width:100vw;height:100vh}
+#ui{position:fixed;top:16px;left:16px;z-index:10;display:flex;flex-direction:column;gap:8px}
+#ui button{background:rgba(10,30,50,0.85);border:1px solid rgba(80,160,220,0.4);color:#a0d4f0;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;backdrop-filter:blur(6px);transition:all .2s}
+#ui button:hover{background:rgba(20,60,100,0.9);border-color:rgba(100,200,255,0.7)}
+#seed-display{background:rgba(10,30,50,0.85);border:1px solid rgba(80,160,220,0.3);padding:8px 14px;border-radius:6px;font-size:13px;color:#7ab8d8;backdrop-filter:blur(6px)}
+#info{position:fixed;bottom:16px;left:16px;z-index:10;background:rgba(10,30,50,0.85);border:1px solid rgba(80,160,220,0.3);padding:10px 16px;border-radius:6px;font-size:12px;color:#7ab8d8;line-height:1.6;backdrop-filter:blur(6px)}
+#loading{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,10,20,0.95);z-index:100;flex-direction:column;gap:16px}
+#loading .spinner{width:40px;height:40px;border:3px solid rgba(80,160,220,0.3);border-top-color:#60b0e0;border-radius:50%;animation:spin .8s linear infinite}
+#loading .bar{width:200px;height:4px;background:rgba(80,160,220,0.2);border-radius:2px;overflow:hidden}
+#loading .bar-fill{height:100%;background:#60b0e0;border-radius:2px;transition:width .1s}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading span{color:#7ab8d8;font-size:14px}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><span id="loading-text">Generating terrain...</span><div class="bar"><div class="bar-fill" id="progress" style="width:0%"></div></div></div>
+<canvas id="canvas"></canvas>
+<div id="ui">
+    <div id="seed-display">Seed: <span id="seed-val">---</span></div>
+    <button id="btn-regen">Regenerate Seed</button>
+    <button id="btn-xray" aria-pressed="false">X-ray</button>
+</div>
+<div id="info">
+    Right drag: rotate | Wheel: zoom | Middle drag: pan<br>
+    Rooms: <span id="stat-rooms">0</span> | Connections: <span id="stat-conns">0</span> | Caves: <span id="stat-caves">0</span>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+function smoothstep(t){return t*t*(3-2*t)}
+
+class SeededRandom{
+    constructor(s){this.s=s|0}
+    next(){this.s=(this.s*1664525+1013904223)|0;return(this.s>>>0)/4294967296}
+    nextInt(a,b){return a+Math.floor(this.next()*(b-a+1))}
+}
+function lerpRng(r,a,b){return lerp(a,b,r.next())}
+
+class PerlinNoise{
+    constructor(seed){
+        this.p=new Uint8Array(512);
+        const t=new Uint8Array(256);
+        for(let i=0;i<256;i++)t[i]=i;
+        const r=new SeededRandom(seed);
+        for(let i=255;i>0;i--){const j=r.nextInt(0,i);[t[i],t[j]]=[t[j],t[i]]}
+        for(let i=0;i<512;i++)this.p[i]=t[i&255];
+    }
+    noise(x,y){
+        const X=Math.floor(x)&255,Y=Math.floor(y)&255;
+        x-=Math.floor(x);y-=Math.floor(y);
+        const u=x*x*x*(x*(x*6-15)+10),v=y*y*y*(y*(y*6-15)+10);
+        const p=this.p,A=p[X]+Y,B=p[X+1]+Y;
+        const g=(h,x,y)=>{const n=h&3;return((n&1)?-x:x)+((n&2)?-y:y)};
+        return lerp(lerp(g(p[A],x,y),g(p[B],x-1,y),u),lerp(g(p[A+1],x,y-1),g(p[B+1],x-1,y-1),u),v);
+    }
+    n(x,y){return(this.noise(x,y)+1)*0.5}
+}
+
+const P={
+    mapSize:{x:360,y:160,z:360},
+    depthZones:[
+        {name:"Shallow",depthRange01:[0,0.38],caveCount:3,roomsPerCaveRange:[3,5],roomRadiusRange:[7,13],tunnelRadius:4,caveDepthSpan01:0.35,depthBelowSeafloorRange:[10,32]},
+        {name:"Mid",depthRange01:[0.30,0.76],caveCount:3,roomsPerCaveRange:[5,8],roomRadiusRange:[11,22],tunnelRadius:6,caveDepthSpan01:0.55,depthBelowSeafloorRange:[25,75]},
+        {name:"Deep",depthRange01:[0.66,1],caveCount:3,roomsPerCaveRange:[12,18],roomRadiusRange:[18,36],tunnelRadius:8,caveDepthSpan01:1,depthBelowSeafloorRange:[70,150]}
+    ],
+    shallowY:60,deepY:-70,
+    noiseAmp:10,noiseScale:0.015,ridgeAmp:18,ridgeScale:0.004,canyonAmp:12,
+    caveNoise:0.18,ellScale:{x:1.25,y:0.7,z:1},
+    wander:55,dropRange:[12,38],entranceR:12,tunRange:[5,11],
+    branchChance:0.55,maxBranch:2,loopChance:0.3,complexity:1,roomMul:1,cellSize:7,entranceMul:1.5
+};
+
+const PROFILE=[[0,0],[0.22,0.08],[0.42,0.42],[0.68,0.72],[1,1]];
+function evalProfile(t){
+    const pts=PROFILE;
+    if(t<=pts[0][0])return pts[0][1];
+    if(t>=pts[4][0])return pts[4][1];
+    for(let i=0;i<4;i++){
+        if(t>=pts[i][0]&&t<=pts[i+1][0]){
+            const lt=(t-pts[i][0])/(pts[i+1][0]-pts[i][0]);
+            return lerp(pts[i][1],pts[i+1][1],smoothstep(lt));
+        }
+    }
+    return t;
+}
+
+class CaveGen{
+    constructor(seed){
+        this.seed=seed;
+        this.rng=new SeededRandom(seed);
+        this.perlin=new PerlinNoise(seed);
+        this.rooms=[];this.conns=[];this.caveCount=0;
+    }
+    floorH(x,z){
+        const hz=Math.max(.001,P.mapSize.z*.5);
+        const p01=clamp((z+hz)/(hz*2),0,1);
+        let s01=evalProfile(p01);
+        const tS=Math.round(s01*6)/6;
+        s01=lerp(s01,tS,0.45);
+        const base=lerp(P.shallowY,P.deepY,s01);
+        const s=this.seed,sc=P.noiseScale;
+        const lg=this.perlin.n((x+s*.071)*sc,(z-s*.043)*sc);
+        const dt=this.perlin.n((x-s*.019)*sc*2.7,(z+s*.031)*sc*2.7);
+        const n=(lg-.5)+(dt-.5)*.35;
+        const rs=Math.max(.001,P.ridgeScale);
+        const rg=this.perlin.n((x+s*.101)*rs,(z-s*.067)*rs);
+        const cn=this.perlin.n((x-s*.041)*rs*.7,(z+s*.083)*rs*1.25);
+        const c01=Math.pow(Math.abs(cn-.5)*2,2);
+        return base+n*P.noiseAmp+(rg-.5)*P.ridgeAmp-c01*P.canyonAmp;
+    }
+    normR(r,m){return[Math.max(m,Math.min(r[0],r[1])),Math.max(m,Math.max(r[0],r[1]))]}
+    addR(ci,x,z,dbs,r,tr,role,es){
+        tr=Math.max(tr,.5);r=Math.max(r,tr*1.05);
+        const y=this.floorH(x,z)-Math.max(tr*2,dbs);
+        const id=this.rooms.length;
+        es=es||{...P.ellScale};
+        this.rooms.push({id,ci,pos:{x,y,z},r,tr,role,es});
+        return id;
+    }
+    addC(fi,ti,rad){this.conns.push({fi,ti,rad,fp:this.rooms[fi].pos,tp:this.rooms[ti].pos})}
+    nearest(rid,ids){
+        let n=-1,b=Infinity;const p=this.rooms[rid].pos;
+        for(const id of ids){const q=this.rooms[id].pos;const d=(p.x-q.x)**2+(p.y-q.y)**2+(p.z-q.z)**2;if(d<b){b=d;n=id}}
+        return n;
+    }
+    nearestUnconn(rid,ids){
+        let n=-1,b=Infinity;const p=this.rooms[rid].pos;
+        for(const id of ids){if(id===rid||this.hasConn(rid,id))continue;const q=this.rooms[id].pos;const d=(p.x-q.x)**2+(p.y-q.y)**2+(p.z-q.z)**2;if(d<b){b=d;n=id}}
+        return n;
+    }
+    hasConn(a,b){return this.conns.some(c=>(c.fi===a&&c.ti===b)||(c.fi===b&&c.ti===a))}
+    mst(ids){
+        if(ids.length<2)return;
+        const cn=new Set([ids[0]]);
+        while(cn.size<ids.length){
+            let bf=-1,bt=-1,bd=Infinity;
+            for(const f of cn)for(const t of ids){
+                if(cn.has(t))continue;
+                const pf=this.rooms[f].pos,pt=this.rooms[t].pos;
+                const d=(pf.x-pt.x)**2+(pf.y-pt.y)**2+(pf.z-pt.z)**2;
+                if(d<bd){bd=d;bf=f;bt=t}
+            }
+            this.addC(bf,bt,lerpRng(this.rng,P.tunRange[0],P.tunRange[1]));
+            cn.add(bt);
+        }
+    }
+    loops(ids){
+        for(const rid of ids){
+            if(this.rng.next()>Math.max(P.loopChance,P.branchChance*.35))continue;
+            const n=this.nearestUnconn(rid,ids);
+            if(n>=0)this.addC(rid,n,lerpRng(this.rng,P.tunRange[0],P.tunRange[1]));
+        }
+    }
+    getCaveIds(ci){return this.rooms.filter(r=>r.ci===ci).map(r=>r.id)}
+    assignRoles(ids){
+        if(!ids.length)return;
+        const deg=new Array(this.rooms.length).fill(0);
+        for(const c of this.conns){deg[c.fi]++;deg[c.ti]++}
+        const first=ids[0];let deepest=first;
+        for(const id of ids)if(this.rooms[id].pos.y<this.rooms[deepest].pos.y)deepest=id;
+        for(const id of ids){
+            let role='Room';
+            if(id===first)role='Entrance';
+            else if(id===deepest)role='Deep';
+            else if(deg[id]<=1)role='DeadEnd';
+            else if(deg[id]>=3)role='Hub';
+            this.rooms[id].role=role;
+        }
+    }
+
+    genGraphCave(ci,pr,nC,dR,drR,tR,mR,MRe,etR,lane,es){
+        const hx=P.mapSize.x*.5,hz=P.mapSize.z*.5,hl=Math.max(1,hx*.78);
+        const sl=Math.max(1,Math.min(hl,hx-Math.max(P.cellSize*1.5,etR*1.75)));
+        const lr=sl*.94,jt=sl*.11;
+        const eX=clamp(lerp(-lr,lr,lane)+lerpRng(this.rng,-jt,jt),-sl,sl);
+        const eZ=lerp(-hz*.88,hz*.88,pr[0]);
+        const sr=Math.max(etR,.5);
+        const eD=clamp(sr*1.15,dR[0],dR[1]);
+        const eId=this.addR(ci,eX,eZ,eD,sr,sr,'Entrance',es);
+        const shaft=[eId];
+        const sNC=clamp(Math.round(nC*.35),1,Math.max(1,nC-1));
+        const sbD=clamp(lerp(dR[0],dR[1],.78)+lerpRng(this.rng,-drR[1],drR[1]),dR[0],dR[1]);
+        const sbZ=clamp(eZ+lerpRng(this.rng,-P.mapSize.z*.018,P.mapSize.z*.018),-hz*.92,hz*.92);
+        let prev=eId;
+        for(let i=1;i<=sNC;i++){
+            const t=i/sNC;
+            const sx=clamp(eX+lerpRng(this.rng,-P.wander*.08,P.wander*.08),-hl,hl);
+            const sz=clamp(lerp(eZ,sbZ,t)+lerpRng(this.rng,-P.mapSize.z*.006,P.mapSize.z*.006),-hz*.92,hz*.92);
+            const dp=lerp(eD,sbD,t);
+            const rd=lerp(sr,sr*1.15,t);
+            const rid=this.addR(ci,sx,sz,dp,rd,sr,'Room',es);
+            this.addC(prev,rid,lerpRng(this.rng,tR[0],tR[1]));
+            shaft.push(rid);prev=rid;
+        }
+        // Side chambers
+        if(shaft.length>=3){
+            const step=shaft.length<=4?2:3;
+            for(let i=2;i<shaft.length;i+=step){
+                const pid=shaft[i],par=this.rooms[pid];
+                const dir=(i%2===0?-1:1)*(this.rng.next()<.35?-1:1);
+                const sf=this.floorH(par.pos.x,par.pos.z);
+                const db=clamp(sf-par.pos.y+lerpRng(this.rng,-dR[1]*.04,dR[1]*.06),dR[0],dR[1]);
+                const sd=Math.max(MRe*lerpRng(this.rng,2.2,3.7),P.wander*lerpRng(this.rng,.35,.75));
+                const cx=clamp(par.pos.x+dir*sd,-hl,hl);
+                const cz=clamp(par.pos.z+lerpRng(this.rng,-MRe*1.4,MRe*1.4),-hz*.92,hz*.92);
+                const rr=Math.max(mR,par.r*lerpRng(this.rng,.8,1.1));
+                const tr2=Math.max(lerpRng(this.rng,tR[0],tR[1])*1.1,.5);
+                const cid=this.addR(par.ci,cx,cz,db,rr,tr2,'DeadEnd',es);
+                this.addC(pid,cid,lerpRng(this.rng,tR[0],tR[1]));
+            }
+        }
+        // Cluster
+        const cC=Math.max(1,nC-shaft.length);
+        const sb=this.rooms[prev];
+        const csX=Math.max(P.wander*2.1,MRe*5);
+        const csZ=Math.max(P.mapSize.z*Math.max(.025,pr[1]-pr[0])*.16,MRe*4.5);
+        const cDB=this.floorH(sb.pos.x,sb.pos.z)-sb.pos.y;
+        const cluster=[];
+        for(let i=0;i<cC;i++){
+            const ang=lerpRng(this.rng,0,Math.PI*2);
+            const d01=Math.sqrt(this.rng.next());
+            const x=clamp(sb.pos.x+Math.cos(ang)*csX*d01,-hl,hl);
+            const zB=lerpRng(this.rng,-csZ*.45,csZ*.45);
+            const z=clamp(sb.pos.z+Math.sin(ang)*csZ*d01*.65+zB,-hz*.92,hz*.92);
+            const db=clamp(cDB+lerpRng(this.rng,-drR[1]*.35,drR[1]*.45),dR[0],dR[1]);
+            const tr2=Math.max(lerpRng(this.rng,tR[0],tR[1])*1.25,.5);
+            const rr=lerpRng(this.rng,mR,MRe)*lerpRng(this.rng,1.35,1.9);
+            const role=i===0?'Deep':'Room';
+            cluster.push(this.addR(ci,x,z,db,rr,tr2,role,es));
+        }
+        if(cluster.length>0){
+            const nc=this.nearest(shaft[shaft.length-1],cluster);
+            this.addC(shaft[shaft.length-1],nc,lerpRng(this.rng,tR[0],tR[1]));
+            this.mst(cluster);this.loops(cluster);
+            if(P.maxBranch>0&&cluster.length>=3){
+                let gb=false;
+                for(let i=1;i<cluster.length-1;i++){
+                    if(this.rng.next()>P.branchChance)continue;
+                    this._branch(cluster[i],hl,hz,dR,drR,tR,mR,MRe,es);gb=true;
+                }
+                if(!gb&&P.branchChance>0)this._branch(cluster[Math.floor(cluster.length/2)],hl,hz,dR,drR,tR,mR,MRe,es);
+            }
+        }
+        this.assignRoles(this.getCaveIds(ci));
+    }
+    _branch(pid,hx,hz,dR,drR,tR,mR,MRe,es){
+        const par=this.rooms[pid];
+        const bl=this.rng.nextInt(1,P.maxBranch);
+        const dir=this.rng.next()<.5?-1:1;
+        let prev=pid,x=par.pos.x,z=par.pos.z;
+        let dbs=this.floorH(par.pos.x,par.pos.z)-par.pos.y;
+        for(let i=0;i<bl;i++){
+            x+=dir*lerpRng(this.rng,P.wander*.65,P.wander*1.35);
+            z+=lerpRng(this.rng,-P.dropRange[0]*.35,P.dropRange[1]*.55);
+            dbs+=lerpRng(this.rng,P.dropRange[0]*.25,P.dropRange[1]*.75);
+            x=clamp(x,-hx,hx);z=clamp(z,-hz*.92,hz*.92);
+            dbs=clamp(dbs,dR[0],dR[1]);
+            const tr2=Math.max(lerpRng(this.rng,tR[0],tR[1]),.5);
+            const rr=lerpRng(this.rng,mR,MRe);
+            const role=i===bl-1?'DeadEnd':'Room';
+            const rid=this.addR(par.ci,x,z,dbs,rr,tr2,role,es);
+            this.addC(prev,rid,lerpRng(this.rng,tR[0],tR[1]));prev=rid;
+        }
+    }
+
+    genDeepCave(ci,pr,nC,dR,drR,tR,mR,MRe,etR,lane,es){
+        const hx=P.mapSize.x*.5,hz=P.mapSize.z*.5,hl=Math.max(1,hx*.82);
+        const tc=clamp(Math.round(nC*.58),7,14);
+        let bb=Math.max(4,nC-tc);
+        const nt=Math.max(.5,tR[0]*.9,P.cellSize*1.2);
+        const sl=Math.max(1,Math.min(hl,hx-Math.max(P.cellSize*1.5,etR*1.75)));
+        const lr=sl*.94,jt=sl*.11;
+        const eX=clamp(lerp(-lr,lr,lane)+lerpRng(this.rng,-jt,jt),-sl,sl);
+        const rMin=lerp(-hz*.9,hz*.9,pr[0]),rMax=lerp(-hz*.9,hz*.9,pr[1]);
+        const rc=(rMin+rMax)*.5;
+        const re=Math.max((rMax-rMin)*.5,hz*.54);
+        let zMin=clamp(rc-re,-hz*.92,hz*.92),zMax=clamp(rc+re,-hz*.92,hz*.92);
+        const ms=hz*.72;
+        if(zMax-zMin<ms){const m=(ms-(zMax-zMin))*.5;zMin=clamp(zMin-m,-hz*.92,hz*.92);zMax=clamp(zMax+m,-hz*.92,hz*.92)}
+        const xMin=-hl,xMax=hl;
+        const zC=(zMin+zMax)*.5,zE=Math.max(1,(zMax-zMin)*.5);
+        const eZ=clamp(zMin+zE*.15,zMin,zMax);
+        const eD=clamp(nt*1.35,dR[0],dR[1]);
+        const eId=this.addR(ci,eX,eZ,eD,Math.max(mR*.92,nt*1.12),nt,'Entrance',es);
+        const trunk=[eId];let prev=eId,cX=eX,cZ=eZ,cD=eD;
+        for(let i=1;i<tc;i++){
+            let tX=cX,tZ=cZ,dbs=cD;
+            const sa=i%3;
+            if(sa===1){const d=this.rng.next()<.5?-1:1;tZ=clamp(cZ+d*lerpRng(this.rng,zE*.38,zE*.85),zMin,zMax);if(Math.abs(tZ-cZ)<zE*.22)tZ=clamp(zC-Math.sign(cZ-zC+.01)*zE*lerpRng(this.rng,.45,.9),zMin,zMax)}
+            else if(sa===2){const d=this.rng.next()<.5?-1:1;tX=clamp(cX+d*lerpRng(this.rng,P.wander*.38,P.wander*.9),xMin,xMax)}
+            else{dbs=clamp(cD+lerpRng(this.rng,-drR[0]*.75,drR[1]*.95),dR[0],dR[1])}
+            const mj=i===tc-1||i===(tc>>1);
+            const rr=mj?lerpRng(this.rng,MRe*.9,MRe*1.18):lerpRng(this.rng,mR*.85,MRe*.98);
+            const tr2=lerpRng(this.rng,tR[0]*.82,tR[1]*.96);
+            const role=i===tc-1?'Deep':'Room';
+            const fr=this.rooms[prev];const fd=this.floorH(fr.pos.x,fr.pos.z)-fr.pos.y;
+            let cId=prev,cuX=fr.pos.x,cuZ=fr.pos.z,cuD=fd;
+            const wp=Math.max(tr2*.72,P.cellSize*.68);
+            const or=this.rng.nextInt(0,2);
+            for(let s=0;s<3;s++){
+                const ax=(or+s)%3;let nX=cuX,nZ=cuZ,nD=cuD;
+                if(ax===0)nX=tX;else if(ax===1)nZ=tZ;else nD=dbs;
+                if(Math.abs(nX-cuX)<P.cellSize*.5&&Math.abs(nZ-cuZ)<P.cellSize*.5&&Math.abs(nD-cuD)<P.cellSize*.5)continue;
+                const wid=this.addR(ci,nX,nZ,nD,wp,tr2,'Tunnel',{x:.72,y:.72,z:.72});
+                this.addC(cId,wid,tr2);cId=wid;cuX=nX;cuZ=nZ;cuD=nD;
+            }
+            const tid=this.addR(ci,tX,tZ,dbs,rr,tr2,role,es);
+            this.addC(cId,tid,tr2);
+            trunk.push(tid);prev=tid;cX=tX;cZ=tZ;cD=dbs;
+        }
+        for(let i=1;i<trunk.length-1&&bb>0;i++){
+            const g=i===(trunk.length>>1);
+            if(!g&&this.rng.next()>.7)continue;
+            const bl=Math.min(bb,this.rng.nextInt(2,clamp(P.maxBranch+1,3,7)));
+            this._deepBranch(trunk[i],bl,hx,xMin,xMax,dR,drR,tR,mR,MRe,zMin,zMax,es);
+            bb-=bl;
+        }
+        this.assignRoles(this.getCaveIds(ci));
+    }
+    _deepBranch(pid,bl,hx,xMin,xMax,dR,drR,tR,mR,MRe,zMin,zMax,es){
+        const par=this.rooms[pid];
+        const dir=this.rng.next()<.5?-1:1;let zDir=this.rng.next()<.5?-1:1;
+        const zE=Math.max(1,(zMax-zMin)*.5);
+        let prev=pid,x=par.pos.x,z=par.pos.z;
+        let dbs=this.floorH(par.pos.x,par.pos.z)-par.pos.y;
+        for(let i=0;i<bl;i++){
+            const sa=i%3;
+            if(sa===0)z=clamp(z+zDir*lerpRng(this.rng,zE*.28,zE*.78),zMin,zMax);
+            else if(sa===1)x=clamp(x+dir*lerpRng(this.rng,P.wander*.24,P.wander*.68),xMin,xMax);
+            else dbs=clamp(dbs+lerpRng(this.rng,-drR[0]*.75,drR[1]*.9),dR[0],dR[1]);
+            if(i%2===1&&this.rng.next()<.55)zDir*=-1;
+            const de=i===bl-1;const lg=de&&this.rng.next()<.18;
+            const rr=lg?lerpRng(this.rng,MRe*.95,MRe*1.22):lerpRng(this.rng,mR*.78,MRe*.92);
+            const tr2=lerpRng(this.rng,tR[0]*.78,tR[1]*.9);
+            const role=de?'DeadEnd':'Room';
+            const rid=this.addR(par.ci,x,z,dbs,rr,tr2,role,es);
+            this.addC(prev,rid,tr2);prev=rid;
+        }
+    }
+
+    genZoneCave(zone,ci,lane,pr,sm,cc){
+        const zs=Math.max(.01,pr[1]-pr[0]);
+        const ms=zs/cc*.82;
+        const rc=Math.min(clamp(zone.caveDepthSpan01,.05,1)*zs,ms);
+        const rooms=Math.max(2,Math.round(this.rng.nextInt(zone.roomsPerCaveRange[0],zone.roomsPerCaveRange[1])*P.roomMul));
+        const mp=Math.min(zs,Math.max(.045,rooms*.012));
+        const cs=Math.min(zs,Math.max(rc,mp));
+        const cc2=lerp(pr[0],pr[1],lane);
+        const cMn=clamp(cc2-cs*.5,pr[0],pr[1]-cs);
+        const cMx=cMn+cs;
+        const rr=this.normR(zone.roomRadiusRange,1).map(v=>v*sm);
+        const tr=Math.max(zone.tunnelRadius*sm,.5);
+        const tR=this.normR([tr*1.15,Math.max(tr+.5,tr*1.65)],tr);
+        const dR=this.normR(zone.depthBelowSeafloorRange.map(v=>v*sm),tr*2);
+        const drR=this.normR(P.dropRange,0);
+        const es=P.ellScale;
+        const isDeep=zone.name==='Deep'||zone.depthRange01[0]>=.6;
+        const ze=Math.max(tR[1]*1.08,Math.min(P.entranceR,rr[1]*1.05));
+        const ve=clamp(ze*lerpRng(this.rng,.72,1.28),tR[1]*.9,Math.max(tR[1],rr[1]*1.15));
+        if(isDeep)this.genDeepCave(ci,[cMn,cMx],Math.max(6,rooms),dR,drR,tR,rr[0],rr[1],ve,lane,es);
+        else this.genGraphCave(ci,[cMn,cMx],Math.max(2,rooms),dR,drR,tR,rr[0],rr[1],ve,lane,es);
+    }
+
+    generate(){
+        this.rooms=[];this.conns=[];this.caveCount=0;
+        const zones=P.depthZones;
+        if(!zones||!zones.length)return;
+        let ci=0;const MC=3;
+        for(let zi=0;zi<zones.length;zi++){
+            const z=zones[zi];const ec=Math.max(MC,z.caveCount);
+            for(let j=0;j<ec;j++){const lt=ec<=1?.5:j/(ec-1);this.genZoneCave(z,ci,lt,z.depthRange01,1,ec);ci++}
+            if(zi>0){const iz=zones[zi-1];const ic=Math.max(1,Math.floor(ec/3));
+                for(let j=0;j<ic;j++){const lt=ic<=1?.5:j/(ic-1);this.genZoneCave(iz,ci,lt,z.depthRange01,.8,ic);ci++}}
+        }
+        this.caveCount=ci;
+    }
+}
+
+// ==================== SPATIAL GRID ====================
+class SpatialGrid{
+    constructor(rooms,conns,cellSz){
+        this.cs=cellSz;this.rCells={};this.cCells={};
+        for(let i=0;i<rooms.length;i++){
+            const r=rooms[i];const es=r.es||{x:1,y:1,z:1};
+            const ex=Math.max(.1,r.r*es.x),ey=Math.max(.1,r.r*es.y),ez=Math.max(.1,r.r*es.z);
+            const k=this._key(r.pos.x-ex,r.pos.y-ey,r.pos.z-ez);
+            const k2=this._key(r.pos.x+ex,r.pos.y+ey,r.pos.z+ez);
+            this._insert(this.rCells,k,k2,i);
+        }
+        for(let i=0;i<conns.length;i++){
+            const c=conns[i];const p=Math.max(c.rad,1);
+            const k=this._key(Math.min(c.fp.x,c.tp.x)-p,Math.min(c.fp.y,c.tp.y)-p,Math.min(c.fp.z,c.tp.z)-p);
+            const k2=this._key(Math.max(c.fp.x,c.tp.x)+p,Math.max(c.fp.y,c.tp.y)+p,Math.max(c.fp.z,c.tp.z)+p);
+            this._insert(this.cCells,k,k2,i);
+        }
+    }
+    _key(x,y,z){return`${Math.floor(x/this.cs)},${Math.floor(y/this.cs)},${Math.floor(z/this.cs)}`}
+    _insert(cells,k,k2,id){
+        const[x0,y0,z0]=k.split(',').map(Number);
+        const[x1,y1,z1]=k2.split(',').map(Number);
+        for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++){
+            const k3=`${x},${y},${z}`;
+            if(!cells[k3])cells[k3]=[];cells[k3].push(id);
+        }
+    }
+    queryRooms(x,y,z){const k=this._key(x,y,z);return this.rCells[k]||[]}
+    queryConns(x,y,z){const k=this._key(x,y,z);return this.cCells[k]||[]}
+}
+
+// ==================== MARCHING CUBES TABLE ====================
+const MC_EDGE=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+const MC_VERT=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+// Full marching cubes triangle table (standard 256 entries)
+// Using compressed format: each entry is array of edge indices forming triangles (terminated by -1)
+// This is the standard Paul Bourke table
+const MC_TRI=(function(){
+    const edgeTable=new Uint32Array(256);
+    const triTable=Array.from({length:256},()=>[]);
+    for(let i=0;i<256;i++){
+        for(let e=0;e<12;e++){
+            const a=MC_EDGE[e][0],b=MC_EDGE[e][1];
+            if(((i>>a)&1)!==((i>>b)&1))edgeTable[i]|=(1<<e);
+        }
+        if(edgeTable[i]===0)continue;
+        const verts=[];
+        for(let e=0;e<12;e++){
+            if(!(edgeTable[i]&(1<<e)))continue;
+            const a=MC_EDGE[e][0],b=MC_EDGE[e][1];
+            verts.push({edge:e,a,b});
+        }
+        // Simple fan triangulation of surface-crossing edges per cube face
+        const faces=[[0,8,4,9],[1,10,5,11],[2,6,10,1],[3,11,7,8],[0,3,7,4],[2,5,6,9]];
+        for(const f of faces){
+            const fv=f.filter(e=>edgeTable[i]&(1<<e));
+            if(fv.length<2)continue;
+            for(let j=0;j<fv.length-1;j++){
+                triTable[i].push(fv[j],fv[j+1],fv[0]===fv[j]?fv[j]:fv[0]);
+            }
+        }
+    }
+    return{edgeTable,triTable};
+})();
+
+function buildCaveMesh(gen){
+    const rooms=gen.rooms,conns=gen.conns;
+    if(!rooms.length)return{v:new Float32Array(0),n:new Float32Array(0)};
+
+    // Tight bounds around actual room/connection positions
+    let mn={x:Infinity,y:Infinity,z:Infinity},mx={x:-Infinity,y:-Infinity,z:-Infinity};
+    const pad=20;
+    for(const r of rooms){
+        mn.x=Math.min(mn.x,r.pos.x-r.r-pad);mn.y=Math.min(mn.y,r.pos.y-r.r-pad);mn.z=Math.min(mn.z,r.pos.z-r.r-pad);
+        mx.x=Math.max(mx.x,r.pos.x+r.r+pad);mx.y=Math.max(mx.y,r.pos.y+r.r+pad);mx.z=Math.max(mx.z,r.pos.z+r.r+pad);
+    }
+    for(const c of conns){
+        const p=Math.max(c.rad+pad,1);
+        mn.x=Math.min(mn.x,Math.min(c.fp.x,c.tp.x)-p);mn.y=Math.min(mn.y,Math.min(c.fp.y,c.tp.y)-p);mn.z=Math.min(mn.z,Math.min(c.fp.z,c.tp.z)-p);
+        mx.x=Math.max(mx.x,Math.max(c.fp.x,c.tp.x)+p);mx.y=Math.max(mx.y,Math.max(c.fp.y,c.tp.y)+p);mx.z=Math.max(mx.z,Math.max(c.fp.z,c.tp.z)+p);
+    }
+    // Include seafloor surface range
+    mn.y=Math.min(mn.y,Math.min(P.shallowY,P.deepY)-20);
+    mx.y=Math.max(mx.y,P.shallowY+10);
+
+    const maxVox=80000;
+    let cs=Math.max(6,P.cellSize*1.5);
+    let xc=Math.max(2,Math.ceil((mx.x-mn.x)/cs)+1);
+    let yc=Math.max(2,Math.ceil((mx.y-mn.y)/cs)+1);
+    let zc=Math.max(2,Math.ceil((mx.z-mn.z)/cs)+1);
+    let tot=xc*yc*zc;
+    if(tot>maxVox){const s=Math.pow(tot/maxVox,1/3);cs*=s;
+        xc=Math.max(2,Math.ceil((mx.x-mn.x)/cs)+1);yc=Math.max(2,Math.ceil((mx.y-mn.y)/cs)+1);zc=Math.max(2,Math.ceil((mx.z-mn.z)/cs)+1);
+    }
+    tot=xc*yc*zc;
+    console.log(`Grid:${xc}x${yc}x${zc} cs=${cs.toFixed(1)} voxels=${tot} rooms=${rooms.length} conns=${conns.length}`);
+
+    // Build spatial grid
+    const sg=new SpatialGrid(rooms,conns,Math.max(cs*2,30));
+
+    // Cave noise offsets
+    const cpn=new PerlinNoise(gen.seed);
+    const cnOff=new Float32Array(xc*zc);
+    for(let x=0;x<xc;x++)for(let z=0;z<zc;z++){
+        const px=mn.x+x*cs,pz=mn.z+z*cs;
+        cnOff[x*zc+z]=(cpn.n((px+gen.seed*.013)*.035,(pz-gen.seed*.017)*.035)-.5)*P.caveNoise*cs;
+    }
+
+    // Density field
+    const density=new Float32Array(tot);
+    for(let x=0;x<xc;x++)for(let y=0;y<yc;y++)for(let z=0;z<zc;z++){
+        const idx=(x*yc+y)*zc+z;
+        const px=mn.x+x*cs,py=mn.y+y*cs,pz=mn.z+z*cs;
+        let d=gen.floorH(px,pz)-py;
+
+        const ri=sg.queryRooms(px,py,pz);
+        for(let k=0;k<ri.length;k++){
+            const room=rooms[ri[k]];const es=room.es||{x:1,y:1,z:1};
+            const ex=Math.max(.1,room.r*es.x),ey=Math.max(.1,room.r*es.y),ez=Math.max(.1,room.r*es.z);
+            const ox=px-room.pos.x,oy=py-room.pos.y,oz=pz-room.pos.z;
+            if(Math.abs(ox)>ex+cs||Math.abs(oy)>ey+cs||Math.abs(oz)>ez+cs)continue;
+            const dx=ox/ex,dy=oy/ey,dz=oz/ez;
+            const ma=Math.min(ex,ey,ez);
+            d=Math.min(d,(Math.sqrt(dx*dx+dy*dy+dz*dz)-1)*ma);
+        }
+
+        const ci=sg.queryConns(px,py,pz);
+        for(let k=0;k<ci.length;k++){
+            const c=conns[ci[k]];
+            const abx=c.tp.x-c.fp.x,aby=c.tp.y-c.fp.y,abz=c.tp.z-c.fp.z;
+            const den=abx*abx+aby*aby+abz*abz;
+            if(den<=1e-12){const fx=px-c.fp.x,fy=py-c.fp.y,fz=pz-c.fp.z;d=Math.min(d,Math.sqrt(fx*fx+fy*fy+fz*fz)-c.rad);continue}
+            const apx=px-c.fp.x,apy=py-c.fp.y,apz=pz-c.fp.z;
+            const t=clamp((apx*abx+apy*aby+apz*abz)/den,0,1);
+            const cx2=c.fp.x+t*abx,cy2=c.fp.y+t*aby,cz2=c.fp.z+t*abz;
+            const fx=px-cx2,fy=py-cy2,fz=pz-cz2;
+            d=Math.min(d,Math.sqrt(fx*fx+fy*fy+fz*fz)-c.rad);
+        }
+
+        if(d>-cs*.5)d+=cnOff[x*zc+z];
+        density[idx]=d;
+    }
+
+    // Marching cubes
+    const verts=[];
+    function getD(ix,iy,iz){if(ix<0||ix>=xc||iy<0||iy>=yc||iz<0||iz>=zc)return 999;return density[(ix*yc+iy)*zc+iz]}
+    function getV(ix,iy,iz){return{x:mn.x+ix*cs,y:mn.y+iy*cs,z:mn.z+iz*cs}}
+
+    for(let x=0;x<xc-1;x++)for(let y=0;y<yc-1;y++)for(let z=0;z<zc-1;z++){
+        const v=[getD(x,y,z),getD(x+1,y,z),getD(x+1,y+1,z),getD(x,y+1,z),getD(x,y,z+1),getD(x+1,y,z+1),getD(x+1,y+1,z+1),getD(x,y+1,z+1)];
+        let cubeIdx=0;
+        for(let i=0;i<8;i++)if(v[i]>0)cubeIdx|=1<<i;
+        if(MC_TRI.edgeTable[cubeIdx]===0)continue;
+
+        const p=[getV(x,y,z),getV(x+1,y,z),getV(x+1,y+1,z),getV(x,y+1,z),getV(x,y,z+1),getV(x+1,y,z+1),getV(x+1,y+1,z+1),getV(x,y+1,z+1)];
+        const edgeVerts=new Array(12);
+        for(let e=0;e<12;e++){
+            if(!(MC_TRI.edgeTable[cubeIdx]&(1<<e)))continue;
+            const a=MC_EDGE[e][0],b=MC_EDGE[e][1];
+            const t2=v[a]/(v[a]-v[b]);
+            edgeVerts[e]={x:p[a].x+t2*(p[b].x-p[a].x),y:p[a].y+t2*(p[b].y-p[a].y),z:p[a].z+t2*(p[b].z-p[a].z)};
+        }
+
+        const tri=MC_TRI.triTable[cubeIdx];
+        for(let i=0;i<tri.length;i+=3){
+            const v0=edgeVerts[tri[i]],v1=edgeVerts[tri[i+1]],v2=edgeVerts[tri[i+2]];
+            if(!v0||!v1||!v2)continue;
+            verts.push(v0.x,v0.y,v0.z,v1.x,v1.y,v1.z,v2.x,v2.y,v2.z);
+        }
+    }
+
+    // Compute normals
+    const normals=new Float32Array(verts.length);
+    for(let i=0;i<verts.length;i+=9){
+        const e1x=verts[i+3]-verts[i],e1y=verts[i+4]-verts[i+1],e1z=verts[i+5]-verts[i+2];
+        const e2x=verts[i+6]-verts[i],e2y=verts[i+7]-verts[i+1],e2z=verts[i+8]-verts[i+2];
+        let nx=e1y*e2z-e1z*e2y,ny=e1z*e2x-e1x*e2z,nz=e1x*e2y-e1y*e2x;
+        const len=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+        nx/=len;ny/=len;nz/=len;
+        normals[i]=nx;normals[i+1]=ny;normals[i+2]=nz;
+        normals[i+3]=nx;normals[i+4]=ny;normals[i+5]=nz;
+        normals[i+6]=nx;normals[i+7]=ny;normals[i+8]=nz;
+    }
+
+    return{v:new Float32Array(verts),n:normals};
+}
+
+function buildSeafloor(gen,res){
+    const hx=P.mapSize.x*.5,hz=P.mapSize.z*.5;
+    const step=P.mapSize.x/res;
+    const vt=[],idx=[];
+    for(let iz=0;iz<=res;iz++)for(let ix=0;ix<=res;ix++){
+        const x=-hx+ix*step,z=-hz+iz*step;
+        vt.push(x,gen.floorH(x,z),z);
+    }
+    for(let iz=0;iz<res;iz++)for(let ix=0;ix<res;ix++){
+        const i=iz*(res+1)+ix;
+        idx.push(i,i+res+1,i+1,i+1,i+res+1,i+res+2);
+    }
+    const nm=new Float32Array(vt.length);
+    for(let i=0;i<idx.length;i+=3){
+        const i0=idx[i]*3,i1=idx[i+1]*3,i2=idx[i+2]*3;
+        let nx=(vt[i1+1]-vt[i0+1])*(vt[i2+2]-vt[i0+2])-(vt[i1+2]-vt[i0+2])*(vt[i2+1]-vt[i0+1]);
+        let ny=(vt[i1+2]-vt[i0+2])*(vt[i2]-vt[i0])-(vt[i1]-vt[i0])*(vt[i2+2]-vt[i0+2]);
+        let nz=(vt[i1]-vt[i0])*(vt[i2+1]-vt[i0+1])-(vt[i1+1]-vt[i0+1])*(vt[i2]-vt[i0]);
+        nm[i0]+=nx;nm[i0+1]+=ny;nm[i0+2]+=nz;nm[i1]+=nx;nm[i1+1]+=ny;nm[i1+2]+=nz;nm[i2]+=nx;nm[i2+1]+=ny;nm[i2+2]+=nz;
+    }
+    for(let i=0;i<nm.length;i+=3){const l=Math.sqrt(nm[i]**2+nm[i+1]**2+nm[i+2]**2)||1;nm[i]/=l;nm[i+1]/=l;nm[i+2]/=l}
+    return{v:new Float32Array(vt),n:nm,i:new Uint32Array(idx)};
+}
+
+function makeTube(a,b,radius,material){
+    const start=new THREE.Vector3(a.x,a.y,a.z);
+    const end=new THREE.Vector3(b.x,b.y,b.z);
+    const dir=new THREE.Vector3().subVectors(end,start);
+    const len=dir.length();
+    if(len<.001)return null;
+    const geo=new THREE.CylinderGeometry(radius,radius,len,18,1,true);
+    const mesh=new THREE.Mesh(geo,material);
+    mesh.position.copy(start).add(end).multiplyScalar(.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+    return mesh;
+}
+
+function roomFloorPoint(room,ox=0,oz=0){
+    const es=room.es||{x:1,y:1,z:1};
+    const hr=room.r*Math.max(.1,Math.min(es.x,es.z));
+    const vr=room.r*Math.max(.1,es.y);
+    const hd=Math.sqrt(ox*ox+oz*oz);
+    const t=clamp(hd/Math.max(.001,hr),0,1);
+    const floor=-vr*Math.sqrt(Math.max(0,1-t*t));
+    return {x:room.pos.x+ox,y:room.pos.y+floor+.9,z:room.pos.z+oz};
+}
+
+function tunnelFloorPoint(conn){
+    return {
+        x:(conn.fp.x+conn.tp.x)*.5,
+        y:(conn.fp.y+conn.tp.y)*.5-Math.max(.4,conn.rad*.55)+.75,
+        z:(conn.fp.z+conn.tp.z)*.5
+    };
+}
+
+function createSpawnCandidates(gen){
+    const candidates=[];
+    for(const room of gen.rooms){
+        if(room.role==='Tunnel')continue;
+        candidates.push({pos:roomFloorPoint(room),role:room.role,kind:'room'});
+        const isLarge=room.r>=22;
+        if(isLarge){
+            candidates.push({pos:roomFloorPoint(room,room.r*.22,0),role:room.role,kind:'room'});
+            candidates.push({pos:roomFloorPoint(room,0,room.r*.22),role:room.role,kind:'room'});
+        }
+    }
+    for(const conn of gen.conns){
+        candidates.push({pos:tunnelFloorPoint(conn),role:'Tunnel',kind:'tunnel'});
+    }
+    return candidates;
+}
+
+function buildSpawnItems(gen){
+    const group=new THREE.Group();
+    group.name='SpawnItems';
+    const rng=new SeededRandom(gen.seed^0x51f15e);
+    const cubeGeo=new THREE.BoxGeometry(1,1,1);
+    const cylGeo=new THREE.CylinderGeometry(.55,.55,1,18,1);
+    const pinkMat=new THREE.MeshStandardMaterial({color:0xff2bd6,emissive:0xff149f,emissiveIntensity:1.8,roughness:.35,metalness:.05});
+    const greenMat=new THREE.MeshStandardMaterial({color:0x57ff3a,emissive:0x24ff00,emissiveIntensity:1.8,roughness:.35,metalness:.05});
+    const candidates=createSpawnCandidates(gen);
+    let cubeCount=0,cylinderCount=0;
+    for(const c of candidates){
+        const roleBoost=c.role==='DeadEnd'||c.role==='Deep'?1.4:(c.role==='Tunnel'?0.8:1);
+        const chance=clamp((c.kind==='tunnel'?0.18:0.36)*roleBoost,0.08,0.65);
+        if(rng.next()>chance)continue;
+        const isCylinder=c.kind==='tunnel'||rng.next()<.46;
+        const mesh=new THREE.Mesh(isCylinder?cylGeo:cubeGeo,isCylinder?greenMat:pinkMat);
+        mesh.position.set(c.pos.x,c.pos.y,c.pos.z);
+        const s=isCylinder?3.2:3.8;
+        mesh.scale.set(isCylinder?2.7:s,isCylinder?5.2:s,isCylinder?2.7:s);
+        mesh.rotation.y=rng.next()*Math.PI*2;
+        mesh.userData.spawnRole=c.role;
+        mesh.userData.spawnKind=isCylinder?'Cylinder':'Cube';
+        if(isCylinder)cylinderCount++;else cubeCount++;
+        group.add(mesh);
+    }
+    group.userData={candidates:candidates.length,cubeCount,cylinderCount};
+    return group;
+}
+
+function buildCaveVolume(gen){
+    const group=new THREE.Group();
+    group.name='CaveVolume';
+    const roomGeo=new THREE.SphereGeometry(1,22,14);
+    const roomMat=new THREE.MeshStandardMaterial({
+        color:0x64788e,roughness:.82,metalness:.03,transparent:true,opacity:.88,side:THREE.DoubleSide
+    });
+    const tunnelMat=new THREE.MeshStandardMaterial({
+        color:0x51677d,roughness:.86,metalness:.02,transparent:true,opacity:.92,side:THREE.DoubleSide
+    });
+    const entranceMat=new THREE.MeshStandardMaterial({
+        color:0x4ca778,roughness:.78,metalness:.02,transparent:true,opacity:.55,side:THREE.DoubleSide
+    });
+
+    for(const c of gen.conns){
+        const radius=Math.max(c.rad,2.5);
+        const tube=makeTube(c.fp,c.tp,radius,tunnelMat);
+        if(tube)group.add(tube);
+    }
+
+    for(const r of gen.rooms){
+        const es=r.es||{x:1,y:1,z:1};
+        const mesh=new THREE.Mesh(roomGeo,r.role==='Entrance'?entranceMat:roomMat);
+        mesh.position.set(r.pos.x,r.pos.y,r.pos.z);
+        const scale=r.role==='Tunnel' ? 0.78 : 1;
+        mesh.scale.set(Math.max(2,r.r*es.x*scale),Math.max(2,r.r*es.y*scale),Math.max(2,r.r*es.z*scale));
+        group.add(mesh);
+
+        if(r.role==='Entrance'){
+            const top={x:r.pos.x,y:gen.floorH(r.pos.x,r.pos.z)+Math.max(r.r*.25,4),z:r.pos.z};
+            const shaft=makeTube(top,r.pos,Math.max(r.tr*1.05,r.r*.22,3.5),entranceMat);
+            if(shaft)group.add(shaft);
+        }
+    }
+    return group;
+}
+
+// ==================== SCENE ====================
+let scene,camera,renderer,controls;
+let caveMesh,caveVolume,spawnItems,sfMesh,waterMesh,markers,lines;
+let currentSeed=12345;
+let xrayEnabled=false;
+
+function initScene(){
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x0a1628);
+    scene.fog=new THREE.FogExp2(0x0a1628,.001);
+    camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.5,2000);
+    camera.position.set(0,130,360);
+    renderer=new THREE.WebGLRenderer({canvas:document.getElementById('canvas'),antialias:true});
+    renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    controls=new OrbitControls(camera,renderer.domElement);
+    controls.mouseButtons={LEFT:null,MIDDLE:THREE.MOUSE.PAN,RIGHT:THREE.MOUSE.ROTATE};
+    controls.enableDamping=true;controls.dampingFactor=.08;
+    controls.target.set(0,0,0);controls.minDistance=10;controls.maxDistance=900;
+    document.body.dataset.mouseButtons='middle:pan,right:rotate,wheel:zoom';
+    scene.add(new THREE.AmbientLight(0x304060,1.5));
+    const dl=new THREE.DirectionalLight(0x80b0d0,2);dl.position.set(100,200,50);scene.add(dl);
+    const dl2=new THREE.DirectionalLight(0x406080,.8);dl2.position.set(-50,100,-100);scene.add(dl2);
+    window.__terrainViewer={scene,camera,controls};
+    document.body.dataset.viewerReady='1';
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+}
+
+function disposeObject(o){
+    if(!o)return;
+    o.traverse?.(c=>{
+        if(c.geometry)c.geometry.dispose();
+        const mats=Array.isArray(c.material)?c.material:(c.material?[c.material]:[]);
+        for(const m of mats)m.dispose?.();
+    });
+    if(o.geometry)o.geometry.dispose();
+    const mats=Array.isArray(o.material)?o.material:(o.material?[o.material]:[]);
+    for(const m of mats)m.dispose?.();
+}
+
+function clearScene(){
+    for(const o of [caveMesh,caveVolume,spawnItems,sfMesh,waterMesh,markers,lines]){
+        if(o){scene.remove(o);disposeObject(o)}
+    }
+    caveMesh=caveVolume=spawnItems=sfMesh=waterMesh=markers=lines=null;
+}
+
+function applyXray(){
+    if(!caveVolume)return;
+    caveVolume.traverse(o=>{
+        if(!o.material)return;
+        o.material.transparent=true;
+        o.material.opacity=xrayEnabled?0.18:0.82;
+        o.material.depthWrite=!xrayEnabled;
+        o.material.needsUpdate=true;
+    });
+    if(sfMesh?.material){
+        sfMesh.material.opacity=xrayEnabled?0.2:0.48;
+        sfMesh.material.depthWrite=false;
+    }
+    if(spawnItems)spawnItems.visible=true;
+    const btn=document.getElementById('btn-xray');
+    btn.setAttribute('aria-pressed',String(xrayEnabled));
+    btn.textContent=xrayEnabled?'X-ray On':'X-ray';
+    document.body.dataset.xray=String(xrayEnabled);
+}
+
+function generate(seed){
+    const ld=document.getElementById('loading');ld.style.display='flex';
+    document.getElementById('progress').style.width='10%';
+
+    requestAnimationFrame(()=>setTimeout(()=>{
+        clearScene();currentSeed=seed;
+        document.getElementById('seed-val').textContent=seed;
+        document.getElementById('loading-text').textContent='Generating cave layout...';
+        document.getElementById('progress').style.width='20%';
+
+        const gen=new CaveGen(seed);
+        gen.generate();
+
+        document.getElementById('stat-rooms').textContent=gen.rooms.length;
+        document.getElementById('stat-conns').textContent=gen.conns.length;
+        document.getElementById('stat-caves').textContent=gen.caveCount;
+        document.getElementById('loading-text').textContent='Building cave volume...';
+        document.getElementById('progress').style.width='40%';
+
+        setTimeout(()=>{
+            caveVolume=buildCaveVolume(gen);
+            scene.add(caveVolume);
+            document.body.dataset.caveVolumeChildren=String(caveVolume.children.length);
+            spawnItems=buildSpawnItems(gen);
+            scene.add(spawnItems);
+            document.body.dataset.spawnItems=String(spawnItems.children.length);
+            document.body.dataset.spawnCandidates=String(spawnItems.userData.candidates||0);
+            document.body.dataset.spawnCubes=String(spawnItems.userData.cubeCount||0);
+            document.body.dataset.spawnCylinders=String(spawnItems.userData.cylinderCount||0);
+            applyXray();
+            document.getElementById('progress').style.width='70%';
+            document.getElementById('loading-text').textContent='Building seafloor...';
+
+            setTimeout(()=>{
+
+                const sf=buildSeafloor(gen,64);
+                const sg=new THREE.BufferGeometry();
+                sg.setAttribute('position',new THREE.BufferAttribute(sf.v,3));
+                sg.setAttribute('normal',new THREE.BufferAttribute(sf.n,3));
+                sg.setIndex(new THREE.BufferAttribute(sf.i,1));
+                sfMesh=new THREE.Mesh(sg,new THREE.MeshStandardMaterial({color:0x263748,roughness:.9,metalness:.02,flatShading:true,side:THREE.DoubleSide,transparent:true,opacity:.48,depthWrite:false}));
+                scene.add(sfMesh);
+                applyXray();
+
+                const wg=new THREE.PlaneGeometry(P.mapSize.x*1.2,P.mapSize.z*1.2);
+                waterMesh=new THREE.Mesh(wg,new THREE.MeshStandardMaterial({color:0x1a365d,transparent:true,opacity:.35,roughness:.1,metalness:.3,side:THREE.DoubleSide}));
+                waterMesh.rotation.x=-Math.PI/2;waterMesh.position.y=P.shallowY+5;
+                scene.add(waterMesh);
+
+                const rc={Entrance:0x48bb78,Deep:0xf56565,Hub:0x4299e1,DeadEnd:0xed8936,Room:0x667eea};
+                markers=new THREE.Group();
+                const sharedGeo=new THREE.SphereGeometry(.8,8,6);
+                const mats={};
+                for(const[k,c]of Object.entries(rc))mats[k]=new THREE.MeshBasicMaterial({color:c});
+                for(const r of gen.rooms){
+                    if(r.role==='Tunnel')continue;
+                    const s=new THREE.Mesh(sharedGeo,mats[r.role]||mats.Room);
+                    s.position.set(r.pos.x,r.pos.y,r.pos.z);
+                    s.scale.setScalar(Math.max(.8,r.r*.08));
+                    markers.add(s);
+                }
+                scene.add(markers);
+
+                lines=new THREE.Group();
+                const lmat=new THREE.LineBasicMaterial({color:0x9fb5c9,transparent:true,opacity:.16});
+                for(const c of gen.conns){
+                    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(c.fp.x,c.fp.y,c.fp.z),new THREE.Vector3(c.tp.x,c.tp.y,c.tp.z)]);
+                    lines.add(new THREE.Line(g,lmat));
+                }
+                scene.add(lines);
+
+                document.getElementById('progress').style.width='100%';
+                setTimeout(()=>{ld.style.display='none'},200);
+            },10);
+        },10);
+    },10));
+}
+
+initScene();generate(currentSeed);
+document.getElementById('btn-regen').onclick=()=>generate(Math.floor(Math.random()*999999));
+document.getElementById('btn-xray').onclick=()=>{
+    xrayEnabled=!xrayEnabled;
+    applyXray();
+};
+
+(function anim(){
+    requestAnimationFrame(anim);
+    controls.update();
+    document.body.dataset.camera=camera.position.toArray().map(v=>v.toFixed(2)).join(',');
+    document.body.dataset.target=controls.target.toArray().map(v=>v.toFixed(2)).join(',');
+    renderer.render(scene,camera);
+})();
+</script>
+</body>
+</html>
+
