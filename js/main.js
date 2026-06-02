@@ -423,7 +423,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const embed = GAME_EMBEDS[key];
       demoBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        document.getElementById('game-iframe').src = embed.src;
+        const iframe = document.getElementById('game-iframe');
+        iframe.src = embed.src;
+        if (embed.portrait) {
+          iframeWrap.classList.add('portrait');
+          iframe.style.height = '760px';
+        } else {
+          iframeWrap.classList.remove('portrait');
+          iframe.style.height = '700px';
+        }
         iframeWrap.style.display = 'block';
         iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
