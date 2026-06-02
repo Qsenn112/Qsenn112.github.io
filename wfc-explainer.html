@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WFC Rule Builder</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#111418;color:#eef4f8;font-family:"Segoe UI",Arial,sans-serif}
+body{overflow:hidden}
+button,input{font:inherit}
+.app{height:100vh;display:grid;grid-template-columns:minmax(540px,1fr) 390px}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;padding:26px;background:#0e1217}
+.board-shell{width:min(82vh,86vw);max-width:760px;aspect-ratio:1;position:relative}
+#board{display:block;width:100%;height:100%;background:#0b0f14;border:1px solid #2b3643;box-shadow:0 30px 80px rgba(0,0,0,.42)}
+.hint{position:absolute;left:26px;bottom:22px;max-width:460px;padding:10px 12px;border:1px solid #2d3b48;border-radius:6px;background:rgba(12,17,22,.84);color:#aebfce;font-size:12px;line-height:1.55}
+.panel{height:100vh;overflow:auto;background:#171c22;border-left:1px solid #2b3540}
+.block{padding:16px 18px;border-bottom:1px solid #2b3540}
+h1{margin:0 0 8px;font-size:22px;letter-spacing:0}
+h2{margin:0 0 10px;font-size:14px}
+p{margin:0;color:#aebdca;font-size:13px;line-height:1.55}
+.rules{display:grid;gap:10px}
+.rule-row{display:grid;grid-template-columns:52px 1fr;gap:9px;align-items:center}
+.label{display:flex;align-items:center;gap:7px;font-size:13px;color:#d8e3ec}
+.dot{width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,.22)}
+input{width:100%;height:38px;padding:0 10px;border:1px solid #374756;border-radius:6px;background:#0f151c;color:#edf7ff}
+input:focus{outline:2px solid #2a8ac5;border-color:#58b5e5}
+select{width:100%;height:38px;padding:0 10px;border:1px solid #374756;border-radius:6px;background:#0f151c;color:#edf7ff}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{height:40px;border:1px solid #3b4b5b;background:#222c35;color:#eef6fb;border-radius:6px;cursor:pointer}
+button:hover{background:#2a3642;border-color:#5e7489}
+button.primary{background:#1d6996;border-color:#48b7ea}
+button.active{background:#315b27;border-color:#72d85a}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{padding:10px;border:1px solid #303e4c;border-radius:6px;background:#10161d}
+.stat b{display:block;font-size:18px;color:#fff}
+.stat span{font-size:12px;color:#9cafbf}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;color:#c1ceda;font-size:12px}
+.log{display:flex;flex-direction:column;gap:8px}
+.event{padding:9px 10px;border:1px solid #303e4c;border-radius:6px;background:#10161d;color:#cbd8e2;font-size:12px;line-height:1.45}
+.example{font-size:12px;color:#8fa3b5;margin-top:8px}
+@media(max-width:900px){
+  body{overflow:auto}
+  .app{height:auto;grid-template-columns:1fr}
+  .stage{min-height:58vh}
+  .panel{height:auto;border-left:0;border-top:1px solid #2b3540}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="stage">
+    <div class="board-shell"><canvas id="board" width="900" height="900"></canvas></div>
+    <div class="hint">숫자는 아직 가능한 후보 개수입니다. 확정된 칸은 하나의 원소로 채워지고, 주변 칸은 규칙에 따라 후보가 제거됩니다.</div>
+  </section>
+  <aside class="panel">
+    <div class="block">
+      <h1>WFC Rule Builder</h1>
+      <p>원소별로 “옆에 올 수 있는 원소”를 정한 뒤 Create를 누르세요. 첫 칸이 선택값 또는 랜덤값으로 확정되면 그 주변 후보군이 줄어들고, 같은 방식으로 전체 격자가 완성됩니다.</p>
+    </div>
+    <div class="block">
+      <h2>인접 규칙 입력</h2>
+      <div class="rules">
+        <div class="rule-row"><div class="label">첫 칸</div><select id="first-cell"><option value="water">물</option><option value="random">랜덤</option><option value="fire">불</option><option value="grass">풀</option><option value="stone">돌</option></select></div>
+        <div class="rule-row"><div class="label"><span class="dot" style="background:#2878d8"></span>물</div><input id="rule-water" value="불,풀"></div>
+        <div class="rule-row"><div class="label"><span class="dot" style="background:#ef4b3f"></span>불</div><input id="rule-fire" value="돌,물"></div>
+        <div class="rule-row"><div class="label"><span class="dot" style="background:#45ad54"></span>풀</div><input id="rule-grass" value="물,돌"></div>
+        <div class="rule-row"><div class="label"><span class="dot" style="background:#8d9299"></span>돌</div><input id="rule-stone" value="풀,불"></div>
+      </div>
+      <div class="example">예: 물 입력칸에 <b>불,풀</b>을 쓰면 물 옆에는 불과 풀만 후보로 남습니다.</div>
+    </div>
+    <div class="block controls">
+      <button id="create" class="primary">Create</button>
+      <button id="step">한 단계</button>
+      <button id="auto">자동 실행</button>
+      <button id="reset">리셋</button>
+    </div>
+    <div class="block stats">
+      <div class="stat"><b id="collapsed">0</b><span>확정된 칸</span></div>
+      <div class="stat"><b id="remaining">0</b><span>후보 합계</span></div>
+      <div class="stat"><b id="steps">0</b><span>진행 단계</span></div>
+      <div class="stat"><b id="seedText">0</b><span>seed</span></div>
+    </div>
+    <div class="block">
+      <h2>원소</h2>
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:#2878d8"></span>물</div>
+        <div class="legend-item"><span class="dot" style="background:#ef4b3f"></span>불</div>
+        <div class="legend-item"><span class="dot" style="background:#45ad54"></span>풀</div>
+        <div class="legend-item"><span class="dot" style="background:#8d9299"></span>돌</div>
+      </div>
+    </div>
+    <div class="block">
+      <h2>진행 로그</h2>
+      <div id="events" class="log"></div>
+    </div>
+  </aside>
+</main>
+<script>
+const N=12;
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const ITEMS=[
+  {id:'water',name:'물',aliases:['물','water'],color:'#2878d8'},
+  {id:'fire',name:'불',aliases:['불','fire'],color:'#ef4b3f'},
+  {id:'grass',name:'풀',aliases:['풀','grass'],color:'#45ad54'},
+  {id:'stone',name:'돌',aliases:['돌','stone'],color:'#8d9299'}
+];
+const IDS=ITEMS.map(i=>i.id);
+const byId=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+let seed=12345,rng=12345,grid=[],rules={},stepCount=0,autoTimer=null,lastPick=null,lastChanged=[];
+
+function rnd(){rng=(rng*1664525+1013904223)>>>0;return rng/4294967296}
+function parseToken(token){
+  const t=token.trim().toLowerCase();
+  if(!t)return null;
+  return ITEMS.find(i=>i.aliases.some(a=>a.toLowerCase()===t))?.id||null;
+}
+function parseRules(){
+  const fields={water:'rule-water',fire:'rule-fire',grass:'rule-grass',stone:'rule-stone'};
+  const next={};
+  for(const id of IDS){
+    const raw=document.getElementById(fields[id]).value;
+    const parsed=raw.split(/[,\s]+/).map(parseToken).filter(Boolean);
+    next[id]=new Set(parsed.length?parsed:IDS);
+  }
+  return next;
+}
+function create(){
+  stopAuto();
+  rules=parseRules();
+  seed=(Math.floor(Math.random()*999999)+1)>>>0;
+  rng=seed;
+  grid=Array.from({length:N*N},()=>({opts:new Set(IDS),done:false}));
+  stepCount=0;lastPick=null;lastChanged=[];
+  clearLog();
+  log('규칙을 적용했습니다. 모든 칸은 물, 불, 풀, 돌 후보를 가진 상태로 시작합니다.');
+  update();draw();
+}
+function reset(){
+  stopAuto();
+  rng=seed;
+  grid=Array.from({length:N*N},()=>({opts:new Set(IDS),done:false}));
+  stepCount=0;lastPick=null;lastChanged=[];
+  clearLog();
+  log('같은 규칙과 seed로 초기화했습니다.');
+  update();draw();
+}
+function cell(x,y){return grid[y*N+x]}
+function lowestEntropy(){
+  if(stepCount===0)return [0,0];
+  let best=[],min=Infinity;
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const c=cell(x,y);
+    if(c.done)continue;
+    if(c.opts.size<min){min=c.opts.size;best=[[x,y]]}
+    else if(c.opts.size===min)best.push([x,y]);
+  }
+  return best.length?best[Math.floor(rnd()*best.length)]:null;
+}
+function pickOption(opts){
+  const a=[...opts];
+  return a[Math.floor(rnd()*a.length)];
+}
+function firstChoice(opts){
+  const selected=document.getElementById('first-cell').value;
+  return selected==='random'||!opts.has(selected)?pickOption(opts):selected;
+}
+function allowedByNeighbors(x,y,opt){
+  const neighbors=[[x,y-1],[x+1,y],[x,y+1],[x-1,y]];
+  for(const [nx,ny] of neighbors){
+    if(nx<0||ny<0||nx>=N||ny>=N)continue;
+    const n=cell(nx,ny);
+    if(!n.done)continue;
+    const nid=[...n.opts][0];
+    if(!rules[nid].has(opt))return false;
+  }
+  return true;
+}
+function propagate(sx,sy){
+  const queue=[[sx,sy]],changed=[];
+  while(queue.length){
+    const [x,y]=queue.shift();
+    const c=cell(x,y);
+    if(!c.done)continue;
+    const id=[...c.opts][0];
+    for(const [nx,ny] of [[x,y-1],[x+1,y],[x,y+1],[x-1,y]]){
+      if(nx<0||ny<0||nx>=N||ny>=N)continue;
+      const n=cell(nx,ny);
+      if(n.done)continue;
+      const before=n.opts.size;
+      for(const opt of [...n.opts]){
+        if(!rules[id].has(opt)||!allowedByNeighbors(nx,ny,opt))n.opts.delete(opt);
+      }
+      if(n.opts.size===0)n.opts=new Set(IDS);
+      if(n.opts.size<before){changed.push([nx,ny]);queue.push([nx,ny])}
+    }
+  }
+  return changed;
+}
+function step(){
+  const pos=lowestEntropy();
+  if(!pos){stopAuto();log('모든 칸이 확정되었습니다.');return}
+  const [x,y]=pos,c=cell(x,y),choice=stepCount===0?firstChoice(c.opts):pickOption(c.opts);
+  c.opts=new Set([choice]);c.done=true;stepCount++;lastPick=[x,y];
+  lastChanged=propagate(x,y);
+  log(`${stepCount}. (${x+1}, ${y+1}) 칸이 ${byId[choice].name}(으)로 확정됐습니다. 주변 ${lastChanged.length}칸의 후보군이 줄었습니다.`);
+  update();draw();
+}
+function startAuto(){
+  if(autoTimer)return;
+  document.getElementById('auto').classList.add('active');
+  autoTimer=setInterval(step,260);
+}
+function stopAuto(){
+  clearInterval(autoTimer);autoTimer=null;
+  document.getElementById('auto').classList.remove('active');
+}
+function update(){
+  const collapsed=grid.filter(c=>c.done).length;
+  const remaining=grid.reduce((s,c)=>s+c.opts.size,0);
+  document.getElementById('collapsed').textContent=collapsed;
+  document.getElementById('remaining').textContent=remaining;
+  document.getElementById('steps').textContent=stepCount;
+  document.getElementById('seedText').textContent=seed;
+  document.body.dataset.collapsed=collapsed;
+  document.body.dataset.remaining=remaining;
+  document.body.dataset.steps=stepCount;
+}
+function drawCellOptions(opts,x,y,s){
+  const a=[...opts],mini=2,ms=s/mini;
+  a.forEach((id,i)=>{
+    ctx.fillStyle=byId[id].color;
+    ctx.fillRect(x+(i%mini)*ms,y+Math.floor(i/mini)*ms,ms,ms);
+  });
+  ctx.fillStyle='rgba(8,12,16,.45)';ctx.fillRect(x,y,s,s);
+  ctx.fillStyle='#eff7ff';ctx.font=`${Math.max(13,s*.24)}px Segoe UI`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(a.length,x+s/2,y+s/2);
+}
+function draw(){
+  const W=canvas.width,s=W/N;
+  ctx.clearRect(0,0,W,W);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const c=cell(x,y),px=x*s,py=y*s;
+    if(c.done){
+      const id=[...c.opts][0];
+      ctx.fillStyle=byId[id].color;ctx.fillRect(px,py,s,s);
+      ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(px,py+s*.66,s,s*.34);
+      ctx.fillStyle='#fff';ctx.font=`${Math.max(14,s*.22)}px Segoe UI`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(byId[id].name,px+s/2,py+s*.82);
+    }else drawCellOptions(c.opts,px,py,s);
+    ctx.strokeStyle='rgba(210,230,245,.14)';ctx.lineWidth=1;ctx.strokeRect(px,py,s,s);
+  }
+  for(const [x,y] of lastChanged){ctx.strokeStyle='#ffdf5d';ctx.lineWidth=4;ctx.strokeRect(x*s+4,y*s+4,s-8,s-8)}
+  if(lastPick){ctx.strokeStyle='#ff48bd';ctx.lineWidth=6;ctx.strokeRect(lastPick[0]*s+6,lastPick[1]*s+6,s-12,s-12)}
+}
+function clearLog(){document.getElementById('events').innerHTML=''}
+function log(text){
+  const el=document.createElement('div');
+  el.className='event';el.textContent=text;
+  document.getElementById('events').prepend(el);
+}
+document.getElementById('create').onclick=create;
+document.getElementById('step').onclick=step;
+document.getElementById('reset').onclick=reset;
+document.getElementById('auto').onclick=()=>autoTimer?stopAuto():startAuto();
+create();
+</script>
+</body>
+</html>
