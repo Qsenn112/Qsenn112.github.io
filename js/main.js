@@ -36,6 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
     },
+    spaceshooter: {
+      thumb: '🚀',
+      thumbClass: 'thumb-space-lg',
+      title: 'Space Shooter',
+      subtitle: '2D · Top-View · Shoot\'em Up · Web',
+      desc: '드래곤 플라이트 스타일의 탑뷰 2D 우주선 슈팅 게임. 네온 글로우 신스웨이브 비주얼, 4종 우주선 선택, 웨이브 기반 보스전, 루즈라이크 업그레이드 시스템.',
+      flow: '우주선 선택(4종) → 자동 전진 + 좌우 이동 → 오토샷 → 적·운석·보스 처치 → 웨이브 클리어 → 업그레이드 선택(3지선다) → 다음 웨이브',
+      tags: ['JavaScript', 'HTML5 Canvas', 'Web Game', 'E2E Tested'],
+      features: [
+        '4종 우주선 — 밸런스/공격/속도/방어, 각각 네온 글로우 색상·스탯 차별화',
+        '웨이브 시스템 — 무한 웨이브, 5스테이지마다 보스 등장 (HP바·육각형 디자인)',
+        '루즈라이크 업그레이드 — 스테이지 클리어 후 8종 중 3지선다 (ATK/연사/속도/HP/확산탄/실드)',
+        '네온 글로우 — 3레이어 패럴랙스 별 배경, 신스웨이브 아웃런 비주얼',
+        '충돌 감지 — AABB, 폴리곤 크기와 동일한 정밀 충돌 박스',
+        'Playwright E2E — 11개 테스트로 게임 플로우·충돌·웨이브·업그레이드 검증'
+      ],
+      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
+    },
     golgol: {
       thumb: 'G',
       thumbClass: 'thumb-golgol-lg',
@@ -351,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const GAME_EMBEDS = {
-
+    spaceshooter: { src: '/games/spaceshooter/index.html', portrait: true },
     jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
