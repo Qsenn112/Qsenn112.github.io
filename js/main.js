@@ -42,10 +42,10 @@
     });
   }
 
-  function setActiveSubitem(projectKey) {
-    activeProject = projectKey;
+  function setActiveSubitem(key) {
+    activeProject = key;
     document.querySelectorAll('.nav-subitem').forEach(function(item) {
-      item.classList.toggle('active', item.dataset.project === projectKey);
+      item.classList.toggle('active', item.dataset.project === key || item.dataset.research === key);
     });
   }
 
@@ -59,13 +59,12 @@
 
   document.querySelector('.sidebar-header').addEventListener('click', function() {
     setActiveCategory('project');
-    if (activeProject) {
-      setActiveSubitem(null);
-      document.querySelectorAll('.nav-subitem').forEach(function(item) {
-        item.classList.remove('active');
-      });
-    }
+    setActiveSubitem(null);
+    document.querySelectorAll('.nav-subitem').forEach(function(item) {
+      item.classList.remove('active');
+    });
     hideDetailPanel();
+    hideResearchDetail();
     var mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
   });
@@ -381,6 +380,98 @@
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
   };
 
+  // ===== RESEARCH DATA =====
+  var RESEARCH = {
+    blackwater: {
+      title: 'BlackWater:Salvage',
+      subtitle: 'Multiplayer \u00b7 Unity \u00b7 Research',
+      desc: '멀티플레이어 해양 샐비지 게임의 기술 연구 및 프로토타입 개발 과정입니다.',
+      flow: '멀티플레이어 구조 설계 → Unity Netcode 연구 → 해양 물리 시뮬레이션 → 샐비지 메카닉 프로토타입',
+      tags: ['Unity', 'Multiplayer', 'Netcode', 'Physics', 'Research'],
+      features: [
+        '멀티플레이어 아키텍처 — Unity Netcode for GameObjects 기반 서버-클라이언트 구조 연구',
+        '해양 시뮬레이션 — Buoyancy, Water Physics, Underwater Effects',
+        '샐비지 메카닉 — 잠수, 인양, 보상 시스템 프로토타입',
+        '선박 커스터마이징 — 모듈식 선박 업그레이드 시스템 설계'
+      ],
+      actions: []
+    },
+    'ai-workflow': {
+      title: 'AI Asset Workflow',
+      subtitle: 'AI \u00b7 Pipeline \u00b7 Research',
+      desc: 'AI 이미지 생성 도구를 활용한 게임 에셋 제작 파이프라인 연구입니다. ChatGPT, Freepik, Google Flow 등 다양한 AI 도구를 조합하여 효율적인 에셋 제작 워크플로우를 구축했습니다.',
+      flow: '레퍼런스 수집 → ChatGPT로 프롬프트 생성 → Freepik/Flow로 이미지 생성 → 후처리(배경제거/스프라이트 분할) → Unity 임포트',
+      tags: ['AI', 'ChatGPT', 'Freepik', 'Pipeline', 'Asset'],
+      features: [
+        '프롬프트 엔지니어링 — ChatGPT로 원하는 스타일의 이미지 생성 프롬프트 제작',
+        'Freepik 활용 — 이미지 비율/크기 세밀 제어, 고화질 출력',
+        '후처리 자동화 — 배경 투명화, 스프라이트 시트 자동 분할',
+        'Unity 통합 — 자동화된 임포트 파이프라인, 메타데이터 설정'
+      ],
+      extraSections: [
+        {
+          label: '워크플로우 상세',
+          items: [
+            'Step 1: 레퍼런스 이미지 → ChatGPT로 프롬프트 역설계',
+            'Step 2: Freepik에 프롬프트 전달 → 원하는 이미지 출력',
+            'Step 3: AI Pixel Snapper로 픽셀 정제 (픽셀 아트의 경우)',
+            'Step 4: 배경 투명화 → Google AI Studio로 스프라이트 자동 분할',
+            'Step 5: Unity 프로젝트에 임포트 및 메타데이터 설정'
+          ]
+        }
+      ],
+      actions: []
+    },
+    'pixel-snapper': {
+      title: 'Pixel Snapper',
+      subtitle: 'Tool \u00b7 Pixel Art \u00b7 AI Refinement',
+      desc: 'AI로 생성된 이미지를 픽셀 아트로 정제하는 툴 개발 연구입니다. AI 생성 이미지의 노이즈와 흐릿한 경계를 제거하고 깔끔한 픽셀 아트로 변환하는 알고리즘을 연구했습니다.',
+      flow: 'AI 이미지 입력 → 색상 양자화 → 픽셀 그리드 스냅 → 경계 정리 → 픽셀 아트 출력',
+      tags: ['Pixel Art', 'AI', 'Tool', 'Algorithm', 'JavaScript'],
+      features: [
+        '색상 양자화 — AI 이미지의 과도한 색상을 제한된 팔레트로 축소',
+        '픽셀 그리드 스냅 — 안티앨리어싱 제거, 픽셀 단위로 그리드 정렬',
+        '경계 정리 — 흐릿한 외곽선을 선명한 픽셀 경계로 변환',
+        'Web 기반 — 브라우저에서 바로 사용 가능한 웹 툴'
+      ],
+      extraSections: [
+        {
+          label: '한계점',
+          items: [
+            '유료 픽셀 아트 툴(Aseprite 등) 대비 화질 한계 존재',
+            '복잡한 패턴/텍스처 변환 시 디테일 손실 발생',
+            '색상 팔레트 자동 추출 정확도 개선 필요'
+          ]
+        }
+      ],
+      actions: []
+    },
+    wfc: {
+      title: 'WFC',
+      subtitle: 'Algorithm \u00b7 ProcGen \u00b7 Wave Function Collapse',
+      desc: 'Wave Function Collapse 알고리즘을 활용한 절차적 맵 생성 연구입니다. 타일 기반의 제약 조건을 정의하고 WFC 알고리즘으로 자연스러운 게임 맵을 자동 생성하는 방법을 연구했습니다.',
+      flow: '타일셋 정의 → 인접 규칙 설정 → WFC 알고리즘 실행 → 붕괴/전파 반복 → 맵 생성 완료',
+      tags: ['WFC', 'ProcGen', 'Algorithm', 'Research', 'Unity'],
+      features: [
+        '타일 기반 — 각 타일의 인접 가능 조건을 정의하여 자연스러운 배치',
+        '제약 조건 — 방향별(상하좌우) 연결 규칙, 전역 빈도 제어',
+        '붕괴/전파 — 엔트로피가 가장 낮은 셀부터 결정, 주변으로 제약 전파',
+        '백트래킹 — 모순 발생 시 이전 상태로 롤백하여 재시도'
+      ],
+      extraSections: [
+        {
+          label: '적용 분야',
+          items: [
+            '던전/맵 자동 생성 — Roguelike 게임의 레벨 디자인',
+            '타일맵 자동 배치 — 2D 플랫포머 지형 생성',
+            '오브젝트 배치 — 나무, 바위 등 환경 오브젝트의 자연스러운 배치'
+          ]
+        }
+      ],
+      actions: []
+    }
+  };
+
   // ===== DETAIL PANEL =====
   function buildDetailHTML(project) {
     var actionsHTML = project.actions.map(function(a) {
@@ -400,25 +491,27 @@
       });
     }
 
-    // Bind demo button → iframe
-    const demoBtn = detailPanel.querySelector('.btn-web');
-    if (demoBtn && GAME_EMBEDS[key]) {
-      const embed = GAME_EMBEDS[key];
-      demoBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const iframe = document.getElementById('game-iframe');
-        iframe.src = embed.src;
-        if (embed.portrait) {
-          iframeWrap.classList.add('portrait');
-          iframe.style.height = '760px';
-        } else {
-          iframeWrap.classList.remove('portrait');
-          iframe.style.height = '700px';
-        }
-        iframeWrap.style.display = 'block';
-        iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+    var retroHTML = '';
+    if (project.retrospective) {
+      retroHTML = '<div class="detail-section retrospective-wrapper">' +
+        '<button class="retrospective-toggle" onclick="var n=this.nextElementSibling;var o=n.classList.contains(\'open\');n.classList.toggle(\'open\',!o);this.classList.toggle(\'active\',!o);">\ud83d\udcdd \ud504\ub85c\uc81d\ud2b8\ub97c \uc9c4\ud589\ud558\uba70... <span class="toggle-arrow">\u25b8</span></button>' +
+        '<div class="retrospective-content">' + project.retrospective + '</div></div>';
     }
+
+    var thumbContent = project.thumbImage ? '<img src="' + project.thumbImage + '" alt="' + project.title + '">' : project.thumb;
+
+    return '<div class="detail-header">' +
+      '<div class="detail-thumb ' + project.thumbClass + '">' + thumbContent + '</div>' +
+      '<div class="detail-title-area"><h2 class="detail-title">' + project.title + '</h2><p class="detail-subtitle">' + project.subtitle + '</p></div>' +
+      '</div>' +
+      '<div class="detail-body">' +
+      '<div class="detail-section"><h4 class="detail-label">\uc124\uba85</h4><p class="detail-text">' + project.desc + '</p></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\ud50c\ub85c\uc6b0</h4><p class="detail-text">' + project.flow + '</p></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\uc0ac\uc6a9 \uae30\uc220</h4><div class="detail-tags">' + tagsHTML + '</div></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\uc8fc\uc694 \uae30\ub2a5</h4><ul class="detail-list">' + featuresHTML + '</ul></div>' +
+      extraHTML + retroHTML +
+      '</div>' +
+      '<div class="detail-actions">' + actionsHTML + '</div>';
   }
 
   function openDetail(key) {
@@ -463,6 +556,70 @@
     detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // ===== RESEARCH DETAIL PANEL =====
+  function buildResearchDetailHTML(research) {
+    var tagsHTML = research.tags.map(function(t) { return '<span class="detail-tag">' + t + '</span>'; }).join('');
+    var featuresHTML = research.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
+
+    var extraHTML = '';
+    if (research.extraSections) {
+      research.extraSections.forEach(function(section) {
+        var itemsHTML = section.items.map(function(item) { return '<li>' + item + '</li>'; }).join('');
+        extraHTML += '<div class="detail-section"><h4 class="detail-label">' + section.label + '</h4><ul class="detail-list">' + itemsHTML + '</ul></div>';
+      });
+    }
+
+    var actionsHTML = '';
+    if (research.actions && research.actions.length > 0) {
+      actionsHTML = '<div class="detail-actions">' + research.actions.map(function(a) {
+        var target = a.external ? ' target="_blank"' : '';
+        return '<a href="' + a.url + '"' + target + ' class="detail-btn ' + (a.class || 'btn-web') + '">' + a.label + '</a>';
+      }).join('') + '</div>';
+    }
+
+    return '<div class="detail-header">' +
+      '<div class="detail-title-area"><h2 class="detail-title">' + research.title + '</h2><p class="detail-subtitle">' + research.subtitle + '</p></div>' +
+      '</div>' +
+      '<div class="detail-body">' +
+      '<div class="detail-section"><h4 class="detail-label">\uc124\uba85</h4><p class="detail-text">' + research.desc + '</p></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\ud50c\ub85c\uc6b0</h4><p class="detail-text">' + research.flow + '</p></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\uc0ac\uc6a9 \uae30\uc220</h4><div class="detail-tags">' + tagsHTML + '</div></div>' +
+      '<div class="detail-section"><h4 class="detail-label">\uc8fc\uc694 \ub0b4\uc6a9</h4><ul class="detail-list">' + featuresHTML + '</ul></div>' +
+      extraHTML +
+      '</div>' + actionsHTML;
+  }
+
+  var researchDetailPanel = document.createElement('div');
+  researchDetailPanel.className = 'detail-panel';
+  researchDetailPanel.style.display = 'none';
+  var researchList = document.getElementById('research-list');
+  if (researchList) researchList.after(researchDetailPanel);
+
+  function hideResearchDetail() {
+    researchDetailPanel.style.display = 'none';
+    researchDetailPanel.innerHTML = '';
+    delete researchDetailPanel.dataset.current;
+  }
+
+  function openResearchDetail(key) {
+    var research = RESEARCH[key];
+    if (!research) return;
+
+    researchDetailPanel.innerHTML = buildResearchDetailHTML(research) +
+      '<button class="detail-close">\u2190 Back to Research</button>';
+    researchDetailPanel.style.display = 'block';
+
+    var closeBtn = researchDetailPanel.querySelector('.detail-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        hideResearchDetail();
+        setActiveSubitem(null);
+      });
+    }
+
+    researchDetailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   // ===== SIDEBAR SUB-ITEM → OPEN DETAIL =====
   document.querySelectorAll('.nav-subitem[data-project]').forEach(function(item) {
     item.addEventListener('click', function() {
@@ -496,6 +653,42 @@
       detailPanel.dataset.current = key;
       setActiveSubitem(key);
       openDetail(key);
+    });
+  });
+
+  // ===== SIDEBAR RESEARCH → OPEN DETAIL =====
+  document.querySelectorAll('.nav-subitem[data-research]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var key = item.dataset.research;
+      setActiveCategory('research');
+      setActiveSubitem(key);
+
+      var researchItem = document.querySelector('.research-item[data-research="' + key + '"]');
+      if (researchItem) {
+        researchItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() { openResearchDetail(key); }, 300);
+      } else {
+        openResearchDetail(key);
+      }
+    });
+  });
+
+  // ===== RESEARCH LIST ITEMS → OPEN DETAIL =====
+  document.querySelectorAll('.research-item[data-research]').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      var key = item.dataset.research;
+
+      if (researchDetailPanel.style.display === 'block' && researchDetailPanel.dataset.current === key) {
+        hideResearchDetail();
+        setActiveSubitem(null);
+        delete researchDetailPanel.dataset.current;
+        return;
+      }
+
+      researchDetailPanel.dataset.current = key;
+      setActiveSubitem(key);
+      openResearchDetail(key);
     });
   });
 

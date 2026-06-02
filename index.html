@@ -42,7 +42,12 @@
         <span>Research</span>
         <svg class="cat-chevron" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
       </button>
-      <ul class="nav-subitems"></ul>
+      <ul class="nav-subitems">
+        <li class="nav-subitem" data-research="blackwater"><span class="subitem-thumb" style="background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;">B</span><span class="subitem-label">BlackWater:Salvage</span></li>
+        <li class="nav-subitem" data-research="ai-workflow"><span class="subitem-thumb" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#000;">A</span><span class="subitem-label">AI Asset Workflow</span></li>
+        <li class="nav-subitem" data-research="pixel-snapper"><span class="subitem-thumb" style="background:linear-gradient(135deg,#f472b6,#db2777);color:#000;">P</span><span class="subitem-label">Pixel Snapper</span></li>
+        <li class="nav-subitem" data-research="wfc"><span class="subitem-thumb" style="background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;">W</span><span class="subitem-label">WFC</span></li>
+      </ul>
     </div>
 
   </nav>
@@ -264,11 +269,60 @@
   </div>
 
   <div class="content-view" id="view-research">
-    <div class="empty-state">
-      <svg class="empty-icon" viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      <h3 class="empty-heading">Research</h3>
-      <p class="empty-desc">연구 자료가 곧 추가될 예정입니다.</p>
-    </div>
+
+    <section class="hero">
+      <div class="container">
+        <div class="hero-tag">Research & Dev</div>
+        <h1>Research</h1>
+        <div class="hero-sub">게임 개발 과정에서 연구하고 적용한 기술 자료</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-title">Research</div>
+        <div class="project-list" id="research-list">
+
+          <a href="javascript:void(0)" class="project-item research-item" data-research="blackwater">
+            <div class="project-thumb"><div class="thumb-space" style="background:linear-gradient(135deg,#1a2332,#0f2027);font-size:24px;">B</div></div>
+            <div class="project-info">
+              <h4>BlackWater:Salvage</h4>
+              <p>멀티플레이어 해양 샐비지 게임의 기술 연구 및 프로토타입 개발 과정</p>
+              <div class="project-tags"><span class="project-tag">Unity</span><span class="project-tag">Multiplayer</span><span class="project-tag">Research</span></div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item research-item" data-research="ai-workflow">
+            <div class="project-thumb"><div class="thumb-space" style="background:linear-gradient(135deg,#1a1a2e,#16213e);font-size:24px;">A</div></div>
+            <div class="project-info">
+              <h4>AI Asset Workflow</h4>
+              <p>AI 이미지 생성 도구를 활용한 게임 에셋 제작 파이프라인 연구</p>
+              <div class="project-tags"><span class="project-tag">AI</span><span class="project-tag">Pipeline</span><span class="project-tag">Asset</span></div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item research-item" data-research="pixel-snapper">
+            <div class="project-thumb"><div class="thumb-space" style="background:linear-gradient(135deg,#1d1d2e,#0d0d1d);font-size:24px;">P</div></div>
+            <div class="project-info">
+              <h4>Pixel Snapper</h4>
+              <p>AI로 생성된 이미지를 픽셀 아트로 정제하는 툴 개발 연구</p>
+              <div class="project-tags"><span class="project-tag">Pixel Art</span><span class="project-tag">AI</span><span class="project-tag">Tool</span></div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item research-item" data-research="wfc">
+            <div class="project-thumb"><div class="thumb-space" style="background:linear-gradient(135deg,#2d1a1a,#1d1010);font-size:24px;">W</div></div>
+            <div class="project-info">
+              <h4>WFC</h4>
+              <p>Wave Function Collapse 알고리즘을 활용한 절차적 맵 생성 연구</p>
+              <div class="project-tags"><span class="project-tag">WFC</span><span class="project-tag">ProcGen</span><span class="project-tag">Algorithm</span></div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
   </div>
 
 </main>
