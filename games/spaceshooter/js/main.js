@@ -90,26 +90,26 @@ function gameLoop(timestamp) {
 function drawMenu() {
     ctx.save();
     ctx.textAlign = 'center';
-    ctx.font = '32px "Courier New", monospace';
+    ctx.font = 'bold 36px "Courier New", monospace';
     ctx.fillStyle = '#00ffff';
     ctx.shadowColor = '#00ffff';
     ctx.shadowBlur = 20;
     ctx.fillText('SPACE SHOOTER', canvas.width / 2, 280);
 
-    ctx.font = '16px "Courier New", monospace';
+    ctx.font = 'bold 18px "Courier New", monospace';
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#ffffff';
     ctx.fillText('Press ENTER to Start', canvas.width / 2, 400);
     ctx.shadowBlur = 0;
 
     const highScore = localStorage.getItem('spaceShooter_highScore') || 0;
-    ctx.font = '14px "Courier New", monospace';
+    ctx.font = 'bold 18px "Courier New", monospace';
     ctx.fillStyle = '#ffff00';
     ctx.shadowColor = '#ffff00';
     ctx.shadowBlur = 5;
     ctx.fillText(`HIGH SCORE: ${highScore}`, canvas.width / 2, 460);
 
-    ctx.font = '11px "Courier New", monospace';
+    ctx.font = 'bold 13px "Courier New", monospace';
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.fillText('← → to move  |  Auto Fire', canvas.width / 2, 520);
     ctx.shadowBlur = 0;
@@ -120,7 +120,7 @@ function drawMenu() {
 function drawShipSelect() {
     ctx.save();
     ctx.textAlign = 'center';
-    ctx.font = '20px "Courier New", monospace';
+    ctx.font = 'bold 24px "Courier New", monospace';
     ctx.fillStyle = '#00ffff';
     ctx.shadowColor = '#00ffff';
     ctx.shadowBlur = 10;
@@ -154,19 +154,19 @@ function drawShipSelect() {
         drawShipPreview(type);
         ctx.restore();
 
-        ctx.font = '11px "Courier New", monospace';
+        ctx.font = 'bold 13px "Courier New", monospace';
         ctx.fillStyle = isSelected ? '#ffffff' : 'rgba(255,255,255,0.5)';
         ctx.fillText(type.label, sx, sy + 55);
-        ctx.font = '8px "Courier New", monospace';
+        ctx.font = 'bold 10px "Courier New", monospace';
         ctx.fillStyle = isSelected ? `rgba(${type.color.r},${type.color.g},${type.color.b},1)` : 'rgba(255,255,255,0.3)';
         ctx.fillText(type.desc, sx, sy + 72);
     }
 
     const selectedType = SHIP_TYPES[shipTypeKeys[selectedShipIndex]];
-    ctx.font = '11px "Courier New", monospace';
+    ctx.font = 'bold 13px "Courier New", monospace';
     ctx.fillStyle = '#ffffff';
     ctx.fillText('STATS', canvas.width / 2, 345);
-    ctx.font = '10px "Courier New", monospace';
+    ctx.font = 'bold 11px "Courier New", monospace';
     const stats = [
         { label: 'SPD', value: selectedType.speed, color: '#ffff00' },
         { label: 'HP', value: selectedType.hp, color: '#00ff64' },
@@ -178,7 +178,7 @@ function drawShipSelect() {
         ctx.fillText(`${stat.label}: ${stat.value}`, startX + idx * shipWidth, 370);
     });
 
-    ctx.font = '12px "Courier New", monospace';
+    ctx.font = 'bold 15px "Courier New", monospace';
     ctx.fillStyle = '#ffffff';
     ctx.shadowColor = '#ffffff';
     ctx.shadowBlur = 5;
@@ -317,7 +317,7 @@ function drawPlaying() {
     if (waveClearTimer > 0.3) {
         ctx.save();
         ctx.textAlign = 'center';
-        ctx.font = '18px "Courier New", monospace';
+        ctx.font = 'bold 20px "Courier New", monospace';
         ctx.fillStyle = '#00ff00';
         ctx.shadowColor = '#00ff00';
         ctx.shadowBlur = 10;
@@ -343,14 +343,14 @@ function drawUpgrade() {
     ctx.save();
     ctx.textAlign = 'center';
 
-    ctx.font = 'bold 28px "Courier New", monospace';
+    ctx.font = 'bold 32px "Courier New", monospace';
     ctx.fillStyle = '#ffff00';
     ctx.shadowColor = '#ffff00';
     ctx.shadowBlur = 15;
     ctx.fillText('⚡ UPGRADE ⚡', canvas.width / 2, 90);
     ctx.shadowBlur = 0;
 
-    ctx.font = '15px "Courier New", monospace';
+    ctx.font = 'bold 18px "Courier New", monospace';
     ctx.fillStyle = '#ffffff';
     ctx.fillText('Choose one upgrade (1 / 2 / 3)', canvas.width / 2, 125);
 
@@ -382,17 +382,17 @@ function drawUpgrade() {
         ctx.fillText(opt.icon, sx, cardY - 40);
 
         // 이름
-        ctx.font = 'bold 16px "Courier New", monospace';
+        ctx.font = 'bold 18px "Courier New", monospace';
         ctx.fillStyle = '#ffffff';
         ctx.fillText(opt.name, sx, cardY + 15);
 
         // 설명
-        ctx.font = '12px "Courier New", monospace';
+        ctx.font = 'bold 15px "Courier New", monospace';
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
         ctx.fillText(opt.desc, sx, cardY + 40);
 
         // 키 힌트
-        ctx.font = 'bold 16px "Courier New", monospace';
+        ctx.font = 'bold 18px "Courier New", monospace';
         ctx.fillStyle = isSelected ? '#00ffff' : 'rgba(255,255,255,0.3)';
         ctx.fillText(`[${i + 1}]`, sx, cardY + 65);
     }
@@ -418,20 +418,20 @@ function applyUpgrade(index) {
 function drawGameOver() {
     ctx.save();
     ctx.textAlign = 'center';
-    ctx.font = '28px "Courier New", monospace';
+    ctx.font = 'bold 32px "Courier New", monospace';
     ctx.fillStyle = '#ff0055';
     ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 20;
     ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 40);
 
-    ctx.font = '16px "Courier New", monospace';
+    ctx.font = 'bold 18px "Courier New", monospace';
     ctx.fillStyle = '#ffffff';
     ctx.shadowColor = '#ffffff';
     ctx.shadowBlur = 5;
     ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
     ctx.fillText(`Wave: ${currentWave}`, canvas.width / 2, canvas.height / 2 + 35);
 
-    ctx.font = '12px "Courier New", monospace';
+    ctx.font = 'bold 15px "Courier New", monospace';
     ctx.fillText('Press ENTER to Restart', canvas.width / 2, canvas.height / 2 + 75);
     ctx.shadowBlur = 0;
     ctx.restore();

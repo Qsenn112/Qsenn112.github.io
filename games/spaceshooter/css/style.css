@@ -50,7 +50,8 @@ body {
 
 #score-display, #hp-display, #stage-display {
     color: #00ffff;
-    font-size: 14px;
+    font-size: 18px;
+    font-weight: bold;
     text-shadow:
         0 0 5px #00ffff,
         0 0 10px rgba(0, 255, 255, 0.5);
@@ -59,6 +60,8 @@ body {
 
 #hp-display {
     color: #ff0055;
+    font-size: 18px;
+    font-weight: bold;
     text-shadow:
         0 0 5px #ff0055,
         0 0 10px rgba(255, 0, 85, 0.5);
@@ -66,6 +69,8 @@ body {
 
 #stage-display {
     color: #ffff00;
+    font-size: 18px;
+    font-weight: bold;
     text-shadow:
         0 0 5px #ffff00,
         0 0 10px rgba(255, 255, 0, 0.5);
