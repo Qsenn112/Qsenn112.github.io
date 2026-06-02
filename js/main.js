@@ -488,7 +488,9 @@
           ]
         }
       ],
-      actions: []
+      actions: [
+        { label: 'WFC Explainer', class: 'btn-web', url: 'http://127.0.0.1:5178/wfc-explainer.html', external: true }
+      ]
     }
   };
 
