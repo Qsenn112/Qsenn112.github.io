@@ -1,20 +1,90 @@
-document.addEventListener('DOMContentLoaded', () => {
+(function() {
+
+  // ===== SIDEBAR NAVIGATION =====
+  var categoryBtns = document.querySelectorAll('.nav-category-btn');
+  var contentViews = document.querySelectorAll('.content-view');
+  var activeCategory = 'project';
+  var activeProject = null;
+
+  function expandCategory(btn) {
+    var subitems = btn.nextElementSibling;
+    if (subitems && subitems.classList.contains('nav-subitems')) {
+      subitems.classList.add('open');
+      btn.classList.add('expanded');
+    }
+  }
+
+  function collapseCategory(btn) {
+    var subitems = btn.nextElementSibling;
+    if (subitems && subitems.classList.contains('nav-subitems')) {
+      subitems.classList.remove('open');
+      btn.classList.remove('expanded');
+    }
+  }
+
+  function setActiveCategory(category) {
+    activeCategory = category;
+
+    categoryBtns.forEach(function(btn) {
+      var cat = btn.dataset.category;
+      if (cat === category) {
+        btn.classList.add('active');
+        expandCategory(btn);
+      } else {
+        btn.classList.remove('active');
+        collapseCategory(btn);
+      }
+    });
+
+    var viewId = 'view-' + category;
+    contentViews.forEach(function(view) {
+      view.classList.toggle('active', view.id === viewId);
+    });
+  }
+
+  function setActiveSubitem(projectKey) {
+    activeProject = projectKey;
+    document.querySelectorAll('.nav-subitem').forEach(function(item) {
+      item.classList.toggle('active', item.dataset.project === projectKey);
+    });
+  }
+
+  categoryBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var category = btn.dataset.category;
+      if (category === activeCategory) return;
+      setActiveCategory(category);
+    });
+  });
+
+  document.querySelector('.sidebar-header').addEventListener('click', function() {
+    setActiveCategory('project');
+    if (activeProject) {
+      setActiveSubitem(null);
+      document.querySelectorAll('.nav-subitem').forEach(function(item) {
+        item.classList.remove('active');
+      });
+    }
+    hideDetailPanel();
+    var mainContent = document.getElementById('mainContent');
+    if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
   // ===== PROJECT DATA =====
-  const PROJECTS = {
+  var PROJECTS = {
     ovumrumble: {
       thumb: 'O',
       thumbClass: 'thumb-ovum-lg',
       title: 'Ovum-Rumble',
-      subtitle: 'Team Project · 2D Action · URP',
-      desc: '계란 캐릭터가 전장을 누비는 팀 기반 2D 액션 게임. 유니티 URP 환경에서 셰이더 및 플레이어 컨트롤 시스템을 담당하여 팀 프로젝트로 개발 중입니다.',
-      flow: '캐릭터 선택 → 스테이지 진입 → 전투(공격/회피/스킬) → 보스 처치 → 다음 스테이지',
+      subtitle: 'Team Project \u00b7 2D Action \u00b7 URP',
+      desc: '\uacc4\ub780 \uce90\ub9ad\ud130\uac00 \uc804\uc7a5\uc744 \ub204\ube44\ub294 \ud300 \uae30\ubc18 2D \uc561\uc158 \uac8c\uc784. \uc720\ub2c8\ud2f0 URP \ud658\uacbd\uc5d0\uc11c \uc170\uc774\ub354 \ubc0f \ud50c\ub808\uc774\uc5b4 \ucee8\ud2b8\ub864 \uc2dc\uc2a4\ud15c\uc744 \ub2f4\ub2f9\ud558\uc5ec \ud300 \ud504\ub85c\uc81d\ud2b8\ub85c \uac1c\ubc1c \uc911\uc785\ub2c8\ub2e4.',
+      flow: '\uce90\ub9ad\ud130 \uc120\ud0dd \u2192 \uc2a4\ud14c\uc774\uc9c0 \uc9c4\uc785 \u2192 \uc804\ud22c(\uacf5\uaca9/\ud68c\ud53c/\uc2a4\ud0ac) \u2192 \ubcf4\uc2a4 \ucc98\uce58 \u2192 \ub2e4\uc74c \uc2a4\ud14c\uc774\uc9c0',
       tags: ['Unity', 'C#', 'URP', 'Shader', 'Team Project'],
       features: [
-        'URP 셰이더 — 계란 캐릭터 전용 Toon 셰이더 및 이펙트 구현',
-        '플레이어 컨트롤 — Rigidbody2D 기반 이동, 점프, 대시, 공격 콤보 시스템',
-        '팀 협업 — Git으로 버전 관리, PR 리뷰, 씬 머지 충돌 최소화',
-        '2D 액션 — 피격 판정, 무적 프레임, 넉백, 피드백 이펙트'
+        'URP \uc170\uc774\ub354 \u2014 \uacc4\ub780 \uce90\ub9ad\ud130 \uc804\uc6a9 Toon \uc170\uc774\ub354 \ubc0f \uc774\ud399\ud2b8 \uad6c\ud604',
+        '\ud50c\ub808\uc774\uc5b4 \ucee8\ud2b8\ub864 \u2014 Rigidbody2D \uae30\ubc18 \uc774\ub3d9, \uc810\ud504, \ub300\uc2dc, \uacf5\uaca9 \ucf64\ubcf4 \uc2dc\uc2a4\ud15c',
+        '\ud300 \ud611\uc5c5 \u2014 Git\uc73c\ub85c \ubc84\uc804 \uad00\ub9ac, PR \ub9ac\ubdf0, \uc52c \uba38\uc9c0 \ucda9\ub3cc \ucd5c\uc18c\ud654',
+        '2D \uc561\uc158 \u2014 \ud53c\uaca9 \ud310\uc815, \ubb34\uc801 \ud504\ub808\uc784, \ub109\ubc31, \ud53c\ub4dc\ubc31 \uc774\ud399\ud2b8'
       ],
       actions: [{ label: 'Go to GitHub', class: 'btn-web', url: 'https://github.com/BomB1961/Ovum-Rumble', external: true }]
     },
@@ -23,105 +93,105 @@ document.addEventListener('DOMContentLoaded', () => {
       thumb: 'J',
       thumbClass: 'thumb-jump-lg',
       thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/jump-racing-thumbnail.jpeg',
-      title: '2D 점프 레이싱',
-      subtitle: '2D · Arcade · Godot',
-      desc: '스페이스바로 점프하는 2D 레이싱 게임. 장애물 회피 및 콤보 점수 시스템 구현.',
-      flow: '게임 시작 → 자동 전진 → 스페이스바 점프 → 장애물 회피 → 콤보 점수 → 게임 오버',
+      title: '2D \uc810\ud504 \ub808\uc774\uc2f1',
+      subtitle: '2D \u00b7 Arcade \u00b7 Godot',
+      desc: '\uc2a4\ud398\uc774\uc2a4\ubc14\ub85c \uc810\ud504\ud558\ub294 2D \ub808\uc774\uc2f1 \uac8c\uc784. \uc7a5\uc560\ubb3c \ud68c\ud53c \ubc0f \ucf64\ubcf4 \uc810\uc218 \uc2dc\uc2a4\ud15c \uad6c\ud604.',
+      flow: '\uac8c\uc784 \uc2dc\uc791 \u2192 \uc790\ub3d9 \uc804\uc9c4 \u2192 \uc2a4\ud398\uc774\uc2a4\ubc14 \uc810\ud504 \u2192 \uc7a5\uc560\ubb3c \ud68c\ud53c \u2192 \ucf64\ubcf4 \uc810\uc218 \u2192 \uac8c\uc784 \uc624\ubc84',
       tags: ['Godot', 'GDScript', '2D', 'Arcade'],
       features: [
-        '원터치 조작 — 스페이스바/터치 한 번으로 점프',
-        '장애물 — 나무, 바위, 구덩이 등 다양한 패턴',
-        '콤보 시스템 — 연속 장애물 회피 시 점수 배율 상승',
-        '점수판 — 로컬 최고 점수 저장'
+        '\uc6d0\ud130\uce58 \uc870\uc791 \u2014 \uc2a4\ud398\uc774\uc2a4\ubc14/\ud130\uce58 \ud55c \ubc88\uc73c\ub85c \uc810\ud504',
+        '\uc7a5\uc560\ubb3c \u2014 \ub098\ubb34, \ubc14\uc704, \uad6c\ub369\uc774 \ub4f1 \ub2e4\uc591\ud55c \ud328\ud134',
+        '\ucf64\ubcf4 \uc2dc\uc2a4\ud15c \u2014 \uc5f0\uc18d \uc7a5\uc560\ubb3c \ud68c\ud53c \uc2dc \uc810\uc218 \ubc30\uc728 \uc0c1\uc2b9',
+        '\uc810\uc218\ud310 \u2014 \ub85c\uceec \ucd5c\uace0 \uc810\uc218 \uc800\uc7a5'
       ],
-      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
+      actions: [{ label: '\ud50c\ub808\uc774\ud558\uae30', class: 'btn-web', url: '#', external: false }]
     },
     spaceshooter: {
-      thumb: '🚀',
+      thumb: '\ud83d\ude80',
       thumbClass: 'thumb-space-lg',
       title: 'Space Shooter',
-      subtitle: '2D · Top-View · Shoot\'em Up · Web',
-      desc: '드래곤 플라이트 스타일의 탑뷰 2D 우주선 슈팅 게임. 네온 글로우 신스웨이브 비주얼, 4종 우주선 선택, 웨이브 기반 보스전, 루즈라이크 업그레이드 시스템.',
-      flow: '우주선 선택(4종) → 자동 전진 + 좌우 이동 → 오토샷 → 적·운석·보스 처치 → 웨이브 클리어 → 업그레이드 선택(3지선다) → 다음 웨이브',
+      subtitle: '2D \u00b7 Top-View \u00b7 Shoot\'em Up \u00b7 Web',
+      desc: '\ub4dc\ub798\uace4 \ud50c\ub77c\uc774\ud2b8 \uc2a4\ud0c0\uc77c\uc758 \ud0d1\ubdf0 2D \uc6b0\uc8fc\uc120 \uc288\ud305 \uac8c\uc784. \ub124\uc628 \uae00\ub85c\uc6b0 \uc2e0\uc2a4\uc6e8\uc774\ube0c \ube44\uc8fc\uc5bc, 4\uc885 \uc6b0\uc8fc\uc120 \uc120\ud0dd, \uc6e8\uc774\ube0c \uae30\ubc18 \ubcf4\uc2a4\uc804, \ub8e8\uc988\ub77c\uc774\ud06c \uc5c5\uadf8\ub808\uc774\ub4dc \uc2dc\uc2a4\ud15c.',
+      flow: '\uc6b0\uc8fc\uc120 \uc120\ud0dd(4\uc885) \u2192 \uc790\ub3d9 \uc804\uc9c4 + \uc88c\uc6b0 \uc774\ub3d9 \u2192 \uc624\ud1a0\uc0f7 \u2192 \uc801\u00b7\uc6b4\uc11d\u00b7\ubcf4\uc2a4 \ucc98\uce58 \u2192 \uc6e8\uc774\ube0c \ud074\ub9ac\uc5b4 \u2192 \uc5c5\uadf8\ub808\uc774\ub4dc \uc120\ud0dd(3\uc9c0\uc120\ub2e4) \u2192 \ub2e4\uc74c \uc6e8\uc774\ube0c',
       tags: ['JavaScript', 'HTML5 Canvas', 'Web Game', 'E2E Tested'],
       features: [
-        '4종 우주선 — 밸런스/공격/속도/방어, 각각 네온 글로우 색상·스탯 차별화',
-        '웨이브 시스템 — 무한 웨이브, 5스테이지마다 보스 등장 (HP바·육각형 디자인)',
-        '루즈라이크 업그레이드 — 스테이지 클리어 후 8종 중 3지선다 (ATK/연사/속도/HP/확산탄/실드)',
-        '네온 글로우 — 3레이어 패럴랙스 별 배경, 신스웨이브 아웃런 비주얼',
-        '충돌 감지 — AABB, 폴리곤 크기와 동일한 정밀 충돌 박스',
-        'Playwright E2E — 11개 테스트로 게임 플로우·충돌·웨이브·업그레이드 검증'
+        '4\uc885 \uc6b0\uc8fc\uc120 \u2014 \ubc38\ub7f0\uc2a4/\uacf5\uaca9/\uc18d\ub3c4/\ubc29\uc5b4, \uac01\uac01 \ub124\uc628 \uae00\ub85c\uc6b0 \uc0c9\uc0c1\u00b7\uc2a4\ud0ef \ucc28\ubcc4\ud654',
+        '\uc6e8\uc774\ube0c \uc2dc\uc2a4\ud15c \u2014 \ubb34\ud55c \uc6e8\uc774\ube0c, 5\uc2a4\ud14c\uc774\uc9c0\ub9c8\ub2e4 \ubcf4\uc2a4 \ub4f1\uc7a5 (HP\ubc14\u00b7\uc721\uac01\ud615 \ub514\uc790\uc778)',
+        '\ub8e8\uc988\ub77c\uc774\ud06c \uc5c5\uadf8\ub808\uc774\ub4dc \u2014 \uc2a4\ud14c\uc774\uc9c0 \ud074\ub9ac\uc5b4 \ud6c4 8\uc885 \uc911 3\uc9c0\uc120\ub2e4 (ATK/\uc5f0\uc0ac/\uc18d\ub3c4/HP/\ud655\uc0b0\ud0c4/\uc2e4\ub4dc)',
+        '\ub124\uc628 \uae00\ub85c\uc6b0 \u2014 3\ub808\uc774\uc5b4 \ud328\ub7f4\ub799\uc2a4 \ubcc4 \ubc30\uacbd, \uc2e0\uc2a4\uc6e8\uc774\ube0c \uc544\uc6c3\ub7f0 \ube44\uc8fc\uc5bc',
+        '\ucda9\ub3cc \uac10\uc9c0 \u2014 AABB, \ud3f4\ub9ac\uace4 \ud06c\uae30\uc640 \ub3d9\uc77c\ud55c \uc815\ubc00 \ucda9\ub3cc \ubc15\uc2a4',
+        'Playwright E2E \u2014 11\uac1c \ud14c\uc2a4\ud2b8\ub85c \uac8c\uc784 \ud50c\ub85c\uc6b0\u00b7\ucda9\ub3cc\u00b7\uc6e8\uc774\ube0c\u00b7\uc5c5\uadf8\ub808\uc774\ub4dc \uac80\uc99d'
       ],
-      actions: [{ label: '🎮 플레이하기', class: 'btn-web', url: '#', external: false }]
+      actions: [{ label: '\ud50c\ub808\uc774\ud558\uae30', class: 'btn-web', url: '#', external: false }]
     },
     golgol: {
       thumb: 'G',
       thumbClass: 'thumb-golgol-lg',
       title: 'GolGol',
-      subtitle: '2D · Story',
-      desc: '2D 스토리 어드벤처 게임. 플레이어는 기억을 잃은 주인공이 되어 3개의 스테이지(지옥도·인간도·천상도)를 탐험하고, 전투와 기억 조각 수집을 통해 과거의 진실을 밝혀내는 스토리입니다.',
-      flow: '스테이지 진입 → 탐험 (이동/점프/회피) → 전투 (HellGuard) → 기억 조각 수집 → 스테이지 전환 → 엔딩',
-      tags: ['Unity 6', 'C#', 'DI Container', 'EventBus', 'ScriptableObject', 'Excel ↔ SO', 'Rigidbody2D', 'FSM'],
+      subtitle: '2D \u00b7 Story',
+      desc: '2D \uc2a4\ud1a0\ub9ac \uc5b4\ub4dc\ubca4\ucc98 \uac8c\uc784. \ud50c\ub808\uc774\uc5b4\ub294 \uae30\uc5b5\uc744 \uc78a\uc740 \uc8fc\uc778\uacf5\uc774 \ub418\uc5b4 3\uac1c\uc758 \uc2a4\ud14c\uc774\uc9c0(\uc9c0\uc625\ub3c4\u00b7\uc778\uac04\ub3c4\u00b7\ucc9c\uc0c1\ub3c4)\ub97c \ud0d0\ud5d8\ud558\uace0, \uc804\ud22c\uc640 \uae30\uc5b5 \uc870\uac01 \uc218\uc9d1\uc744 \ud1b5\ud574 \uacfc\uac70\uc758 \uc9c4\uc2e4\uc744 \ubc1d\ud600\ub0b4\ub294 \uc2a4\ud1a0\ub9ac\uc785\ub2c8\ub2e4.',
+      flow: '\uc2a4\ud14c\uc774\uc9c0 \uc9c4\uc785 \u2192 \ud0d0\ud5d8 (\uc774\ub3d9/\uc810\ud504/\ud68c\ud53c) \u2192 \uc804\ud22c (HellGuard) \u2192 \uae30\uc5b5 \uc870\uac01 \uc218\uc9d1 \u2192 \uc2a4\ud14c\uc774\uc9c0 \uc804\ud658 \u2192 \uc5d4\ub529',
+      tags: ['Unity 6', 'C#', 'DI Container', 'EventBus', 'ScriptableObject', 'Excel \u2194 SO', 'Rigidbody2D', 'FSM'],
       features: [
-        '전투 — HellGuard FSM (Idle→Patrol→Chase→Attack→Hurt→Dead), OverlapCircleAll 히트판정',
-        '이동 — WASD + 점프(Space) + 앉기(Ctrl), Rigidbody2D 기반',
-        '기억 조각 — 3D 플로팅+펄스 이펙트, TimeScale 0 플래시백 연출, HashSet 수집 추적',
-        '스테이지 — 4개 MVP 스테이지(뼈무덤/지옥도/인간도/천상도), Portal+Boundary 전환',
-        '엔딩 — 4단계 시퀀스 (기억 슬라이드→계시→정체성 마주→마무리)'
+        '\uc804\ud22c \u2014 HellGuard FSM (Idle\u2192Patrol\u2192Chase\u2192Attack\u2192Hurt\u2192Dead), OverlapCircleAll \ud788\ud2b8\ud310\uc815',
+        '\uc774\ub3d9 \u2014 WASD + \uc810\ud504(Space) + \uc549\uae30(Ctrl), Rigidbody2D \uae30\ubc18',
+        '\uae30\uc5b5 \uc870\uac01 \u2014 3D \ud50c\ub85c\ud305+\ud384\uc2a4 \uc774\ud399\ud2b8, TimeScale 0 \ud50c\ub798\uc2dc\ubc31 \uc5f0\ucd9c, HashSet \uc218\uc9d1 \ucd94\uc801',
+        '\uc2a4\ud14c\uc774\uc9c0 \u2014 4\uac1c MVP \uc2a4\ud14c\uc774\uc9c0(\ubc08\ubb34\ub364/\uc9c0\uc625\ub3c4/\uc778\uac04\ub3c4/\ucc9c\uc0c1\ub3c4), Portal+Boundary \uc804\ud658',
+        '\uc5d4\ub529 \u2014 4\ub2e8\uacc4 \uc2dc\ud000\uc2a4 (\uae30\uc5b5 \uc2ac\ub77c\uc774\ub4dc\u2192\uacc4\uc2dc\u2192\uc815\uccb4\uc131 \ub9c8\uc8fc\u2192\ub9c8\ubb34\ub9ac)'
       ],
       extraSections: [
         {
-          label: '아키텍처',
+          label: '\uc544\ud0a4\ud14d\ucc98',
           items: [
-            'PlayerController 오케스트레이션 — Movement·Combat·Health·Animation 4개 하위 컴포넌트 조율',
-            'Interface 계층 — IDamageable, IEnemy, IGameService, IMemoryService, IData',
-            'EventBus — 14개 이벤트로 컴포넌트 간 느슨한 결합, 발행/구독 패턴',
-            'DI Container — 인프라 구축, CameraFollow Resolve에 사용',
-            'Static Singleton — PlayerHealth, StageTransitionManager 등 핵심 객체'
+            'PlayerController \uc624\ucf00\uc2a4\ud2b8\ub808\uc774\uc158 \u2014 Movement\u00b7Combat\u00b7Health\u00b7Animation 4\uac1c \ud558\uc704 \ucef4\ud3ec\ub10c\ud2b8 \uc870\uc728',
+            'Interface \uacc4\uce35 \u2014 IDamageable, IEnemy, IGameService, IMemoryService, IData',
+            'EventBus \u2014 14\uac1c \uc774\ubca4\ud2b8\ub85c \ucef4\ud3ec\ub10c\ud2b8 \uac04 \ub290\uc2a8\ud55c \uacb0\ud569, \ubc1c\ud589/\uad6c\ub3c5 \ud328\ud134',
+            'DI Container \u2014 \uc778\ud504\ub77c \uad6c\ucd95, CameraFollow Resolve\uc5d0 \uc0ac\uc6a9',
+            'Static Singleton \u2014 PlayerHealth, StageTransitionManager \ub4f1 \ud575\uc2ec \uac1d\uccb4'
           ]
         },
         {
-          label: '성능 최적화',
+          label: '\uc131\ub2a5 \ucd5c\uc801\ud654',
           items: [
-            'StageActivator — 비활성 스테이지 GameObjects SetActive(false)로 렉 방지',
-            'MemoryFragmentDataCache — Resources 폴더 비동기 로드',
-            'Bootstrap 부트 시퀀스 — Execution Order -1000, DontDestroyOnLoad 싱글톤'
+            'StageActivator \u2014 \ube44\ud65c\uc131 \uc2a4\ud14c\uc774\uc9c0 GameObjects SetActive(false)\ub85c \ub809 \ubc29\uc9c0',
+            'MemoryFragmentDataCache \u2014 Resources \ud3f4\ub354 \ube44\ub3d9\uae30 \ub85c\ub4dc',
+            'Bootstrap \ubd80\ud2b8 \uc2dc\ud000\uc2a4 \u2014 Execution Order -1000, DontDestroyOnLoad \uc2f1\uae00\ud1a4'
           ]
         },
         {
-          label: '데이터 시스템',
+          label: '\ub370\uc774\ud130 \uc2dc\uc2a4\ud15c',
           items: [
-            'Excel (OleDb) → ScriptableObject (GameData.asset) — ExcelAutoConverter 자동 변환',
-            'StageData, EnemyData, PlayerData, MemoryFragmentData 4종 시트',
-            '런타임 SO 에셋 — EnemyDataSO, MemoryFragmentDataSO, IntroStoryDataSO, EndingSlideDataSO'
+            'Excel (OleDb) \u2192 ScriptableObject (GameData.asset) \u2014 ExcelAutoConverter \uc790\ub3d9 \ubcc0\ud658',
+            'StageData, EnemyData, PlayerData, MemoryFragmentData 4\uc885 \uc2dc\ud2b8',
+            '\ub7f0\ud0c0\uc784 SO \uc5d0\uc14b \u2014 EnemyDataSO, MemoryFragmentDataSO, IntroStoryDataSO, EndingSlideDataSO'
           ]
         },
         {
-          label: '씬 구조',
+          label: '\uc52c \uad6c\uc870',
           items: [
-            'Boot (진입점/분기) → Intro (인트로) → MainMenuScene → Game (메인) → GameOver / Ending',
-            'PlayerPrefs로 첫 실행 여부 확인 → Intro 스킵'
+            'Boot (\uc9c4\uc785\uc810/\ubd84\uae30) \u2192 Intro (\uc778\ud2b8\ub85c) \u2192 MainMenuScene \u2192 Game (\uba54\uc778) \u2192 GameOver / Ending',
+            'PlayerPrefs\ub85c \uccab \uc2e4\ud589 \uc5ec\ubd80 \ud655\uc778 \u2192 Intro \uc2a4\ud0b5'
           ]
         }
       ],
-      retrospective: '<p>해당 프로젝트의 배경 이미지와 기억의 조각은 AI를 활용해 제작했다. 기억의 조각은 큰 문제 없이 제작할 수 있었지만, 배경 이미지 제작 과정에서는 시행착오가 많았다.</p>' +
-        '<p>우선 ChatGPT를 활용해 원하는 이미지 스타일의 프롬프트를 제작한 뒤, Freepik을 통해 실제 이미지를 생성했다. 에셋 제작 과정 자체는 이전 프로젝트인 "Pumpumkin"의 워크플로우와 비슷했지만, 가장 큰 차이점은 DownScale 작업이 필요했다는 점이다.</p>' +
-        '<p>AI로 생성된 이미지들은 크기가 일정하지 않았기 때문에, Unity 프로젝트에서 사용하기 위해 원하는 해상도인 1920x1080으로 강제 다운스케일 작업을 진행했다. UI 버튼 역시 원하는 스타일의 기준 이미지를 먼저 제작한 뒤, Google Flow를 활용해 동일한 스타일의 버튼들을 생성했다.</p>' +
-        '<h5 style="margin-top:1.2em;color:var(--accent-green);">🎬 애니메이션 작업</h5>' +
-        '<p>해당 프로젝트에서 가장 어려웠던 부분은 애니메이션 작업이었다. 평소 고민이던 "에셋 스타일 통일" 문제는 AI를 활용해 어느 정도 해결할 수 있었지만, 애니메이션 제작 과정에서 새로운 문제가 발생했다.</p>' +
-        '<p>주인공 "골골"의 에셋이 내가 구상했던 사이드뷰용이 아니라 탑뷰용 스프라이트 시트로 제작된 것이다. 처음에는 AI에게 "에셋 안의 스프라이트 시트를 잘라 애니메이션까지 적용된 캐릭터 데이터를 만들어 줘"와 같이 요청했지만, 계속해서 탑뷰 이미지 한 장이 사이에 참조되는 문제가 발생했다.</p>' +
-        '<p>결국 스프라이트 시트 내부의 프레임을 직접 번호로 지정하는 방식으로 작업을 진행했다. 예를 들어, "왼쪽부터 1번~마지막 번호까지 사용", "3번 프레임은 제외", "애니메이션 이름은 Jump"와 같이 세부적으로 지시해 애니메이션을 제작했다.</p>' +
-        '<p>애니메이션 제작 이후에도 문제가 발생했다. 골골이 점프 중 공격할 경우 Animator의 <code>IsJumping</code> 플래그가 유지되어 공중 공격 애니메이션이 정상적으로 재생되지 않았다. 이 문제는 공격 트리거 직전에 <code>IsJumping</code> 값을 강제로 <code>false</code>로 변경한 뒤, <code>SmartCoroutine</code>을 사용해 한 프레임 이후 원래 값으로 복구하는 방식으로 해결했다.</p>' +
-        '<p>적 보스 몬스터들 역시 같은 방식으로 스프라이트 프레임을 정확하게 지정하고 애니메이션 이름을 직접 부여해 제작했다.</p>' +
-        '<h5 style="margin-top:1.2em;color:var(--accent-green);">🧠 적 AI — 낭떠러지 추락 방지</h5>' +
-        '<p>두 번째로 어려웠던 부분은 적 AI의 낭떠러지 추락 방지 시스템이었다. 적 오브젝트들이 순찰하거나 플레이어를 추격할 때 낭떠러지로 떨어져 즉사하는 문제가 발생했다. 이를 해결하기 위해 Raycast 기반의 엣지 감지 시스템을 구현했다.</p>' +
-        '<p><strong>1단계 — Center Raycast:</strong> 먼저 적 오브젝트의 중앙에서 아래 방향으로 Raycast를 발사해 현재 지면 위에 있는지를 확인했다. 만약 바닥이 감지되지 않는다면(점프 중이거나 공중 상태라고 판단) 엣지 체크 자체를 수행하지 않고 <code>false</code>를 반환하도록 설계했다. 이를 통해 적이 지상 상태일 때만 엣지 감지가 동작하도록 안전 장치를 구성했다.</p>' +
-        '<p><strong>2단계 — Edge Raycast:</strong> 그 다음 적이 바라보는 방향으로 일정 거리만큼 오프셋을 적용한 뒤, 해당 위치에서 아래 방향으로 다시 Raycast를 발사했다. 만약 이 Raycast가 바닥을 감지하지 못한다면, 해당 방향에 지형이 존재하지 않는다고 판단해 이동을 차단하도록 구현했다. 이를 통해 적 AI가 낭떠러지로 떨어지는 문제를 방지할 수 있었다.</p>' +
-        '<p>하지만 문제를 해결하자 또 다른 문제가 발생했다. 가장 자주 등장하는 일반 몬스터인 "HellGuard"의 애니메이션이 Raycast 판정 과정에서 지속적으로 깜빡이는 현상이 발생한 것이다.</p>' +
+      retrospective: '<p>\ud574\ub2f9 \ud504\ub85c\uc81d\ud2b8\uc758 \ubc30\uacbd \uc774\ubbf8\uc9c0\uc640 \uae30\uc5b5\uc758 \uc870\uac01\uc740 AI\ub97c \ud65c\uc6a9\ud574 \uc81c\uc791\ud588\ub2e4. \uae30\uc5b5\uc758 \uc870\uac01\uc740 \ud070 \ubb38\uc81c \uc5c6\uc774 \uc81c\uc791\ud560 \uc218 \uc788\uc5c8\uc9c0\ub9cc, \ubc30\uacbd \uc774\ubbf8\uc9c0 \uc81c\uc791 \uacfc\uc815\uc5d0\uc11c\ub294 \uc2dc\ud589\ucc29\uc624\uac00 \ub9ce\uc558\ub2e4.</p>' +
+        '<p>\uc6b0\uc120 ChatGPT\ub97c \ud65c\uc6a9\ud574 \uc6d0\ud558\ub294 \uc774\ubbf8\uc9c0 \uc2a4\ud0c0\uc77c\uc758 \ud504\ub86c\ud504\ud2b8\ub97c \uc81c\uc791\ud55c \ub4a4, Freepik\uc744 \ud1b5\ud574 \uc2e4\uc81c \uc774\ubbf8\uc9c0\ub97c \uc0dd\uc131\ud588\ub2e4. \uc5d0\uc14b \uc81c\uc791 \uacfc\uc815 \uc790\uccb4\ub294 \uc774\uc804 \ud504\ub85c\uc81d\ud2b8\uc778 "Pumpumkin"\uc758 \uc6cc\ud06c\ud50c\ub85c\uc6b0\uc640 \ube44\uc2b7\ud588\uc9c0\ub9cc, \uac00\uc7a5 \ud070 \ucc28\uc774\uc810\uc740 DownScale \uc791\uc5c5\uc774 \ud544\uc694\ud588\ub2e4\ub294 \uc810\uc774\ub2e4.</p>' +
+        '<p>AI\ub85c \uc0dd\uc131\ub41c \uc774\ubbf8\uc9c0\ub4e4\uc740 \ud06c\uae30\uac00 \uc77c\uc815\ud558\uc9c0 \uc54a\uc558\uae30 \ub54c\ubb38\uc5d0, Unity \ud504\ub85c\uc81d\ud2b8\uc5d0\uc11c \uc0ac\uc6a9\ud558\uae30 \uc704\ud574 \uc6d0\ud558\ub294 \ud574\uc0c1\ub3c4\uc778 1920x1080\uc73c\ub85c \uac15\uc81c \ub2e4\uc6b4\uc2a4\ucf00\uc77c \uc791\uc5c5\uc744 \uc9c4\ud589\ud588\ub2e4. UI \ubc84\ud2bc \uc5ed\uc2dc \uc6d0\ud558\ub294 \uc2a4\ud0c0\uc77c\uc758 \uae30\uc900 \uc774\ubbf8\uc9c0\ub97c \uba3c\uc800 \uc81c\uc791\ud55c \ub4a4, Google Flow\ub97c \ud65c\uc6a9\ud574 \ub3d9\uc77c\ud55c \uc2a4\ud0c0\uc77c\uc758 \ubc84\ud2bc\ub4e4\uc744 \uc0dd\uc131\ud588\ub2e4.</p>' +
+        '<h5 style="margin-top:1.2em;color:var(--accent-green);">\uc560\ub2c8\uba54\uc774\uc158 \uc791\uc5c5</h5>' +
+        '<p>\ud574\ub2f9 \ud504\ub85c\uc81d\ud2b8\uc5d0\uc11c \uac00\uc7a5 \uc5b4\ub824\uc6e0\ub358 \ubd80\ubd84\uc740 \uc560\ub2c8\uba54\uc774\uc158 \uc791\uc5c5\uc774\uc5c8\ub2e4. \ud3c9\uc18c \uace0\ubbfc\uc774\ub358 "\uc5d0\uc14b \uc2a4\ud0c0\uc77c \ud1b5\uc77c" \ubb38\uc81c\ub294 AI\ub97c \ud65c\uc6a9\ud574 \uc5b4\ub290 \uc815\ub3c4 \ud574\uacb0\ud560 \uc218 \uc788\uc5c8\uc9c0\ub9cc, \uc560\ub2c8\uba54\uc774\uc158 \uc81c\uc791 \uacfc\uc815\uc5d0\uc11c \uc0c8\ub85c\uc6b4 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4.</p>' +
+        '<p>\uc8fc\uc778\uacf5 "\uace8\uace8"\uc758 \uc5d0\uc14b\uc774 \ub0b4\uac00 \uad6c\uc0c1\ud588\ub358 \uc0ac\uc774\ub4dc\ubdf0\uc6a9\uc774 \uc544\ub2c8\ub77c \ud0d1\ubdf0\uc6a9 \uc2a4\ud504\ub77c\uc774\ud2b8 \uc2dc\ud2b8\ub85c \uc81c\uc791\ub41c \uac83\uc774\ub2e4. \ucc98\uc74c\uc5d0\ub294 AI\uc5d0\uac8c "\uc5d0\uc14b \uc548\uc758 \uc2a4\ud504\ub77c\uc774\ud2b8 \uc2dc\ud2b8\ub97c \uc798\ub77c \uc560\ub2c8\uba54\uc774\uc158\uae4c\uc9c0 \uc801\uc6a9\ub41c \uce90\ub9ad\ud130 \ub370\uc774\ud130\ub97c \ub9cc\ub4e4\uc5b4 \uc918"\uc640 \uac19\uc774 \uc694\uccad\ud588\uc9c0\ub9cc, \uacc4\uc18d\ud574\uc11c \ud0d1\ubdf0 \uc774\ubbf8\uc9c0 \ud55c \uc7a5\uc774 \uc0ac\uc774\uc5d0 \ucc38\uc870\ub418\ub294 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4.</p>' +
+        '<p>\uacb0\uad6d \uc2a4\ud504\ub77c\uc774\ud2b8 \uc2dc\ud2b8 \ub0b4\ubd80\uc758 \ud504\ub808\uc784\uc744 \uc9c1\uc811 \ubc88\ud638\ub85c \uc9c0\uc815\ud558\ub294 \ubc29\uc2dd\uc73c\ub85c \uc791\uc5c5\uc744 \uc9c4\ud589\ud588\ub2e4. \uc608\ub97c \ub4e4\uc5b4, "\uc67c\ucabd\ubd80\ud130 1\ubc88~\ub9c8\uc9c0\ub9c9 \ubc88\ud638\uae4c\uc9c0 \uc0ac\uc6a9", "3\ubc88 \ud504\ub808\uc784\uc740 \uc81c\uc678", "\uc560\ub2c8\uba54\uc774\uc158 \uc774\ub984\uc740 Jump"\uc640 \uac19\uc774 \uc138\ubd80\uc801\uc73c\ub85c \uc9c0\uc2dc\ud574 \uc560\ub2c8\uba54\uc774\uc158\uc744 \uc81c\uc791\ud588\ub2e4.</p>' +
+        '<p>\uc560\ub2c8\uba54\uc774\uc158 \uc81c\uc791 \uc774\ud6c4\uc5d0\ub3c4 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4. \uace8\uace8\uc774 \uc810\ud504 \uc911 \uacf5\uaca9\ud560 \uacbd\uc6b0 Animator\uc758 <code>IsJumping</code> \ud50c\ub798\uadf8\uac00 \uc720\uc9c0\ub418\uc5b4 \uacf5\uc911 \uacf5\uaca9 \uc560\ub2c8\uba54\uc774\uc158\uc774 \uc815\uc0c1\uc801\uc73c\ub85c \uc7ac\uc0dd\ub418\uc9c0 \uc54a\uc558\ub2e4. \uc774 \ubb38\uc81c\ub294 \uacf5\uaca9 \ud2b8\ub9ac\uac70 \uc9c1\uc804\uc5d0 <code>IsJumping</code> \uac12\uc744 \uac15\uc81c\ub85c <code>false</code>\ub85c \ubcc0\uacbd\ud55c \ub4a4, <code>SmartCoroutine</code>\uc744 \uc0ac\uc6a9\ud574 \ud55c \ud504\ub808\uc784 \uc774\ud6c4 \uc6d0\ub798 \uac12\uc73c\ub85c \ubcf5\uad6c\ud558\ub294 \ubc29\uc2dd\uc73c\ub85c \ud574\uacb0\ud588\ub2e4.</p>' +
+        '<p>\uc801 \ubcf4\uc2a4 \ubaac\uc2a4\ud130\ub4e4 \uc5ed\uc2dc \uac19\uc740 \ubc29\uc2dd\uc73c\ub85c \uc2a4\ud504\ub77c\uc774\ud2b8 \ud504\ub808\uc784\uc744 \uc815\ud655\ud558\uac8c \uc9c0\uc815\ud558\uace0 \uc560\ub2c8\uba54\uc774\uc158 \uc774\ub984\uc744 \uc9c1\uc811 \ubd80\uc5ec\ud574 \uc81c\uc791\ud588\ub2e4.</p>' +
+        '<h5 style="margin-top:1.2em;color:var(--accent-green);">\uc801 AI \u2014 \ub0ad\ub5a0\ub7ec\uc9c0 \ucd94\ub77d \ubc29\uc9c0</h5>' +
+        '<p>\ub450 \ubc88\uc9f8\ub85c \uc5b4\ub824\uc6e0\ub358 \ubd80\ubd84\uc740 \uc801 AI\uc758 \ub0ad\ub5a0\ub7ec\uc9c0 \ucd94\ub77d \ubc29\uc9c0 \uc2dc\uc2a4\ud15c\uc774\uc5c8\ub2e4. \uc801 \uc624\ube0c\uc81d\ud2b8\ub4e4\uc774 \uc21c\ucc30\ud558\uac70\ub098 \ud50c\ub808\uc774\uc5b4\ub97c \ucd94\uaca9\ud560 \ub54c \ub0ad\ub5a0\ub7ec\uc9c0\ub85c \ub5a8\uc5b4\uc838 \uc989\uc0ac\ud558\ub294 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4. \uc774\ub97c \ud574\uacb0\ud558\uae30 \uc704\ud574 Raycast \uae30\ubc18\uc758 \uc5e3\uc9c0 \uac10\uc9c0 \uc2dc\uc2a4\ud15c\uc744 \uad6c\ud604\ud588\ub2e4.</p>' +
+        '<p><strong>1\ub2e8\uacc4 \u2014 Center Raycast:</strong> \uba3c\uc800 \uc801 \uc624\ube0c\uc81d\ud2b8\uc758 \uc911\uc559\uc5d0\uc11c \uc544\ub798 \ubc29\ud5a5\uc73c\ub85c Raycast\ub97c \ubc1c\uc0ac\ud574 \ud604\uc7ac \uc9c0\uba74 \uc704\uc5d0 \uc788\ub294\uc9c0\ub97c \ud655\uc778\ud588\ub2e4. \ub9cc\uc57d \ubc14\ub2e5\uc774 \uac10\uc9c0\ub418\uc9c0 \uc54a\ub294\ub2e4\uba74(\uc810\ud504 \uc911\uc774\uac70\ub098 \uacf5\uc911 \uc0c1\ud0dc\ub77c\uace0 \ud310\ub2e8) \uc5e3\uc9c0 \uccb4\ud06c \uc790\uccb4\ub97c \uc218\ud589\ud558\uc9c0 \uc54a\uace0 <code>false</code>\ub97c \ubc18\ud658\ud558\ub3c4\ub85d \uc124\uacc4\ud588\ub2e4. \uc774\ub97c \ud1b5\ud574 \uc801\uc774 \uc9c0\uc0c1 \uc0c1\ud0dc\uc77c \ub54c\ub9cc \uc5e3\uc9c0 \uac10\uc9c0\uac00 \ub3d9\uc791\ud558\ub3c4\ub85d \uc548\uc804 \uc7a5\uce58\ub97c \uad6c\uc131\ud588\ub2e4.</p>' +
+        '<p><strong>2\ub2e8\uacc4 \u2014 Edge Raycast:</strong> \uadf8 \ub2e4\uc74c \uc801\uc774 \ubc14\ub77c\ubcf4\ub294 \ubc29\ud5a5\uc73c\ub85c \uc77c\uc815 \uac70\ub9ac\ub9cc\ud07c \uc624\ud504\uc14b\uc744 \uc801\uc6a9\ud55c \ub4a4, \ud574\ub2f9 \uc704\uce58\uc5d0\uc11c \uc544\ub798 \ubc29\ud5a5\uc73c\ub85c \ub2e4\uc2dc Raycast\ub97c \ubc1c\uc0ac\ud588\ub2e4. \ub9cc\uc57d \uc774 Raycast\uac00 \ubc14\ub2e5\uc744 \uac10\uc9c0\ud558\uc9c0 \ubabb\ud55c\ub2e4\uba74, \ud574\ub2f9 \ubc29\ud5a5\uc5d0 \uc9c0\ud615\uc774 \uc874\uc7ac\ud558\uc9c0 \uc54a\ub294\ub2e4\uace0 \ud310\ub2e8\ud574 \uc774\ub3d9\uc744 \ucc28\ub2e8\ud558\ub3c4\ub85d \uad6c\ud604\ud588\ub2e4. \uc774\ub97c \ud1b5\ud574 \uc801 AI\uac00 \ub0ad\ub5a0\ub7ec\uc9c0\ub85c \ub5a8\uc5b4\uc9c0\ub294 \ubb38\uc81c\ub97c \ubc29\uc9c0\ud560 \uc218 \uc788\uc5c8\ub2e4.</p>' +
+        '<p>\ud558\uc9c0\ub9cc \ubb38\uc81c\ub97c \ud574\uacb0\ud558\uc790 \ub610 \ub2e4\ub978 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4. \uac00\uc7a5 \uc790\uc8fc \ub4f1\uc7a5\ud558\ub294 \uc77c\ubc18 \ubaac\uc2a4\ud130\uc778 "HellGuard"\uc758 \uc560\ub2c8\uba54\uc774\uc158\uc774 Raycast \ud310\uc815 \uacfc\uc815\uc5d0\uc11c \uc9c0\uc18d\uc801\uc73c\ub85c \uae5c\ube61\uc774\ub294 \ud604\uc0c1\uc774 \ubc1c\uc0dd\ud55c \uac83\uc774\ub2e4.</p>' +
         '<br>' +
-        '<p>첫 프로젝트였기 때문에 욕심이 많이 들어갔다. 실력에 비해 구현 범위를 크게 잡았고, 결국 구현하지 못한 시스템들도 많았다. 실제로 완성된 것은 컷씬과 AI를 활용한 에셋 제작 시스템이 대부분이었다.</p>' +
-        '<p>특히 기억의 조각을 획득한 뒤 컷씬이 재생되는 연출을 만들면서 많은 것을 느꼈다. 처음에는 컷씬이 실행되면 단순히 게임만 멈추면 된다고 생각했지만, 실제로는 작은 디테일 하나까지 고려하며 게임을 설계해야 한다는 점을 깨달았다.</p>' +
-        '<p>이번 프로젝트를 통해 스스로 부족한 부분을 많이 느꼈다. 동시에 평소 단순히 즐기기만 했던 게임들이 실제로는 얼마나 많은 노력과 디테일 위에서 만들어지는지 알 수 있었고, 이를 구현하는 게임 개발자들에 대한 존경심도 크게 생겼다.</p>',
+        '<p>\uccab \ud504\ub85c\uc81d\ud2b8\uc600\uae30 \ub54c\ubb38\uc5d0 \uc695\uc2ec\uc774 \ub9ce\uc774 \ub4e4\uc5b4\uac14\ub2e4. \uc2e4\ub825\uc5d0 \ube44\ud574 \uad6c\ud604 \ubc94\uc704\ub97c \ud06c\uac8c \uc7a1\uc558\uace0, \uacb0\uad6d \uad6c\ud604\ud558\uc9c0 \ubabb\ud55c \uc2dc\uc2a4\ud15c\ub4e4\ub3c4 \ub9ce\uc558\ub2e4. \uc2e4\uc81c\ub85c \uc644\uc131\ub41c \uac83\uc740 \ucef7\uc52c\uacfc AI\ub97c \ud65c\uc6a9\ud55c \uc5d0\uc14b \uc81c\uc791 \uc2dc\uc2a4\ud15c\uc774 \ub300\ubd80\ubd84\uc774\uc5c8\ub2e4.</p>' +
+        '<p>\ud2b9\ud788 \uae30\uc5b5\uc758 \uc870\uac01\uc744 \ud68d\ub4dd\ud55c \ub4a4 \ucef7\uc52c\uc774 \uc7ac\uc0dd\ub418\ub294 \uc5f0\ucd9c\uc744 \ub9cc\ub4e4\uba74\uc11c \ub9ce\uc740 \uac83\uc744 \ub290\uaf08\ub2e4. \ucc98\uc74c\uc5d0\ub294 \ucef7\uc52c\uc774 \uc2e4\ud589\ub418\uba74 \ub2e8\uc21c\ud788 \uac8c\uc784\ub9cc \uba48\ucd94\uba74 \ub41c\ub2e4\uace0 \uc0dd\uac01\ud588\uc9c0\ub9cc, \uc2e4\uc81c\ub85c\ub294 \uc791\uc740 \ub514\ud14c\uc77c \ud558\ub098\uae4c\uc9c0 \uace0\ub824\ud558\uba70 \uac8c\uc784\uc744 \uc124\uacc4\ud574\uc57c \ud55c\ub2e4\ub294 \uc810\uc744 \uae68\ub2ec\uc558\ub2e4.</p>' +
+        '<p>\uc774\ubc88 \ud504\ub85c\uc81d\ud2b8\ub97c \ud1b5\ud574 \uc2a4\uc2a4\ub85c \ubd80\uc871\ud55c \ubd80\ubd84\uc744 \ub9ce\uc774 \ub290\uaf08\ub2e4. \ub3d9\uc2dc\uc5d0 \ud3c9\uc18c \ub2e8\uc21c\ud788 \uc990\uae30\uae30\ub9cc \ud588\ub358 \uac8c\uc784\ub4e4\uc774 \uc2e4\uc81c\ub85c\ub294 \uc5bc\ub9c8\ub098 \ub9ce\uc740 \ub178\ub825\uacfc \ub514\ud14c\uc77c \uc704\uc5d0\uc11c \ub9cc\ub4e4\uc5b4\uc9c0\ub294\uc9c0 \uc54c \uc218 \uc788\uc5c8\uace0, \uc774\ub97c \uad6c\ud604\ud558\ub294 \uac8c\uc784 \uac1c\ubc1c\uc790\ub4e4\uc5d0 \ub300\ud55c \uc874\uacbd\uc2ec\ub3c4 \ud06c\uac8c \uc0dd\uacbc\ub2e4.</p>',
       actions: [{ label: 'Go to Demo', class: 'btn-web', url: 'https://tpgns3353-ctrl.itch.io/golgol', external: true }]
     },
     pumpumkin: {
@@ -129,68 +199,68 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbClass: 'thumb-pumpkin-lg',
       thumbImage: 'images/pumpumkin-thumbnail.jpeg',
       title: 'Pumpumkin',
-      subtitle: '2D · Clicker',
-      desc: '할로윈 밤, 마법의 호박밭에서 시작된 클리커 모험. 호박을 클릭하여 사탕을 수집하고, 사탕으로 업그레이드를 구매하여 25단계의 호박을 진화시키는 게임입니다.',
-      flow: '호박 클릭 → 사탕 획득(+1) → 업그레이드 구매(4종) → 호박 진화(25단계) → 반복 / 랜덤 이벤트 발생 (황금 호박 10x / 광폭 모드 2x / 귀신 스폰)',
-      tags: ['Unity 6000', 'C#', 'DI Container', 'EventBus', 'Excel ↔ SO', 'Object Pooling', 'WebGL', 'URP'],
+      subtitle: '2D \u00b7 Clicker',
+      desc: '\ud560\ub85c\uc708 \ubc24, \ub9c8\ubc95\uc758 \ud638\ubc15\ubc2d\uc5d0\uc11c \uc2dc\uc791\ub41c \ud074\ub9ac\ucee4 \ubaa8\ud5d8. \ud638\ubc15\uc744 \ud074\ub9ad\ud558\uc5ec \uc0ac\ud0d5\uc744 \uc218\uc9d1\ud558\uace0, \uc0ac\ud0d5\uc73c\ub85c \uc5c5\uadf8\ub808\uc774\ub4dc\ub97c \uad6c\ub9e4\ud558\uc5ec 25\ub2e8\uacc4\uc758 \ud638\ubc15\uc744 \uc9c4\ud654\uc2dc\ud0a4\ub294 \uac8c\uc784\uc785\ub2c8\ub2e4.',
+      flow: '\ud638\ubc15 \ud074\ub9ad \u2192 \uc0ac\ud0d5 \ud68d\ub4dd(+1) \u2192 \uc5c5\uadf8\ub808\uc774\ub4dc \uad6c\ub9e4(4\uc885) \u2192 \ud638\ubc15 \uc9c4\ud654(25\ub2e8\uacc4) \u2192 \ubc18\ubcf5 / \ub79c\ub364 \uc774\ubca4\ud2b8 \ubc1c\uc0dd (\ud669\uae08 \ud638\ubc15 10x / \uad11\ud3ed \ubaa8\ub4dc 2x / \uadc0\uc2e0 \uc2a4\ud3f0)',
+      tags: ['Unity 6000', 'C#', 'DI Container', 'EventBus', 'Excel \u2194 SO', 'Object Pooling', 'WebGL', 'URP'],
       features: [
-        '클릭 — 호박 클릭 시 사탕 획득 (클릭강화/크리티컬/광폭/황금 배율 중첩)',
-        '업그레이드 — 클릭강화(레벨당+1), 자동수집(초당+1), 크리티컬(+5%확률,2배), 광폭모드(30초x2)',
-        '진화 — 25단계·5등급 순차 진화 (Normal→Rare→Epic→Legendary→Mythic), 0→10M 사탕 누적',
-        '사탕 — 107종 스프라이트, 클릭강화 레벨에 따라 6단계 진화 (10레벨당 다른 스프라이트)',
-        '랜덤 — 황금 호박(10배 보너스), 광폭 모드(30초 랜덤 발동), 귀신(3패턴 이동·탭 보상)'
+        '\ud074\ub9ad \u2014 \ud638\ubc15 \ud074\ub9ad \uc2dc \uc0ac\ud0d5 \ud68d\ub4dd (\ud074\ub9ad\uac15\ud654/\ud06c\ub9ac\ud2f0\uceec/\uad11\ud3ed/\ud669\uae08 \ubc30\uc728 \uc911\uc811)',
+        '\uc5c5\uadf8\ub808\uc774\ub4dc \u2014 \ud074\ub9ad\uac15\ud654(\ub808\ubca8\ub2f9+1), \uc790\ub3d9\uc218\uc9d1(\ucd08\ub2f9+1), \ud06c\ub9ac\ud2f0\uceec(+5%\ud655\ub960,2\ubc30), \uad11\ud3ed\ubaa8\ub4dc(30\ucd08x2)',
+        '\uc9c4\ud654 \u2014 25\ub2e8\uacc4\u00b75\ub4f1\uae09 \uc21c\ucc28 \uc9c4\ud654 (Normal\u2192Rare\u2192Epic\u2192Legendary\u2192Mythic), 0\u219210M \uc0ac\ud0d5 \ub204\uc801',
+        '\uc0ac\ud0d5 \u2014 107\uc885 \uc2a4\ud504\ub77c\uc774\ud2b8, \ud074\ub9ad\uac15\ud654 \ub808\ubca8\uc5d0 \ub530\ub77c 6\ub2e8\uacc4 \uc9c4\ud654 (10\ub808\ubca8\ub2f9 \ub2e4\ub978 \uc2a4\ud504\ub77c\uc774\ud2b8)',
+        '\ub79c\ub364 \u2014 \ud669\uae08 \ud638\ubc15(10\ubc30 \ubcf4\ub108\uc2a4), \uad11\ud3ed \ubaa8\ub4dc(30\ucd08 \ub79c\ub364 \ubc1c\ub3d9), \uadc0\uc2e0(3\ud328\ud134 \uc774\ub3d9\u00b7\ud0ed \ubcf4\uc0c1)'
       ],
       extraSections: [
         {
-          label: '핵심 아키텍처',
+          label: '\ud575\uc2ec \uc544\ud0a4\ud14d\ucc98',
           items: [
-            'Singleton — GameManager.Instance로 전체 게임 상태 관리·DontDestroyOnLoad',
-            'DI Container — DIContainer + [Inject] 속성, 8개 코어 컴포넌트 생성·주입, Scene/Global 이중 구조',
-            'EventBus — static EventBus&lt;T&gt; + readonly struct, Game↔UI 레이어 분리, GC 제로, IDisposable 자동 해제',
-            '통신 원칙 — Game→UI는 EventBus로만, UI→Game은 DI로 컴포넌트 직접 호출'
+            'Singleton \u2014 GameManager.Instance\ub85c \uc804\uccb4 \uac8c\uc784 \uc0c1\ud0dc \uad00\ub9ac\u00b7DontDestroyOnLoad',
+            'DI Container \u2014 DIContainer + [Inject] \uc18d\uc131, 8\uac1c \ucf54\uc5b4 \ucef4\ud3ec\ub10c\ud2b8 \uc0dd\uc131\u00b7\uc8fc\uc785, Scene/Global \uc774\uc911 \uad6c\uc870',
+            'EventBus \u2014 static EventBus&lt;T&gt; + readonly struct, Game\u2194UI \ub808\uc774\uc5b4 \ubd84\ub9ac, GC \uc81c\ub85c, IDisposable \uc790\ub3d9 \ud574\uc81c',
+            '\ud1b5\uc2e0 \uc6d0\uce59 \u2014 Game\u2192UI\ub294 EventBus\ub85c\ub9cc, UI\u2192Game\uc740 DI\ub85c \ucef4\ud3ec\ub10c\ud2b8 \uc9c1\uc811 \ud638\ucd9c'
           ]
         },
         {
-          label: '성능 최적화',
+          label: '\uc131\ub2a5 \ucd5c\uc801\ud654',
           items: [
-            'Object Pooling — FloatingText 10개, CandyProjectile 10개+Trail 48개, UpgradePopupItem 5개 가상 스크롤',
-            'readonly struct 이벤트 — 모든 이벤트 구조체화로 GC Allocation 0',
-            '일괄 로드 — 107개 사탕 스프라이트 Resources.LoadAll 한 번에',
-            '원자적 저장 — JSON 세이브 tmp→bak 방식 (손상 방지)',
-            '가상 스크롤 — 업그레이드 팝업 5개 항목만 실존, 102레벨 대응'
+            'Object Pooling \u2014 FloatingText 10\uac1c, CandyProjectile 10\uac1c+Trail 48\uac1c, UpgradePopupItem 5\uac1c \uac00\uc0c1 \uc2a4\ud06c\ub864',
+            'readonly struct \uc774\ubca4\ud2b8 \u2014 \ubaa8\ub4e0 \uc774\ubca4\ud2b8 \uad6c\uc870\uccb4\ud654\ub85c GC Allocation 0',
+            '\uc77c\uad04 \ub85c\ub4dc \u2014 107\uac1c \uc0ac\ud0d5 \uc2a4\ud504\ub77c\uc774\ud2b8 Resources.LoadAll \ud55c \ubc88\uc5d0',
+            '\uc6d0\uc790\uc801 \uc800\uc7a5 \u2014 JSON \uc138\uc774\ube0c tmp\u2192bak \ubc29\uc2dd (\uc190\uc0c1 \ubc29\uc9c0)',
+            '\uac00\uc0c1 \uc2a4\ud06c\ub864 \u2014 \uc5c5\uadf8\ub808\uc774\ub4dc \ud31d\uc5c5 5\uac1c \ud56d\ubaa9\ub9cc \uc2e4\uc874, 102\ub808\ubca8 \ub300\uc751'
           ]
         },
         {
-          label: '게임 기능',
+          label: '\uac8c\uc784 \uae30\ub2a5',
           items: [
-            '피드백 이펙트 — 숫자 팝업, 사탕 발사체 궤적, 호박 클릭 애니메이션',
-            '진화 이펙트 — 등급별 파티클·화면 플래시·흔들림 (Normal↔Mythic 강도차별)',
-            '황금 호박 — 랜덤 등장, 금색 펄스 이펙트, 클릭 시 10배 보상',
-            '귀신 이벤트 — 3패턴(직선/사인/랜덤) 이동, 탭 시 사탕 보상',
-            '자동 저장 — 백그라운드 진입·종료 시 JSON 저장',
-            '배경 영상 — VideoPlayer + RawImage (Material Override, WebGL 호환)',
-            '반응형 UI — Canvas Scaler Shrink, 모바일 세로(1080×1920) 기준'
+            '\ud53c\ub4dc\ubc31 \uc774\ud399\ud2b8 \u2014 \uc22b\uc790 \ud31d\uc5c5, \uc0ac\ud0d5 \ubc1c\uc0ac\uccb4 \uada4\uc801, \ud638\ubc15 \ud074\ub9ad \uc560\ub2c8\uba54\uc774\uc158',
+            '\uc9c4\ud654 \uc774\ud399\ud2b8 \u2014 \ub4f1\uae09\ubcc4 \ud30c\ud2f0\ud07c\u00b7\ud654\uba74 \ud50c\ub798\uc2dc\u00b7\ud754\ub4e4\ub9bc (Normal\u2194Mythic \uac15\ub3c4\ucc28\ubcc4)',
+            '\ud669\uae08 \ud638\ubc15 \u2014 \ub79c\ub364 \ub4f1\uc7a5, \uae08\uc0c9 \ud384\uc2a4 \uc774\ud399\ud2b8, \ud074\ub9ad \uc2dc 10\ubc30 \ubcf4\uc0c1',
+            '\uadc0\uc2e0 \uc774\ubca4\ud2b8 \u2014 3\ud328\ud134(\uc9c1\uc120/\uc0ac\uc778/\ub79c\ub364) \uc774\ub3d9, \ud0ed \uc2dc \uc0ac\ud0d5 \ubcf4\uc0c1',
+            '\uc790\ub3d9 \uc800\uc7a5 \u2014 \ubc31\uadf8\ub77c\uc6b4\ub4dc \uc9c4\uc785\u00b7\uc885\ub8cc \uc2dc JSON \uc800\uc7a5',
+            '\ubc30\uacbd \uc601\uc0c1 \u2014 VideoPlayer + RawImage (Material Override, WebGL \ud638\ud658)',
+            '\ubc18\uc751\ud615 UI \u2014 Canvas Scaler Shrink, \ubaa8\ubc14\uc77c \uc138\ub85c(1080\u00d71920) \uae30\uc900'
           ]
         }
       ],
-      retrospective: '<p>업그레이드 버튼 디자인에서 처음엔 단순하게 레벨 1부터 레벨 max까지 나열 한 후 업그레이드가 완료된 레벨을 불투명처리 + 터치 불가로 처리를 했다. 그러나 막상 호박 아이콘과 사탕에 대한 디자인을 끝내고 나자 사탕 이미지는 107개가 넘어가 버리니 만약 플레이어가 사탕을 끝까지 업그레이드 시 스크롤을 너무 밑으로 내려야 한다는 단점이 발생했다. 그에 따른 오브젝트 107개를 소환하면서 렉도 발생했다.</p>' +
-        '<p>선생님께서 오브젝트 풀링이라는 개념을 사용해 보라고 하셔서 적용했다. 나는 여기서 만족했었다. 반응 속도나 렉이 유의미하게 줄어들어 게임 플레이에 문제가 없는 수준이었다. 그렇지만 아직 플레이어가 107개의 레벨 칸을 직접 스크롤해서 업그레이드 해야 한다는 불편함은 해결 되지 않았다.</p>' +
-        '<p>업그레이드 버튼에 대한 전체적인 디자인 재구성이 필요했다. 사탕 테마가 10개씩 11개로 이루어져 있었기 때문에 팝업 버튼을 11개로 나누고 레벨이 1오를 때마다 해당 버튼은 재사용하고 이미지와 텍스트를 다음 레벨 사탕으로 변경 해 10번 반복되고 해당 테마의 레벨을 올렸다면 회색처리 + 클릭 불가 처리했다. 이렇게 하니 플레이어가 직관적이고 스크롤 할 행동이 줄어 플레이 하기 편했다. 버튼에 대한 하나의 디자인도 사용자의 입장에서 생각하지 못했고 플레이어 입장을 먼저 생각해야 한다고 느꼈다.</p>' +
+      retrospective: '<p>\uc5c5\uadf8\ub808\uc774\ub4dc \ubc84\ud2bc \ub514\uc790\uc778\uc5d0\uc11c \ucc98\uc74c\uc5d4 \ub2e8\uc21c\ud558\uac8c \ub808\ubca8 1\ubd80\ud130 \ub808\ubca8 max\uae4c\uc9c0 \ub098\uc5f4 \ud55c \ud6c4 \uc5c5\uadf8\ub808\uc774\ub4dc\uac00 \uc644\ub8cc\ub41c \ub808\ubca8\uc744 \ubd88\ud22c\uba85\ucc98\ub9ac + \ud130\uce58 \ubd88\uac00\ub85c \ucc98\ub9ac\ub97c \ud588\ub2e4. \uadf8\ub7ec\ub098 \ub9c9\uc0c1 \ud638\ubc15 \uc544\uc774\ucf58\uacfc \uc0ac\ud0d5\uc5d0 \ub300\ud55c \ub514\uc790\uc778\uc744 \ub05d\ub0b4\uace0 \ub098\uc790 \uc0ac\ud0d5 \uc774\ubbf8\uc9c0\ub294 107\uac1c\uac00 \ub118\uc5b4\uac00 \ubc84\ub9ac\ub2c8 \ub9cc\uc57d \ud50c\ub808\uc774\uc5b4\uac00 \uc0ac\ud0d5\uc744 \ub05d\uae4c\uc9c0 \uc5c5\uadf8\ub808\uc774\ub4dc \uc2dc \uc2a4\ud06c\ub864\uc744 \ub108\ubb34 \ubc11\uc73c\ub85c \ub0b4\ub824\uc57c \ud55c\ub2e4\ub294 \ub2e8\uc810\uc774 \ubc1c\uc0dd\ud588\ub2e4. \uadf8\uc5d0 \ub530\ub978 \uc624\ube0c\uc81d\ud2b8 107\uac1c\ub97c \uc18c\ud658\ud558\uba74\uc11c \ub809\ub3c4 \ubc1c\uc0dd\ud588\ub2e4.</p>' +
+        '<p>\uc120\uc0dd\ub2d8\uaed8\uc11c \uc624\ube0c\uc81d\ud2b8 \ud480\ub9c1\uc774\ub77c\ub294 \uac1c\ub150\uc744 \uc0ac\uc6a9\ud574 \ubcf4\ub77c\uace0 \ud558\uc154\uc11c \uc801\uc6a9\ud588\ub2e4. \ub098\ub294 \uc5ec\uae30\uc11c \ub9cc\uc871\ud588\uc5c8\ub2e4. \ubc18\uc751 \uc18d\ub3c4\ub098 \ub809\uc774 \uc720\uc758\ubbf8\ud558\uac8c \uc904\uc5b4\ub4e4\uc5b4 \uac8c\uc784 \ud50c\ub808\uc774\uc5d0 \ubb38\uc81c\uac00 \uc5c6\ub294 \uc218\uc900\uc774\uc5c8\ub2e4. \uadf8\ub807\uc9c0\ub9cc \uc544\uc9c1 \ud50c\ub808\uc774\uc5b4\uac00 107\uac1c\uc758 \ub808\ubca8 \uce78\uc744 \uc9c1\uc811 \uc2a4\ud06c\ub864\ud574\uc11c \uc5c5\uadf8\ub808\uc774\ub4dc \ud574\uc57c \ud55c\ub2e4\ub294 \ubd88\ud3b8\ud568\uc740 \ud574\uacb0 \ub418\uc9c0 \uc54a\uc558\ub2e4.</p>' +
+        '<p>\uc5c5\uadf8\ub808\uc774\ub4dc \ubc84\ud2bc\uc5d0 \ub300\ud55c \uc804\uccb4\uc801\uc778 \ub514\uc790\uc778 \uc7ac\uad6c\uc131\uc774 \ud544\uc694\ud588\ub2e4. \uc0ac\ud0d5 \ud14c\ub9c8\uac00 10\uac1c\uc529 11\uac1c\ub85c \uc774\ub8e8\uc5b4\uc838 \uc788\uc5c8\uae30 \ub54c\ubb38\uc5d0 \ud31d\uc5c5 \ubc84\ud2bc\uc744 11\uac1c\ub85c \ub098\ub204\uace0 \ub808\ubca8\uc774 1\uc624\ub97c \ub54c\ub9c8\ub2e4 \ud574\ub2f9 \ubc84\ud2bc\uc740 \uc7ac\uc0ac\uc6a9\ud558\uace0 \uc774\ubbf8\uc9c0\uc640 \ud14d\uc2a4\ud2b8\ub97c \ub2e4\uc74c \ub808\ubca8 \uc0ac\ud0d5\uc73c\ub85c \ubcc0\uacbd \ud574 10\ubc88 \ubc18\ubcf5\ub418\uace0 \ud574\ub2f9 \ud14c\ub9c8\uc758 \ub808\ubca8\uc744 \uc62c\ub838\ub2e4\uba74 \ud68c\uc0c9\ucc98\ub9ac + \ud074\ub9ad \ubd88\uac00 \ucc98\ub9ac\ud588\ub2e4. \uc774\ub807\uac8c \ud558\ub2c8 \ud50c\ub808\uc774\uc5b4\uac00 \uc9c1\uad00\uc801\uc774\uace0 \uc2a4\ud06c\ub864 \ud560 \ud589\ub3d9\uc774 \uc904\uc5b4 \ud50c\ub808\uc774 \ud558\uae30 \ud3b8\ud588\ub2e4. \ubc84\ud2bc\uc5d0 \ub300\ud55c \ud558\ub098\uc758 \ub514\uc790\uc778\ub3c4 \uc0ac\uc6a9\uc790\uc758 \uc785\uc7a5\uc5d0\uc11c \uc0dd\uac01\ud558\uc9c0 \ubabb\ud588\uace0 \ud50c\ub808\uc774\uc5b4 \uc785\uc7a5\uc744 \uba3c\uc800 \uc0dd\uac01\ud574\uc57c \ud55c\ub2e4\uace0 \ub290\uaf08\ub2e4.</p>' +
         '<br>' +
-        '<p>사탕 이미지는 스타일 레퍼런스가 될 이미지를 한 장 준비하고 google flow, chat GPT, Freepeek을 통해서 제작했다. 구글 플로우는 생성 속도가 빠른 편이지만 모델이 나노바나나로 제한 됐고, 무엇보다 이미지 크기를 내가 제어할 수 없다는 단점이 있었다. 챗 지피티는 이미지 생성 기능이 다른 모델들보다 화질이 떨어지는 모습을 보여 이미지 생성 부분에서 제외했다. 프리픽은 다른 AI들보다 이미지의 비율과 크기를 내가 세밀하게 컨트롤할 수 있었다는 점과 화질 부분에서 선택했다.</p>' +
-        '<p>워크 플로우를 정리하자면 다음과 같다.</p>' +
+        '<p>\uc0ac\ud0d5 \uc774\ubbf8\uc9c0\ub294 \uc2a4\ud0c0\uc77c \ub808\ud37c\ub7f0\uc2a4\uac00 \ub420 \uc774\ubbf8\uc9c0\ub97c \ud55c \uc7a5 \uc900\ube44\ud558\uace0 google flow, chat GPT, Freepeek\uc744 \ud1b5\ud574\uc11c \uc81c\uc791\ud588\ub2e4. \uad6c\uae00 \ud50c\ub85c\uc6b0\ub294 \uc0dd\uc131 \uc18d\ub3c4\uac00 \ube60\ub978 \ud3b8\uc774\uc9c0\ub9cc \ubaa8\ub378\uc774 \ub098\ub178\ubc14\ub098\ub098\ub85c \uc81c\ud55c \ub410\uace0, \ubb34\uc5c7\ubcf4\ub2e4 \uc774\ubbf8\uc9c0 \ud06c\uae30\ub97c \ub0b4\uac00 \uc81c\uc5b4\ud560 \uc218 \uc5c6\ub2e4\ub294 \ub2e8\uc810\uc774 \uc788\uc5c8\ub2e4. \ucc57 \uc9c0\ud53c\ud2f0\ub294 \uc774\ubbf8\uc9c0 \uc0dd\uc131 \uae30\ub2a5\uc774 \ub2e4\ub978 \ubaa8\ub378\ub4e4\ubcf4\ub2e4 \ud654\uc9c8\uc774 \ub5a8\uc5b4\uc9c0\ub294 \ubaa8\uc2b5\uc744 \ubcf4\uc5ec \uc774\ubbf8\uc9c0 \uc0dd\uc131 \ubd80\ubd84\uc5d0\uc11c \uc81c\uc678\ud588\ub2e4. \ud504\ub9ac\ud53d\uc740 \ub2e4\ub978 AI\ub4e4\ubcf4\ub2e4 \uc774\ubbf8\uc9c0\uc758 \ube44\uc728\uacfc \ud06c\uae30\ub97c \ub0b4\uac00 \uc138\ubc00\ud558\uac8c \ucee8\ud2b8\ub864\ud560 \uc218 \uc788\uc5c8\ub2e4\ub294 \uc810\uacfc \ud654\uc9c8 \ubd80\ubd84\uc5d0\uc11c \uc120\ud0dd\ud588\ub2e4.</p>' +
+        '<p>\uc6cc\ud06c \ud50c\ub85c\uc6b0\ub97c \uc815\ub9ac\ud558\uc790\uba74 \ub2e4\uc74c\uacfc \uac19\ub2e4.</p>' +
         '<ol>' +
-        '<li>레퍼런스 이미지를 보내고 해당 스타일로 내가 원하는 테마의 사탕 프롬포트를 얻는다. (Ex) 마시멜로 분위기의 사탕)</li>' +
-        '<li>프리픽에 해당 프롬포트를 보내고 원하는 이미지를 출력한다.</li>' +
-        '<li>출력한 이미지를 가공하기 전 AI로 만든 이미지들(특히 픽셀)은 확대 해 보면 마감이 좋지가 않다.</li>' +
-        '<li>3-1. Google AI Pixel Snapper Web을 제작 해 이미지를 넣고 픽셀을 최대한 깔끔하게 정리한다.</li>' +
-        '<li>이미지를 얻은 후 해당 이미지의 배경을 유니티에 사용할 수 있도록 배경을 투명화한다.</li>' +
-        '<li>투명화 한 배경을 Google AI Studio를 통해 제작한 스프라이트 자동 스플리터를 통해서 이미지를 자른다.</li>' +
+        '<li>\ub808\ud37c\ub7f0\uc2a4 \uc774\ubbf8\uc9c0\ub97c \ubcf4\ub0b4\uace0 \ud574\ub2f9 \uc2a4\ud0c0\uc77c\ub85c \ub0b4\uac00 \uc6d0\ud558\ub294 \ud14c\ub9c8\uc758 \uc0ac\ud0d5 \ud504\ub86c\ud504\ud2b8\ub97c \uc5bb\ub294\ub2e4. (Ex) \ub9c8\uc2dc\uba5c\ub85c \ubd84\uc704\uae30\uc758 \uc0ac\ud0d5)</li>' +
+        '<li>\ud504\ub9ac\ud53d\uc5d0 \ud574\ub2f9 \ud504\ub86c\ud504\ud2b8\ub97c \ubcf4\ub0b4\uace0 \uc6d0\ud558\ub294 \uc774\ubbf8\uc9c0\ub97c \ucd9c\ub825\ud55c\ub2e4.</li>' +
+        '<li>\ucd9c\ub825\ud55c \uc774\ubbf8\uc9c0\ub97c \uac00\uacf5\ud558\uae30 \uc804 AI\ub85c \ub9cc\ub4e0 \uc774\ubbf8\uc9c0\ub4e4(\ud2b9\ud788 \ud53d\uc140)\uc740 \ud655\ub300 \ud574 \ubcf4\uba74 \ub9c8\uac10\uc774 \uc88b\uc9c0\uac00 \uc54a\ub2e4.</li>' +
+        '<li>3-1. Google AI Pixel Snapper Web\uc744 \uc81c\uc791 \ud574 \uc774\ubbf8\uc9c0\ub97c \ub123\uace0 \ud53d\uc140\uc744 \ucd5c\ub300\ud55c \uae54\ub054\ud558\uac8c \uc815\ub9ac\ud55c\ub2e4.</li>' +
+        '<li>\uc774\ubbf8\uc9c0\ub97c \uc5bb\uc740 \ud6c4 \ud574\ub2f9 \uc774\ubbf8\uc9c0\uc758 \ubc30\uacbd\uc744 \uc720\ub2c8\ud2f0\uc5d0 \uc0ac\uc6a9\ud560 \uc218 \uc788\ub3c4\ub85d \ubc30\uacbd\uc744 \ud22c\uba85\ud654\ud55c\ub2e4.</li>' +
+        '<li>\ud22c\uba85\ud654 \ud55c \ubc30\uacbd\uc744 Google AI Studio\ub97c \ud1b5\ud574 \uc81c\uc791\ud55c \uc2a4\ud504\ub77c\uc774\ud2b8 \uc790\ub3d9 \uc2a4\ud50c\ub9ac\ud130\ub97c \ud1b5\ud574\uc11c \uc774\ubbf8\uc9c0\ub97c \uc790\ub978\ub2e4.</li>' +
         '</ol>' +
-        '<p>위와 같은 과정을 통해서 필요한 사탕 에셋을 준비 했다.</p>' +
+        '<p>\uc704\uc640 \uac19\uc740 \uacfc\uc815\uc744 \ud1b5\ud574\uc11c \ud544\uc694\ud55c \uc0ac\ud0d5 \uc5d0\uc14b\uc744 \uc900\ube44 \ud588\ub2e4.</p>' +
         '<br>' +
-        '<p>아쉬웠던 점은 아직 픽셀 스냅퍼가 유료 서비스들에 비해 퀄리티가 떨어진다는 점이 아쉽다. 수정에 수정을 거듭했지만 한계가 뚜렸했다.</p>' +
-        '<p>AI 이미지를 활용한 게임을 만들어 보고 싶어서 진행했던 프로젝트였다. 이미지의 퀄리티는 기술력의 한계로 인해 아쉬웠지만 AI를 어떻게 활용해야 하는지 워크플로우를 고민하고 실전에서 적용할 수 있는지 알 수 있었던 프로젝트였다.</p>',
+        '<p>\uc544\uc26c\uc6e0\ub358 \uc810\uc740 \uc544\uc9c1 \ud53d\uc140 \uc2a4\ub0a9\ud37c\uac00 \uc720\ub8cc \uc11c\ube44\uc2a4\ub4e4\uc5d0 \ube44\ud574 \ud004\ub9ac\ud2f0\uac00 \ub5a8\uc5b4\uc9c4\ub2e4\ub294 \uc810\uc774 \uc544\uc27d\ub2e4. \uc218\uc815\uc5d0 \uc218\uc815\uc744 \uac70\ub4ed\ud588\uc9c0\ub9cc \ud55c\uacc4\uac00 \ub69c\ub82c\ud588\ub2e4.</p>' +
+        '<p>AI \uc774\ubbf8\uc9c0\ub97c \ud65c\uc6a9\ud55c \uac8c\uc784\uc744 \ub9cc\ub4e4\uc5b4 \ubcf4\uace0 \uc2f6\uc5b4\uc11c \uc9c4\ud589\ud588\ub358 \ud504\ub85c\uc81d\ud2b8\uc600\ub2e4. \uc774\ubbf8\uc9c0\uc758 \ud004\ub9ac\ud2f0\ub294 \uae30\uc220\ub825\uc758 \ud55c\uacc4\ub85c \uc778\ud574 \uc544\uc26c\uc6e0\uc9c0\ub9cc AI\ub97c \uc5b4\ub5bb\uac8c \ud65c\uc6a9\ud574\uc57c \ud558\ub294\uc9c0 \uc6cc\ud06c\ud50c\ub85c\uc6b0\ub97c \uace0\ubbfc\ud558\uace0 \uc2e4\uc804\uc5d0\uc11c \uc801\uc6a9\ud560 \uc218 \uc788\ub294\uc9c0 \uc54c \uc218 \uc788\uc5c8\ub358 \ud504\ub85c\uc81d\ud2b8\uc600\ub2e4.</p>',
       actions: [{ label: 'Go to Demo', class: 'btn-web', url: 'https://tpgns3353-ctrl.itch.io/pumpumkin', external: true }]
     },
     todolist: {
@@ -198,222 +268,135 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbClass: 'thumb-todo-lg',
       thumbImage: 'images/todo-list-icon.jpeg',
       title: 'Todo List',
-      subtitle: 'App · Tauri · Web',
-      desc: '할 일을 관리하는 앱입니다. 추가, 수정, 삭제, 완료 체크 기능과 카테고리/우선순위 분류, 필터링을 지원합니다. 웹 버전과 Android 앱으로 사용 가능합니다.',
-      flow: '할 일 입력 → 카테고리/우선순위 선택 → 추가 → 완료 토글 → 수정/삭제 → 필터로 조회',
-      tags: ['Vanilla HTML/CSS/JS', 'Tauri v2 + Rust', 'LocalStorage', '반응형 + 다크모드', 'GitHub Pages'],
+      subtitle: 'App \u00b7 Tauri \u00b7 Web',
+      desc: '\ud560 \uc77c\uc744 \uad00\ub9ac\ud558\ub294 \uc571\uc785\ub2c8\ub2e4. \ucd94\uac00, \uc218\uc815, \uc0ad\uc81c, \uc644\ub8cc \uccb4\ud06c \uae30\ub2a5\uacfc \uce74\ud14c\uace0\ub9ac/\uc6b0\uc120\uc21c\uc704 \ubd84\ub958, \ud544\ud130\ub9c1\uc744 \uc9c0\uc6d0\ud569\ub2c8\ub2e4. \uc6f9 \ubc84\uc804\uacfc Android \uc571\uc73c\ub85c \uc0ac\uc6a9 \uac00\ub2a5\ud569\ub2c8\ub2e4.',
+      flow: '\ud560 \uc77c \uc785\ub825 \u2192 \uce74\ud14c\uace0\ub9ac/\uc6b0\uc120\uc21c\uc704 \uc120\ud0dd \u2192 \ucd94\uac00 \u2192 \uc644\ub8cc \ud1a0\uae00 \u2192 \uc218\uc815/\uc0ad\uc81c \u2192 \ud544\ud130\ub85c \uc870\ud68c',
+      tags: ['Vanilla HTML/CSS/JS', 'Tauri v2 + Rust', 'LocalStorage', '\ubc18\uc751\ud615 + \ub2e4\ud06c\ubaa8\ub4dc', 'GitHub Pages'],
       features: [
-        '할 일 CRUD — 추가, 모달 수정, 즉시 삭제',
-        '완료 체크 — 체크박스 토글 시 취소선 표시',
-        '카테고리 분류 — 일반/업무/개인/쇼핑/학습 태그',
-        '우선순위 설정 — 낮음/보통/높음 색상 태그로 시각 구분',
-        '필터링 — 카테고리, 우선순위, 상태 조합 필터',
-        '통계 — 전체/완료/진행중 개수 실시간 표시'
+        '\ud560 \uc77c CRUD \u2014 \ucd94\uac00, \ubaa8\ub2ec \uc218\uc815, \uc989\uc2dc \uc0ad\uc81c',
+        '\uc644\ub8cc \uccb4\ud06c \u2014 \uccb4\ud06c\ubc15\uc2a4 \ud1a0\uae00 \uc2dc \ucde8\uc18c\uc120 \ud45c\uc2dc',
+        '\uce74\ud14c\uace0\ub9ac \ubd84\ub958 \u2014 \uc77c\ubc18/\uc5c5\ubb34/\uac1c\uc778/\uc1fc\ud551/\ud559\uc2b5 \ud0dc\uadf8',
+        '\uc6b0\uc120\uc21c\uc704 \uc124\uc815 \u2014 \ub0ae\uc74c/\ubcf4\ud1b5/\ub192\uc74c \uc0c9\uc0c1 \ud0dc\uadf8\ub85c \uc2dc\uac01 \uad6c\ubd84',
+        '\ud544\ud130\ub9c1 \u2014 \uce74\ud14c\uace0\ub9ac, \uc6b0\uc120\uc21c\uc704, \uc0c1\ud0dc \uc870\ud569 \ud544\ud130',
+        '\ud1b5\uacc4 \u2014 \uc804\uccb4/\uc644\ub8cc/\uc9c4\ud589\uc911 \uac1c\uc218 \uc2e4\uc2dc\uac04 \ud45c\uc2dc'
       ],
       actions: [
-        { label: '웹으로 방문', class: 'btn-web', url: '/todo/', external: true },
-        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/todo-list.apk', external: true, download: true }
+        { label: '\uc6f9\uc73c\ub85c \ubc29\ubb38', class: 'btn-web', url: '/todo/', external: true },
+        { label: '\uc571 \ub2e4\uc6b4\ub85c\ub4dc (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/todo-list.apk', external: true, download: true }
       ]
     },
     webnovel: {
       thumb: 'R',
       thumbClass: 'thumb-novel-lg',
       thumbImage: 'images/red-moon-night-thumbnail.png',
-      title: '붉은달의 밤',
-      subtitle: 'Interactive Novel · Story · 9 Chapters',
-      desc: 'AI 기반 인터랙티브 웹소설 시뮬레이터. 오빠의 죽음을 목격한 소녀 소라인이 복수를 위해 검사가 되었지만, 실종된 오빠를 찾는 여정 속에서 아버지가 흑마법으로 오빠의 몸을 조종하고 있음을 알게 되고, 복수와 가족애 사이에서 선택해야 하는 기로에 서는 이야기입니다.',
-      flow: '제1장~제9장 · 선택지 분기 · 스탯 시스템 (체력/정신력/유대) · 다중 엔딩',
-      tags: ['웹소설', '인터랙티브', '선택지 분기', '한국어', 'GitHub Pages'],
+      title: '\ubd89\uc740\ub2ec\uc758 \ubc24',
+      subtitle: 'Interactive Novel \u00b7 Story \u00b7 9 Chapters',
+      desc: 'AI \uae30\ubc18 \uc778\ud130\ub799\ud2f0\ube0c \uc6f9\uc18c\uc124 \uc2dc\ubba4\ub808\uc774\ud130. \uc624\ube60\uc758 \uc8fd\uc74c\uc744 \ubaa9\uaca9\ud55c \uc18c\ub140 \uc18c\ub77c\uc778\uc774 \ubcf5\uc218\ub97c \uc704\ud574 \uac80\uc0ac\uac00 \ub418\uc5c8\uc9c0\ub9cc, \uc2e4\uc885\ub41c \uc624\ube60\ub97c \ucc3e\ub294 \uc5ec\uc815 \uc18d\uc5d0\uc11c \uc544\ubc84\uc9c0\uac00 \ud751\ub9c8\ubc95\uc73c\ub85c \uc624\ube60\uc758 \ubab8\uc744 \uc870\uc885\ud558\uace0 \uc788\uc74c\uc744 \uc54c\uac8c \ub418\uace0, \ubcf5\uc218\uc640 \uac00\uc871\uc560 \uc0ac\uc774\uc5d0\uc11c \uc120\ud0dd\ud574\uc57c \ud558\ub294 \uae30\ub85c\uc5d0 \uc11c\ub294 \uc774\uc57c\uae30\uc785\ub2c8\ub2e4.',
+      flow: '\uc81c1\uc7a5~\uc81c9\uc7a5 \u00b7 \uc120\ud0dd\uc9c0 \ubd84\uae30 \u00b7 \uc2a4\ud0ef \uc2dc\uc2a4\ud15c (\uccb4\ub825/\uc815\uc2e0\ub825/\uc720\ub300) \u00b7 \ub2e4\uc911 \uc5d4\ub529',
+      tags: ['\uc6f9\uc18c\uc124', '\uc778\ud130\ub799\ud2f0\ube0c', '\uc120\ud0dd\uc9c0 \ubd84\uae30', '\ud55c\uad6d\uc5b4', 'GitHub Pages'],
       features: [
-        '총 9장 구성, 선택지에 따라 스토리 전개가 달라집니다',
-        '체력·정신력·유대 스탯 시스템으로 플레이어의 선택이 반영됩니다',
-        '붉은달의 밤 — "당신은 꿈을 위해 무엇까지 희생할 수 있는가?"',
-        '로컬 저장 기능으로 이어서 읽기 가능'
+        '\ucd1d 9\uc7a5 \uad6c\uc131, \uc120\ud0dd\uc9c0\uc5d0 \ub530\ub77c \uc2a4\ud1a0\ub9ac \uc804\uac1c\uac00 \ub2ec\ub77c\uc9d1\ub2c8\ub2e4',
+        '\uccb4\ub825\u00b7\uc815\uc2e0\ub825\u00b7\uc720\ub300 \uc2a4\ud0ef \uc2dc\uc2a4\ud15c\uc73c\ub85c \ud50c\ub808\uc774\uc5b4\uc758 \uc120\ud0dd\uc774 \ubc18\uc601\ub429\ub2c8\ub2e4',
+        '\ubd89\uc740\ub2ec\uc758 \ubc24 \u2014 "\ub2f9\uc2e0\uc740 \uafc8\uc744 \uc704\ud574 \ubb34\uc5c7\uae4c\uc9c0 \ud76c\uc0dd\ud560 \uc218 \uc788\ub294\uac00?"',
+        '\ub85c\uceec \uc800\uc7a5 \uae30\ub2a5\uc73c\ub85c \uc774\uc5b4\uc11c \uc77d\uae30 \uac00\ub2a5'
       ],
       extraSections: [
         {
           label: 'GitHub',
           items: [
-            '소스 코드: github.com/tpgns3353-ctrl/webnovel',
-            '원본 프로젝트: AI 기반 CLI 시뮬레이터 (Maskweaver/OpenCode)'
+            '\uc18c\uc2a4 \ucf54\ub4dc: github.com/tpgns3353-ctrl/webnovel',
+            '\uc6d0\ubcf8 \ud504\ub85c\uc81d\ud2b8: AI \uae30\ubc18 CLI \uc2dc\ubba4\ub808\uc774\ud130 (Maskweaver/OpenCode)'
           ]
         }
       ],
-      retrospective: '<p>"붉은 달의 밤" 프로젝트는 AI 기반 채팅 시뮬레이션을 제작해 보자는 목표로 진행한 프로젝트였다. 전체 개발 과정에서 AI 도구를 적극적으로 활용했으며, 약 5시간 만에 프로토타입을 완성했다.</p>' +
-        '<p>처음 프로젝트를 시작하며 가장 고민했던 부분은 다음과 같았다. "플레이어의 선택에 따라 대화 흐름과 스토리가 달라지는 AI 채팅 시뮬레이션을 어떻게 설계해야 할까?" 단순히 대사를 출력하는 수준이 아니라, 플레이어 선택에 따라 이야기 구조가 변화해야 했기 때문에 디자인과 기획 문서 설계에 많은 시간을 투자했다.</p>' +
-        '<p>스토리를 관통하는 핵심 메시지는 <strong>"꿈을 위해 어디까지 할 수 있는가?"</strong>로 정했다. 베르세르크라는 작품을 보며 해당 주제를 게임으로 표현해 보고 싶다는 생각을 가지고 있었고, 이를 기반으로 세계관과 스토리를 구성했다.</p>' +
-        '<h5 style="margin-top:1.2em;color:var(--accent-green);">📋 OpenSpec 워크플로우</h5>' +
-        '<p>방대한 스토리를 혼자 설계하는 것은 많은 시간이 필요했기 때문에 OpenSpec 워크플로우를 활용했다. OpenSpec은 <strong>기획 → 기획 문서 작성 → 적용 → 저장 → 수정</strong> 단계를 반복하며 프로젝트를 발전시키는 구조를 가지고 있었다.</p>' +
-        '<p>초기 단계에서는 테마, 주인공, 기본 세계관, 스토리 배경 정도만 정의했고, 이후에는 워크플로우를 따라가며 내용을 구체화했다. 그 결과 세계관, 정치 체계, 지리와 역사, 주요 캐릭터 설정, 메인 스토리 흐름, 필수 장면 구성, 피하고 싶은 클리셰, 스토리를 자연스럽게 연결하는 조력자 캐릭터 등 내가 미처 고려하지 못했던 요소들까지 체계적으로 정리할 수 있었다.</p>' +
-        '<p>특히 흥미로웠던 점은 선택지 분기 구조와 다중 엔딩, 그리고 체력·정신력·유대감 기반의 스탯 시스템까지 자연스럽게 설계 흐름에 포함되었다는 점이었다.</p>' +
-        '<h5 style="margin-top:1.2em;color:var(--accent-green);">🧪 테스트 과정 — Agent Session 시뮬레이터</h5>' +
-        '<p>구현 이후 테스트는 Agent Session 기반 시뮬레이터를 제작해 진행했다. 기존 방식은 <strong>앱 빌드 → 테스트 → 오류 발견 → 수정 → 재빌드 → 재테스트</strong> 과정을 반복해야 했지만, Agent Session 기반 테스트 환경을 사용하면서 <strong>오류 발견 → 수정 → 즉시 재테스트 → 최종 빌드</strong> 형태로 개발 흐름을 단축할 수 있었다. 이를 통해 반복 빌드에 소모되는 시간과 비용을 크게 줄일 수 있었다.</p>' +
-        '<h5 style="margin-top:1.2em;color:var(--accent-green);">📱 플랫폼별 입력 처리 문제</h5>' +
-        '<p>앱 빌드 역시 AI와 협업하며 진행했다. 개발 과정에서 가장 어려웠던 부분 중 하나는 웹 환경과 APK(Android) 환경의 입력 방식 차이였다.</p>' +
+      retrospective: '<p>"\ubd89\uc740 \ub2ec\uc758 \ubc24" \ud504\ub85c\uc81d\ud2b8\ub294 AI \uae30\ubc18 \ucc44\ud305 \uc2dc\ubba4\ub808\uc774\uc158\uc744 \uc81c\uc791\ud574 \ubcf4\uc790\ub294 \ubaa9\ud45c\ub85c \uc9c4\ud589\ud55c \ud504\ub85c\uc81d\ud2b8\uc600\ub2e4. \uc804\uccb4 \uac1c\ubc1c \uacfc\uc815\uc5d0\uc11c AI \ub3c4\uad6c\ub97c \uc801\uadf9\uc801\uc73c\ub85c \ud65c\uc6a9\ud588\uc73c\uba70, \uc57d 5\uc2dc\uac04 \ub9cc\uc5d0 \ud504\ub85c\ud1a0\ud0c0\uc785\uc744 \uc644\uc131\ud588\ub2e4.</p>' +
+        '<p>\ucc98\uc74c \ud504\ub85c\uc81d\ud2b8\ub97c \uc2dc\uc791\ud558\uba70 \uac00\uc7a5 \uace0\ubbfc\ud588\ub358 \ubd80\ubd84\uc740 \ub2e4\uc74c\uacfc \uac19\uc558\ub2e4. "\ud50c\ub808\uc774\uc5b4\uc758 \uc120\ud0dd\uc5d0 \ub530\ub77c \ub300\ud654 \ud750\ub984\uacfc \uc2a4\ud1a0\ub9ac\uac00 \ub2ec\ub77c\uc9c0\ub294 AI \ucc44\ud305 \uc2dc\ubba4\ub808\uc774\uc158\uc744 \uc5b4\ub5bb\uac8c \uc124\uacc4\ud574\uc57c \ud560\uae4c?" \ub2e8\uc21c\ud788 \ub300\uc0ac\ub97c \ucd9c\ub825\ud558\ub294 \uc218\uc900\uc774 \uc544\ub2c8\ub77c, \ud50c\ub808\uc774\uc5b4 \uc120\ud0dd\uc5d0 \ub530\ub77c \uc774\uc57c\uae30 \uad6c\uc870\uac00 \ubcc0\ud654\ud574\uc57c \ud588\uae30 \ub54c\ubb38\uc5d0 \ub514\uc790\uc778\uacfc \uae30\ud68d \ubb38\uc11c \uc124\uacc4\uc5d0 \ub9ce\uc740 \uc2dc\uac04\uc744 \ud22c\uc790\ud588\ub2e4.</p>' +
+        '<p>\uc2a4\ud1a0\ub9ac\ub97c \uad00\ud1b5\ud558\ub294 \ud575\uc2ec \uba54\uc2dc\uc9c0\ub294 <strong>"\uafc8\uc744 \uc704\ud574 \uc5b4\ub514\uae4c\uc9c0 \ud560 \uc218 \uc788\ub294\uac00?"</strong>\ub85c \uc815\ud588\ub2e4. \ubca0\ub974\uc138\ub974\ud06c\ub77c\ub294 \uc791\ud488\uc744 \ubcf4\uba70 \ud574\ub2f9 \uc8fc\uc81c\ub97c \uac8c\uc784\uc73c\ub85c \ud45c\ud604\ud574 \ubcf4\uace0 \uc2f6\ub2e4\ub294 \uc0dd\uac01\uc744 \uac00\uc9c0\uace0 \uc788\uc5c8\uace0, \uc774\ub97c \uae30\ubc18\uc73c\ub85c \uc138\uacc4\uad00\uacfc \uc2a4\ud1a0\ub9ac\ub97c \uad6c\uc131\ud588\ub2e4.</p>' +
+        '<h5 style="margin-top:1.2em;color:var(--accent-green);">OpenSpec \uc6cc\ud06c\ud50c\ub85c\uc6b0</h5>' +
+        '<p>\ubc29\ub300\ud55c \uc2a4\ud1a0\ub9ac\ub97c \ud63c\uc790 \uc124\uacc4\ud558\ub294 \uac83\uc740 \ub9ce\uc740 \uc2dc\uac04\uc774 \ud544\uc694\ud588\uae30 \ub54c\ubb38\uc5d0 OpenSpec \uc6cc\ud06c\ud50c\ub85c\uc6b0\ub97c \ud65c\uc6a9\ud588\ub2e4. OpenSpec\uc740 <strong>\uae30\ud68d \u2192 \uae30\ud68d \ubb38\uc11c \uc791\uc131 \u2192 \uc801\uc6a9 \u2192 \uc800\uc7a5 \u2192 \uc218\uc815</strong> \ub2e8\uacc4\ub97c \ubc18\ubcf5\ud558\uba70 \ud504\ub85c\uc81d\ud2b8\ub97c \ubc1c\uc804\uc2dc\ud0a4\ub294 \uad6c\uc870\ub97c \uac00\uc9c0\uace0 \uc788\uc5c8\ub2e4.</p>' +
+        '<p>\ucd08\uae30 \ub2e8\uacc4\uc5d0\uc11c\ub294 \ud14c\ub9c8, \uc8fc\uc778\uacf5, \uae30\ubcf8 \uc138\uacc4\uad00, \uc2a4\ud1a0\ub9ac \ubc30\uacbd \uc815\ub3c4\ub9cc \uc815\uc758\ud588\uace0, \uc774\ud6c4\uc5d0\ub294 \uc6cc\ud06c\ud50c\ub85c\uc6b0\ub97c \ub530\ub77c\uac00\uba70 \ub0b4\uc6a9\uc744 \uad6c\uccb4\ud654\ud588\ub2e4. \uadf8 \uacb0\uacfc \uc138\uacc4\uad00, \uc815\uce58 \uccb4\uacc4, \uc9c0\ub9ac\uc640 \uc5ed\uc0ac, \uc8fc\uc694 \uce90\ub9ad\ud130 \uc124\uc815, \uba54\uc778 \uc2a4\ud1a0\ub9ac \ud750\ub984, \ud544\uc218 \uc7a5\uba74 \uad6c\uc131, \ud53c\ud558\uace0 \uc2f6\uc740 \ud074\ub9ac\uc170, \uc2a4\ud1a0\ub9ac\ub97c \uc790\uc5f0\uc2a4\ub7fd\uac8c \uc5f0\uacb0\ud558\ub294 \uc870\ub825\uc790 \uce90\ub9ad\ud130 \ub4f1 \ub0b4\uac00 \ubbf8\ucc98 \uace0\ub824\ud558\uc9c0 \ubabb\ud588\ub358 \uc694\uc18c\ub4e4\uae4c\uc9c0 \uccb4\uacc4\uc801\uc73c\ub85c \uc815\ub9ac\ud560 \uc218 \uc788\uc5c8\ub2e4.</p>' +
+        '<p>\ud2b9\ud788 \ud765\ubbf8\ub85c\uc6e0\ub358 \uc810\uc740 \uc120\ud0dd\uc9c0 \ubd84\uae30 \uad6c\uc870\uc640 \ub2e4\uc911 \uc5d4\ub529, \uadf8\ub9ac\uace0 \uccb4\ub825\u00b7\uc815\uc2e0\ub825\u00b7\uc720\ub300\uac10 \uae30\ubc18\uc758 \uc2a4\ud0ef \uc2dc\uc2a4\ud15c\uae4c\uc9c0 \uc790\uc5f0\uc2a4\ub7fd\uac8c \uc124\uacc4 \ud750\ub984\uc5d0 \ud3ec\ud568\ub418\uc5c8\ub2e4\ub294 \uc810\uc774\uc5c8\ub2e4.</p>' +
+        '<h5 style="margin-top:1.2em;color:var(--accent-green);">\ud14c\uc2a4\ud2b8 \uacfc\uc815 \u2014 Agent Session \uc2dc\ubba4\ub808\uc774\ud130</h5>' +
+        '<p>\uad6c\ud604 \uc774\ud6c4 \ud14c\uc2a4\ud2b8\ub294 Agent Session \uae30\ubc18 \uc2dc\ubba4\ub808\uc774\ud130\ub97c \uc81c\uc791\ud574 \uc9c4\ud589\ud588\ub2e4. \uae30\uc874 \ubc29\uc2dd\uc740 <strong>\uc571 \ube4c\ub4dc \u2192 \ud14c\uc2a4\ud2b8 \u2192 \uc624\ub958 \ubc1c\uacac \u2192 \uc218\uc815 \u2192 \uc7ac\ube4c\ub4dc \u2192 \uc7ac\ud14c\uc2a4\ud2b8</strong> \uacfc\uc815\uc744 \ubc18\ubcf5\ud574\uc57c \ud588\uc9c0\ub9cc, Agent Session \uae30\ubc18 \ud14c\uc2a4\ud2b8 \ud658\uacbd\uc744 \uc0ac\uc6a9\ud558\uba74\uc11c <strong>\uc624\ub958 \ubc1c\uacac \u2192 \uc218\uc815 \u2192 \uc989\uc2dc \uc7ac\ud14c\uc2a4\ud2b8 \u2192 \ucd5c\uc885 \ube4c\ub4dc</strong> \ud615\ud0dc\ub85c \uac1c\ubc1c \ud750\ub984\uc744 \ub2e8\ucd95\ud560 \uc218 \uc788\uc5c8\ub2e4. \uc774\ub97c \ud1b5\ud574 \ubc18\ubcf5 \ube4c\ub4dc\uc5d0 \uc18c\ubaa8\ub418\ub294 \uc2dc\uac04\uacfc \ube44\uc6a9\uc744 \ud06c\uac8c \uc904\uc77c \uc218 \uc788\uc5c8\ub2e4.</p>' +
+        '<h5 style="margin-top:1.2em;color:var(--accent-green);">\ud50c\ub7ab\ud3fc\ubcc4 \uc785\ub825 \ucc98\ub9ac \ubb38\uc81c</h5>' +
+        '<p>\uc571 \ube4c\ub4dc \uc5ed\uc2dc AI\uc640 \ud611\uc5c5\ud558\uba70 \uc9c4\ud589\ud588\ub2e4. \uac1c\ubc1c \uacfc\uc815\uc5d0\uc11c \uac00\uc7a5 \uc5b4\ub824\uc6e0\ub358 \ubd80\ubd84 \uc911 \ud558\ub098\ub294 \uc6f9 \ud658\uacbd\uacfc APK(Android) \ud658\uacbd\uc758 \uc785\ub825 \ubc29\uc2dd \ucc28\uc774\uc600\ub2e4.</p>' +
         '<ul>' +
-        '<li><strong>웹 버전:</strong> SpaceBar → 텍스트 스킵 / 다음 장면 진행, 숫자 키패드 → 선택지 선택</li>' +
-        '<li><strong>APK 버전:</strong> 화면 터치 → 텍스트 스킵 / 다음 장면 진행 / 선택지 선택</li>' +
+        '<li><strong>\uc6f9 \ubc84\uc804:</strong> SpaceBar \u2192 \ud14d\uc2a4\ud2b8 \uc2a4\ud0b5 / \ub2e4\uc74c \uc7a5\uba74 \uc9c4\ud589, \uc22b\uc790 \ud0a4\ud328\ub4dc \u2192 \uc120\ud0dd\uc9c0 \uc120\ud0dd</li>' +
+        '<li><strong>APK \ubc84\uc804:</strong> \ud654\uba74 \ud130\uce58 \u2192 \ud14d\uc2a4\ud2b8 \uc2a4\ud0b5 / \ub2e4\uc74c \uc7a5\uba74 \uc774\ub3d9 / \uc120\ud0dd\uc9c0 \uc120\ud0dd</li>' +
         '</ul>' +
-        '<p>하지만 모바일 환경에서는 한 번의 터치 입력으로 텍스트 스킵과 다음 장면 이동이 동시에 실행되는 문제가 발생했다. 이를 해결하기 위해 터치 입력 이후 일정 시간 동안 추가 입력을 제한하는 입력 쿨다운(Input Cooldown) 구조를 적용했다.</p>' +
+        '<p>\ud558\uc9c0\ub9cc \ubaa8\ubc14\uc77c \ud658\uacbd\uc5d0\uc11c\ub294 \ud55c \ubc88\uc758 \ud130\uce58 \uc785\ub825\uc73c\ub85c \ud14d\uc2a4\ud2b8 \uc2a4\ud0b5\uacfc \ub2e4\uc74c \uc7a5\uba74 \uc774\ub3d9\uc774 \ub3d9\uc2dc\uc5d0 \uc2e4\ud589\ub418\ub294 \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\ub2e4. \uc774\ub97c \ud574\uacb0\ud558\uae30 \uc704\ud574 \ud130\uce58 \uc785\ub825 \uc774\ud6c4 \uc77c\uc815 \uc2dc\uac04 \ub3d9\uc548 \ucd94\uac00 \uc785\ub825\uc744 \uc81c\ud55c\ud558\ub294 \uc785\ub825 \ucfe8\ub2e4\uc6b4(Input Cooldown) \uad6c\uc870\ub97c \uc801\uc6a9\ud588\ub2e4.</p>' +
         '<br>' +
-        '<p>이번 프로젝트를 통해 AI 도구를 활용한 빠른 프로토타이핑 역량을 키울 수 있었고, 기획부터 구현·테스트·배포까지의 전체 개발 흐름을 경험할 수 있었다. 또한 단순히 AI에게 결과물을 요청하는 것이 아니라, 문제를 정의하고 방향을 설계하며 AI와 협업하는 과정이 중요하다는 점을 배울 수 있었다.</p>',
+        '<p>\uc774\ubc88 \ud504\ub85c\uc81d\ud2b8\ub97c \ud1b5\ud574 AI \ub3c4\uad6c\ub97c \ud65c\uc6a9\ud55c \ube60\ub978 \ud504\ub85c\ud1a0\ud0c0\uc774\ud551 \uc5ed\ub7c9\uc744 \ud0a4\uc6b8 \uc218 \uc788\uc5c8\uace0, \uae30\ud68d\ubd80\ud130 \uad6c\ud604\u00b7\ud14c\uc2a4\ud2b8\u00b7\ubc30\ud3ec\uae4c\uc9c0\uc758 \uc804\uccb4 \uac1c\ubc1c \ud750\ub984\uc744 \uacbd\ud5d8\ud560 \uc218 \uc788\uc5c8\ub2e4. \ub610\ud55c \ub2e8\uc21c\ud788 AI\uc5d0\uac8c \uacb0\uacfc\ubb3c\uc744 \uc694\uccad\ud558\ub294 \uac83\uc774 \uc544\ub2c8\ub77c, \ubb38\uc81c\ub97c \uc815\uc758\ud558\uace0 \ubc29\ud5a5\uc744 \uc124\uacc4\ud558\uba70 AI\uc640 \ud611\uc5c5\ud558\ub294 \uacfc\uc815\uc774 \uc911\uc694\ud558\ub2e4\ub294 \uc810\uc744 \ubc30\uc6b8 \uc218 \uc788\uc5c8\ub2e4.</p>',
       actions: [
-        { label: '소설 읽기', class: 'btn-web', url: '/webnovel/', external: true },
-        { label: '앱 다운로드 (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/red-moon-night.apk', external: true, download: true }
+        { label: '\uc18c\uc124 \uc77d\uae30', class: 'btn-web', url: '/webnovel/', external: true },
+        { label: '\uc571 \ub2e4\uc6b4\ub85c\ub4dc (APK)', class: 'btn-apk', url: 'https://github.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/releases/download/v1.0.0/red-moon-night.apk', external: true, download: true }
       ]
     },
     board: {
       thumb: 'B',
       thumbClass: 'thumb-board-lg',
       thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/community-board-thumbnail.jpeg',
-      title: '게시판',
-      subtitle: 'Web App · React · Supabase',
-      desc: 'React + Supabase 기반 풀스택 게시판입니다. 회원가입/로그인, 게시글 CRUD, 대댓글, 카테고리 분류, 파일 첨부, 실시간 알림, 다크모드, 관리자 패널을 지원합니다.<br><br><em style="color: var(--accent-orange); font-size: 0.85rem;">※ Supabase 이메일 개수 제한으로 원활한 테스트를 위해 이메일 인증 기능은 비활성화 상태입니다.</em>',
-      flow: '회원가입 → 로그인 → 게시글 작성(카테고리/파일첨부) → 댓글/대댓글 → 실시간 알림 수신 → 관리자는 전체 관리',
+      title: '\uac8c\uc2dc\ud310',
+      subtitle: 'Web App \u00b7 React \u00b7 Supabase',
+      desc: 'React + Supabase \uae30\ubc18 \ud480\uc2a4\ud0dd \uac8c\uc2dc\ud310\uc785\ub2c8\ub2e4. \ud68c\uc6d0\uac00\uc785/\ub85c\uadf8\uc778, \uac8c\uc2dc\uae00 CRUD, \ub300\ub313\uae00, \uce74\ud14c\uace0\ub9ac \ubd84\ub958, \ud30c\uc77c \ucca8\ubd80, \uc2e4\uc2dc\uac04 \uc54c\ub9bc, \ub2e4\ud06c\ubaa8\ub4dc, \uad00\ub9ac\uc790 \ud328\ub110\uc744 \uc9c0\uc6d0\ud569\ub2c8\ub2e4.',
+      flow: '\ud68c\uc6d0\uac00\uc785 \u2192 \ub85c\uadf8\uc778 \u2192 \uac8c\uc2dc\uae00 \uc791\uc131(\uce74\ud14c\uace0\ub9ac/\ud30c\uc77c\ucca8\ubd80) \u2192 \ub313\uae00/\ub300\ub313\uae00 \u2192 \uc2e4\uc2dc\uac04 \uc54c\ub9bc \uc218\uc2e0 \u2192 \uad00\ub9ac\uc790\ub294 \uc804\uccb4 \uad00\ub9ac',
       tags: ['React 19', 'TypeScript', 'Vite 8', 'Tailwind CSS 4', 'Supabase (PostgreSQL/Auth/Storage/Realtime)', 'Vercel'],
       features: [
-        '인증 — 이메일 회원가입/로그인, 이메일 인증, 관리자·일반 사용자 권한 분리',
-        '게시글 — CRUD, 카테고리 분류, 검색, 페이지네이션, 공지 고정, 파일 첨부(이미지 리사이징)',
-        '댓글 — 대댓글(스레드) 지원, 작성자·관리자 삭제 가능',
-        '실시간 알림 — 댓글/대댓글 작성 시 Supabase Realtime으로 즉시 푸시 (알림벨 + 토스트)',
-        '사용자 설정 — 프로필 편집, 비밀번호 변경, 알림 on/off, 다크모드(계정별 DB 저장), 계정 탈퇴',
-        '관리자 패널 — 대시보드 통계, 사용자 권한 관리, 게시글/댓글/카테고리 관리'
+        '\uc778\uc99d \u2014 \uc774\uba54\uc77c \ud68c\uc6d0\uac00\uc785/\ub85c\uadf8\uc778, \uc774\uba54\uc77c \uc778\uc99d, \uad00\ub9ac\uc790\u00b7\uc77c\ubc18 \uc0ac\uc6a9\uc790 \uad8c\ud55c \ubd84\ub9ac',
+        '\uac8c\uc2dc\uae00 \u2014 CRUD, \uce74\ud14c\uace0\ub9ac \ubd84\ub958, \uac80\uc0c9, \ud398\uc774\uc9c0\ub124\uc774\uc158, \uacf5\uc9c0 \uace0\uc815, \ud30c\uc77c \ucca8\ubd80(\uc774\ubbf8\uc9c0 \ub9ac\uc0ac\uc774\uc9d5)',
+        '\ub313\uae00 \u2014 \ub300\ub313\uae00(\uc2a4\ub808\ub4dc) \uc9c0\uc6d0, \uc791\uc131\uc790\u00b7\uad00\ub9ac\uc790 \uc0ad\uc81c \uac00\ub2a5',
+        '\uc2e4\uc2dc\uac04 \uc54c\ub9bc \u2014 \ub313\uae00/\ub300\ub313\uae00 \uc791\uc131 \uc2dc Supabase Realtime\uc73c\ub85c \uc989\uc2dc \ud478\uc2dc (\uc54c\ub9bc\ubca8 + \ud1a0\uc2a4\ud2b8)',
+        '\uc0ac\uc6a9\uc790 \uc124\uc815 \u2014 \ud504\ub85c\ud544 \ud3b8\uc9d1, \ube44\ubc00\ubc88\ud638 \ubcc0\uacbd, \uc54c\ub9bc on/off, \ub2e4\ud06c\ubaa8\ub4dc(\uacc4\uc815\ubcc4 DB \uc800\uc7a5), \uacc4\uc815 \ud0c8\ud1f4',
+        '\uad00\ub9ac\uc790 \ud328\ub110 \u2014 \ub300\uc2dc\ubcf4\ub4dc \ud1b5\uacc4, \uc0ac\uc6a9\uc790 \uad8c\ud55c \uad00\ub9ac, \uac8c\uc2dc\uae00/\ub313\uae00/\uce74\ud14c\uace0\ub9ac \uad00\ub9ac'
       ],
       extraSections: [
         {
-          label: '아키텍처',
+          label: '\uc544\ud0a4\ud14d\ucc98',
           items: [
-            'SPA 구조 — React Router 기반 13개 라우트, ProtectedRoute로 접근 권한 제어',
-            'Context API — AuthContext(인증), ThemeContext(테마), NotificationContext(알림) 전역 상태 관리',
-            'Custom Hooks — usePosts, useComments, useCategories, useProfile로 DB 쿼리 캡슐화',
-            'Supabase BaaS — 백엔드 서버 없이 PostgreSQL + Auth + Storage + Realtime 통합 활용'
+            'SPA \uad6c\uc870 \u2014 React Router \uae30\ubc18 13\uac1c \ub77c\uc6b0\ud2b8, ProtectedRoute\ub85c \uc811\uadfc \uad8c\ud55c \uc81c\uc5b4',
+            'Context API \u2014 AuthContext(\uc778\uc99d), ThemeContext(\ud14c\ub9c8), NotificationContext(\uc54c\ub9bc) \uc804\uc5ed \uc0c1\ud0dc \uad00\ub9ac',
+            'Custom Hooks \u2014 usePosts, useComments, useCategories, useProfile\ub85c DB \ucffc\ub9ac \ucea1\uc290\ud654',
+            'Supabase BaaS \u2014 \ubc31\uc5d4\ub4dc \uc11c\ubc84 \uc5c6\uc774 PostgreSQL + Auth + Storage + Realtime \ud1b5\ud569 \ud65c\uc6a9'
           ]
         },
         {
-          label: '보안',
+          label: '\ubcf4\uc548',
           items: [
-            'RLS (Row Level Security) — PostgreSQL 수준에서 테이블별 읽기/쓰기/삭제 권한 제어',
-            'DB 트리거 — 회원가입 시 프로필 자동 생성, 댓글 작성 시 알림 자동 생성',
-            'Soft Delete — 계정 탈퇴 시 닉네임을 "탈퇴한 사용자"로 변경, 게시글/댓글은 유지'
+            'RLS (Row Level Security) \u2014 PostgreSQL \uc218\uc900\uc5d0\uc11c \ud14c\uc774\ube14\ubcc4 \uc77d\uae30/\uc4f0\uae30/\uc0ad\uc81c \uad8c\ud55c \uc81c\uc5b4',
+            'DB \ud2b8\ub9ac\uac70 \u2014 \ud68c\uc6d0\uac00\uc785 \uc2dc \ud504\ub85c\ud544 \uc790\ub3d9 \uc0dd\uc131, \ub313\uae00 \uc791\uc131 \uc2dc \uc54c\ub9bc \uc790\ub3d9 \uc0dd\uc131',
+            'Soft Delete \u2014 \uacc4\uc815 \ud0c8\ud1f4 \uc2dc \ub2c9\ub124\uc784\uc744 "\ud0c8\ud1f4\ud55c \uc0ac\uc6a9\uc790"\ub85c \ubcc0\uacbd, \uac8c\uc2dc\uae00/\ub313\uae00\uc740 \uc720\uc9c0'
           ]
         }
       ],
       actions: [
-        { label: '웹으로 방문', class: 'btn-web', url: 'https://bulletin-board-peach.vercel.app/', external: true }
+        { label: '\uc6f9\uc73c\ub85c \ubc29\ubb38', class: 'btn-web', url: 'https://bulletin-board-peach.vercel.app/', external: true }
       ]
     }
   };
 
-  function buildDetailHTML(project) {
-    let actionsHTML = project.actions.map(a => {
-      if (a.download) {
-        return '<a href="' + a.url + '" download class="detail-btn ' + a.class + '">' + a.label + '</a>';
-      }
-      const target = a.external ? ' target="_blank"' : '';
-      return '<a href="' + a.url + '"' + target + ' class="detail-btn ' + a.class + '">' + a.label + '</a>';
-    }).join('');
-
-    let featuresHTML = project.features.map(f => '<li>' + f + '</li>').join('');
-    let tagsHTML = project.tags.map(t => '<span class="detail-tag">' + t + '</span>').join('');
-
-    let extraHTML = '';
-    if (project.extraSections) {
-      project.extraSections.forEach(function(section) {
-        let itemsHTML = section.items.map(function(item) { return '<li>' + item + '</li>'; }).join('');
-        extraHTML += '<div class="detail-section">' +
-          '<h4 class="detail-label">' + section.label + '</h4>' +
-          '<ul class="detail-list">' + itemsHTML + '</ul>' +
-        '</div>';
-      });
-    }
-
-    return '<div class="detail-header">' +
-      '<div class="detail-thumb ' + project.thumbClass + '" onclick="var p=this.closest(\'.detail-panel\');if(p){p.style.display=\'none\';p.innerHTML=\'\';delete p.dataset.current;}" title="프로젝트 목록으로 돌아가기">' +
-        (project.thumbImage ? '<img src="' + project.thumbImage + '" alt="' + project.title + '">' : project.thumb) +
-      '</div>' +
-      '<div class="detail-title-area">' +
-        '<h2 class="detail-title">' + project.title + '</h2>' +
-        '<p class="detail-subtitle">' + project.subtitle + '</p>' +
-      '</div>' +
-    '</div>' +
-    '<div class="detail-body">' +
-      '<div class="detail-section">' +
-        '<h4 class="detail-label">설명</h4>' +
-        '<p class="detail-text">' + project.desc + '</p>' +
-      '</div>' +
-      '<div class="detail-section">' +
-        '<h4 class="detail-label">플로우</h4>' +
-        '<p class="detail-text">' + project.flow + '</p>' +
-      '</div>' +
-      '<div class="detail-section">' +
-        '<h4 class="detail-label">사용 기술</h4>' +
-        '<div class="detail-tags">' + tagsHTML + '</div>' +
-      '</div>' +
-      '<div class="detail-section">' +
-        '<h4 class="detail-label">주요 기능</h4>' +
-        '<ul class="detail-list">' + featuresHTML + '</ul>' +
-      '</div>' +
-      extraHTML +
-      (project.retrospective ? (
-        '<div class="detail-section retrospective-wrapper">' +
-          '<button class="retrospective-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\'); this.classList.toggle(\'active\');">' +
-            '📝 프로젝트를 진행하며... <span class="toggle-arrow">▸</span>' +
-          '</button>' +
-          '<div class="retrospective-content">' + project.retrospective + '</div>' +
-        '</div>'
-      ) : '') +
-    '</div>' +
-    '<div class="detail-actions">' + actionsHTML + '</div>';
-  }
-
-
-
-  const GAME_EMBEDS = {
+  var GAME_EMBEDS = {
     spaceshooter: { src: '/games/spaceshooter/index.html', portrait: true },
     jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
   };
 
-  // ===== ACCORDION DETAIL =====
-  const detailPanel = document.createElement('div');
-  detailPanel.className = 'detail-panel';
-  detailPanel.style.display = 'none';
-  document.querySelector('.project-list').after(detailPanel);
+  // ===== DETAIL PANEL =====
+  function buildDetailHTML(project) {
+    var actionsHTML = project.actions.map(function(a) {
+      if (a.download) return '<a href="' + a.url + '" download class="detail-btn ' + a.class + '">' + a.label + '</a>';
+      var target = a.external ? ' target="_blank"' : '';
+      return '<a href="' + a.url + '"' + target + ' class="detail-btn ' + a.class + '">' + a.label + '</a>';
+    }).join('');
 
-  const iframeContainer = document.createElement('div');
-  iframeContainer.className = 'iframe-container';
-  iframeContainer.style.display = 'none';
-  iframeContainer.innerHTML = '<iframe id="game-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button>';
-  detailPanel.appendChild(iframeContainer);
+    var featuresHTML = project.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
+    var tagsHTML = project.tags.map(function(t) { return '<span class="detail-tag">' + t + '</span>'; }).join('');
 
-  document.querySelector('.iframe-container .iframe-close').addEventListener('click', () => {
-    iframeContainer.style.display = 'none';
-    document.getElementById('game-iframe').src = '';
-  });
-
-  function openDetail(key) {
-    const project = PROJECTS[key];
-    if (!project) return;
-    detailPanel.innerHTML = buildDetailHTML(project) +
-      '<div class="iframe-container" style="display:none;"><iframe id="game-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">✕ Close Game</button></div>' +
-      '<button class="detail-close">← Back to Projects</button>';
-    detailPanel.style.display = 'block';
-    detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // Re-bind close
-    detailPanel.querySelector('.detail-close').addEventListener('click', () => {
-      detailPanel.style.display = 'none';
-      detailPanel.innerHTML = '';
-    });
-
-    // Re-bind iframe close
-    const iframeWrap = detailPanel.querySelector('.iframe-container');
-    const iframeBtn = detailPanel.querySelector('.iframe-close');
-    if (iframeBtn) {
-      iframeBtn.addEventListener('click', () => {
-        iframeWrap.style.display = 'none';
-        document.getElementById('game-iframe').src = '';
+    var extraHTML = '';
+    if (project.extraSections) {
+      project.extraSections.forEach(function(section) {
+        var itemsHTML = section.items.map(function(item) { return '<li>' + item + '</li>'; }).join('');
+        extraHTML += '<div class="detail-section"><h4 class="detail-label">' + section.label + '</h4><ul class="detail-list">' + itemsHTML + '</ul></div>';
       });
     }
 
@@ -438,20 +421,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.querySelectorAll('.project-item[data-project]').forEach(item => {
-    item.addEventListener('click', (e) => {
+  function openDetail(key) {
+    var project = PROJECTS[key];
+    if (!project) return;
+
+    detailPanel.innerHTML = buildDetailHTML(project) +
+      '<div class="iframe-container" style="display:none;"><iframe id="game-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">\u2715 Close Game</button></div>' +
+      '<button class="detail-close">\u2190 Back to Projects</button>';
+    detailPanel.style.display = 'block';
+
+    var closeBtn = detailPanel.querySelector('.detail-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        hideDetailPanel();
+        setActiveSubitem(null);
+      });
+    }
+
+    var iframeWrap = detailPanel.querySelector('.iframe-container');
+    var iframeBtn = detailPanel.querySelector('.iframe-close');
+    if (iframeBtn && iframeWrap) {
+      iframeBtn.addEventListener('click', function() {
+        iframeWrap.style.display = 'none';
+        var gi3 = document.getElementById('game-iframe');
+        if (gi3) gi3.src = '';
+      });
+    }
+
+    var demoBtn = detailPanel.querySelector('.btn-web');
+    if (demoBtn && GAME_EMBEDS[key]) {
+      var embed = GAME_EMBEDS[key];
+      demoBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var gi4 = document.getElementById('game-iframe');
+        if (gi4) gi4.src = embed.src;
+        var iw = detailPanel.querySelector('.iframe-container');
+        if (iw) { iw.style.display = 'block'; iw.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    }
+
+    detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== SIDEBAR SUB-ITEM → OPEN DETAIL =====
+  document.querySelectorAll('.nav-subitem[data-project]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var key = item.dataset.project;
+      setActiveCategory('project');
+      setActiveSubitem(key);
+
+      var projectItem = document.querySelector('.project-item[data-project="' + key + '"]');
+      if (projectItem) {
+        projectItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() { openDetail(key); }, 300);
+      } else {
+        openDetail(key);
+      }
+    });
+  });
+
+  // ===== PROJECT LIST ITEMS → OPEN DETAIL =====
+  document.querySelectorAll('.project-item[data-project]').forEach(function(item) {
+    item.addEventListener('click', function(e) {
       e.preventDefault();
-      const key = item.dataset.project;
-      // If same panel already open, close it
+      var key = item.dataset.project;
+
       if (detailPanel.style.display === 'block' && detailPanel.dataset.current === key) {
-        detailPanel.style.display = 'none';
-        detailPanel.innerHTML = '';
+        hideDetailPanel();
+        setActiveSubitem(null);
         delete detailPanel.dataset.current;
         return;
       }
+
       detailPanel.dataset.current = key;
+      setActiveSubitem(key);
       openDetail(key);
     });
   });
 
-});
+})();

@@ -9,215 +9,269 @@
 </head>
 <body>
 
-<section class="hero">
-  <div class="container">
-    <div class="hero-tag">Game Client Developer</div>
-    <h1>임세훈</h1>
-    <div class="hero-sub">퍼즐 & 액션 게임을 개발하는 클라이언트 개발자</div>
-    <div class="tech-tags">
-      <span class="tech-tag unity">Unity</span>
-      <span class="tech-tag godot">Godot</span>
-      <span class="tech-tag cs">C#</span>
-      <span class="tech-tag js">JavaScript</span>
-      <span class="tech-tag">Git</span>
-      <span class="tech-tag">Aseprite</span>
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-header">
+    <span class="logo-icon">&#9670;</span>
+    <span class="logo-text">임세훈</span>
+  </div>
+
+  <nav class="sidebar-nav">
+
+    <div class="nav-category">
+      <button class="nav-category-btn active expanded" data-category="project">
+        <svg class="cat-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg>
+        <span>Project</span>
+        <svg class="cat-chevron" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </button>
+      <ul class="nav-subitems open">
+        <li class="nav-subitem" data-project="ovumrumble"><span class="subitem-thumb" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#000;">O</span><span class="subitem-label">Ovum-Rumble</span></li>
+        <li class="nav-subitem" data-project="jumprace"><span class="subitem-thumb" style="background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;">J</span><span class="subitem-label">2D 점프 레이싱</span></li>
+        <li class="nav-subitem" data-project="spaceshooter"><span class="subitem-thumb" style="background:linear-gradient(135deg,#f472b6,#db2777);color:#000;">S</span><span class="subitem-label">Space Shooter</span></li>
+        <li class="nav-subitem" data-project="golgol"><span class="subitem-thumb" style="background:linear-gradient(135deg,#00ffa3,#00cc82);color:#000;">G</span><span class="subitem-label">GolGol</span></li>
+        <li class="nav-subitem" data-project="pumpumkin"><span class="subitem-thumb" style="background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;">P</span><span class="subitem-label">Pumpumkin</span></li>
+        <li class="nav-subitem" data-project="webnovel"><span class="subitem-thumb" style="background:linear-gradient(135deg,#f87171,#dc2626);color:#000;">R</span><span class="subitem-label">붉은달의 밤</span></li>
+        <li class="nav-subitem" data-project="todolist"><span class="subitem-thumb" style="background:linear-gradient(135deg,#38bdf8,#0284c7);color:#000;">T</span><span class="subitem-label">Todo List</span></li>
+        <li class="nav-subitem" data-project="board"><span class="subitem-thumb" style="background:linear-gradient(135deg,#a3e635,#65a30d);color:#000;">B</span><span class="subitem-label">게시판</span></li>
+      </ul>
+    </div>
+
+    <div class="nav-category">
+      <button class="nav-category-btn" data-category="research">
+        <svg class="cat-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Research</span>
+        <svg class="cat-chevron" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </button>
+      <ul class="nav-subitems"></ul>
+    </div>
+
+  </nav>
+
+  <div class="sidebar-section skills-section">
+    <h3 class="sidebar-section-title">Skills</h3>
+    <div class="skill-tags">
+      <span class="skill-badge badge-green">Unity</span>
+      <span class="skill-badge badge-blue">Godot</span>
+      <span class="skill-badge badge-purple">C#</span>
+      <span class="skill-badge badge-yellow">JavaScript</span>
+      <span class="skill-badge badge-pink">GDScript</span>
+      <span class="skill-badge badge-green">Git</span>
+      <span class="skill-badge badge-blue">Aseprite</span>
     </div>
   </div>
-</section>
 
-<section>
-  <div class="container">
-    <div class="section-title">Featured Project</div>
-    <div class="featured-card">
-      <div class="featured-img">
-        <div class="placeholder-box">Screenshot</div>
-      </div>
-      <div class="featured-info">
-        <h3>Ovum-Rumble</h3>
-        <p>계란 캐릭터가 전장을 누비는 팀 기반 2D 액션 게임. 유니티 URP 환경에서 셰이더 및 플레이어 컨트롤 시스템을 담당하여 팀 프로젝트로 개발 중입니다.</p>
-        <a href="https://github.com/BomB1961/Ovum-Rumble" target="_blank" class="btn">View Project →</a>
-        <div class="meta-tags">
-          <span class="meta-tag">Team Project</span>
-          <span class="meta-tag">Unity</span>
-          <span class="meta-tag">C#</span>
-          <span class="meta-tag">URP Shader</span>
+  <div class="sidebar-footer">
+    <div class="sidebar-contact">
+      <a href="https://github.com/tpgns3353-ctrl" class="sidebar-social" target="_blank" rel="noopener" title="GitHub"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+      <a href="mailto:email@example.com" class="sidebar-social" title="Email"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
+    </div>
+    <p class="sidebar-copy">&copy; 2026 임세훈</p>
+  </div>
+
+</aside>
+
+<main class="main-content" id="mainContent">
+
+  <div class="content-view active" id="view-project">
+
+    <section class="hero">
+      <div class="container">
+        <div class="hero-tag">Game Client Developer</div>
+        <h1>임세훈</h1>
+        <div class="hero-sub">퍼즐 & 액션 게임을 개발하는 클라이언트 개발자</div>
+        <div class="tech-tags">
+          <span class="tech-tag unity">Unity</span>
+          <span class="tech-tag godot">Godot</span>
+          <span class="tech-tag cs">C#</span>
+          <span class="tech-tag js">JavaScript</span>
+          <span class="tech-tag">Git</span>
+          <span class="tech-tag">Aseprite</span>
         </div>
       </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-title">Featured Project</div>
+        <div class="featured-card">
+          <div class="featured-img">
+            <div class="placeholder-box">Screenshot</div>
+          </div>
+          <div class="featured-info">
+            <h3>Ovum-Rumble</h3>
+            <p>계란 캐릭터가 전장을 누비는 팀 기반 2D 액션 게임. 유니티 URP 환경에서 셰이더 및 플레이어 컨트롤 시스템을 담당하여 팀 프로젝트로 개발 중입니다.</p>
+            <a href="https://github.com/BomB1961/Ovum-Rumble" target="_blank" class="btn">View Project →</a>
+            <div class="meta-tags">
+              <span class="meta-tag">Team Project</span>
+              <span class="meta-tag">Unity</span>
+              <span class="meta-tag">C#</span>
+              <span class="meta-tag">URP Shader</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects-section">
+      <div class="container">
+        <div class="section-title">Projects</div>
+        <div class="project-list">
+
+          <a href="javascript:void(0)" class="project-item" data-project="jumprace">
+            <div class="project-thumb">
+              <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/jump-racing-thumbnail.jpeg" alt="2D 점프 레이싱 썸네일">
+            </div>
+            <div class="project-info">
+              <h4>2D 점프 레이싱</h4>
+              <p>스페이스바로 점프하는 2D 레이싱 게임. 장애물 회피 및 콤보 점수 시스템 구현.</p>
+              <div class="project-tags">
+                <span class="project-tag">Godot</span>
+                <span class="project-tag">GDScript</span>
+                <span class="project-tag">Arcade</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="spaceshooter">
+            <div class="project-thumb">
+              <div class="thumb-space">🚀</div>
+            </div>
+            <div class="project-info">
+              <h4>Space Shooter</h4>
+              <p>드래곤 플라이트 스타일의 탑뷰 2D 우주선 슈팅. 네온 글로우 비주얼, 4종 우주선, 보스전, 루즈라이크 업그레이드.</p>
+              <div class="project-tags">
+                <span class="project-tag">JavaScript</span>
+                <span class="project-tag">HTML5 Canvas</span>
+                <span class="project-tag">Web Game</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="golgol">
+            <div class="project-thumb">
+              <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/golgol-thumbnail.png" alt="GolGol 썸네일">
+            </div>
+            <div class="project-info">
+              <h4>GolGol</h4>
+              <p>기억을 잃은 채 깨어난 골골. 지옥을 통해 그의 기억을 더듬는다.</p>
+              <div class="project-tags">
+                <span class="project-tag">Unity</span>
+                <span class="project-tag">C#</span>
+                <span class="project-tag">Story</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="pumpumkin">
+            <div class="project-thumb">
+              <img src="images/pumpumkin-thumbnail.jpeg" alt="Pumpumkin 썸네일">
+            </div>
+            <div class="project-info">
+              <h4>Pumpumkin</h4>
+              <p>할로윈 밥, 마법의 호박밭에서 시작된 클리커 모험. 호박을 클릭해 사탕을 수집하고 25단계의 호박을 진화시킵니다.</p>
+              <div class="project-tags">
+                <span class="project-tag">Unity</span>
+                <span class="project-tag">C#</span>
+                <span class="project-tag">Clicker</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="webnovel">
+            <div class="project-thumb">
+              <img src="images/red-moon-night-thumbnail.png" alt="붉은달의 밤 썸네일">
+            </div>
+            <div class="project-info">
+              <h4>붉은달의 밤</h4>
+              <p>인터랙티브 웹소설 시뮬레이터. 선택지에 따라 스토리가 분기하는 웹 기반 비주얼 노벨.</p>
+              <div class="project-tags">
+                <span class="project-tag">JavaScript</span>
+                <span class="project-tag">HTML5</span>
+                <span class="project-tag">Web</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="todolist">
+            <div class="project-thumb">
+              <img src="images/todo-list-icon.jpeg" alt="Todo List 앱 아이콘">
+            </div>
+            <div class="project-info">
+              <h4>Todo List</h4>
+              <p>할 일을 관리하는 앱. 추가, 수정, 삭제, 완료 체크 기능과 카테고리/우선순위 분류, 필터링 지원.</p>
+              <div class="project-tags">
+                <span class="project-tag">JavaScript</span>
+                <span class="project-tag">Web</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="javascript:void(0)" class="project-item" data-project="board">
+            <div class="project-thumb">
+              <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/community-board-thumbnail.jpeg" alt="게시판 썸네일">
+            </div>
+            <div class="project-info">
+              <h4>게시판</h4>
+              <p>React + Supabase 기반 풀스택 게시판. 회원가입/로그인, 게시글 CRUD, 대댓글, 실시간 알림, 관리자 패널 지원.</p>
+              <div class="project-tags">
+                <span class="project-tag">React</span>
+                <span class="project-tag">Supabase</span>
+                <span class="project-tag">Web</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-title">Skills</div>
+        <div class="skills-grid">
+          <div class="skill-box"><div class="skill-icon">🎮</div><div class="skill-name">Unity</div></div>
+          <div class="skill-box"><div class="skill-icon">🚀</div><div class="skill-name">Godot</div></div>
+          <div class="skill-box"><div class="skill-icon">#</div><div class="skill-name">C#</div></div>
+          <div class="skill-box"><div class="skill-icon">⚡</div><div class="skill-name">GDScript</div></div>
+          <div class="skill-box"><div class="skill-icon">🌿</div><div class="skill-name">Git</div></div>
+          <div class="skill-box"><div class="skill-icon">🎨</div><div class="skill-name">Aseprite</div></div>
+          <div class="skill-box"><div class="skill-icon">📜</div><div class="skill-name">JavaScript</div></div>
+          <div class="skill-box"><div class="skill-icon">🗺️</div><div class="skill-name">2D Game Design</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-title">About</div>
+        <div class="about-text">
+          퍼즐과 액션 게임을 좋아하는 클라이언트 개발자입니다.<br>
+          유니티와 고도 엔진을 활용해 2D 게임을 직접 만들며,<br>
+          직관적인 모바일 UX와 게임 플레이에 집중하고 있습니다.<br>
+          현재 팀 프로젝트 Ovum-Rumble을 개발 중입니다.
+        </div>
+        <div class="contact-links">
+          <a href="https://github.com/tpgns3353-ctrl" target="_blank">GitHub →</a>
+          <a href="mailto:email@example.com">Email →</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">&copy; 2026 임세훈. Built with passion for games.</div>
+    </footer>
+
+  </div>
+
+  <div class="content-view" id="view-research">
+    <div class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <h3 class="empty-heading">Research</h3>
+      <p class="empty-desc">연구 자료가 곧 추가될 예정입니다.</p>
     </div>
   </div>
-</section>
 
-<section>
-  <div class="container">
-    <div class="section-title">Projects</div>
-    <div class="project-list">
-
-      <a href="javascript:void(0)" class="project-item" data-project="jumprace">
-        <div class="project-thumb">
-          <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/jump-racing-thumbnail.jpeg" alt="2D 점프 레이싱 썸네일">
-        </div>
-        <div class="project-info">
-          <h4>2D 점프 레이싱</h4>
-          <p>스페이스바로 점프하는 2D 레이싱 게임. 장애물 회피 및 콤보 점수 시스템 구현.</p>
-          <div class="project-tags">
-            <span class="project-tag">Godot</span>
-            <span class="project-tag">GDScript</span>
-            <span class="project-tag">Arcade</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="spaceshooter">
-        <div class="project-thumb">
-          <div class="thumb-space">🚀</div>
-        </div>
-        <div class="project-info">
-          <h4>Space Shooter</h4>
-          <p>드래곤 플라이트 스타일의 탑뷰 2D 우주선 슈팅. 네온 글로우 비주얼, 4종 우주선, 보스전, 루즈라이크 업그레이드.</p>
-          <div class="project-tags">
-            <span class="project-tag">JavaScript</span>
-            <span class="project-tag">HTML5 Canvas</span>
-            <span class="project-tag">Web Game</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="golgol">
-        <div class="project-thumb">
-          <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/golgol-thumbnail.png" alt="GolGol 썸네일">
-        </div>
-        <div class="project-info">
-          <h4>GolGol</h4>
-          <p>기억을 잃은 채 깨어난 골골. 지옥을 통해 그의 기억을 더듬는다.</p>
-          <div class="project-tags">
-            <span class="project-tag">Unity</span>
-            <span class="project-tag">C#</span>
-            <span class="project-tag">Story</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="pumpumkin">
-        <div class="project-thumb">
-          <img src="images/pumpumkin-thumbnail.jpeg" alt="Pumpumkin 썸네일">
-        </div>
-        <div class="project-info">
-          <h4>Pumpumkin</h4>
-          <p>할로윈 밥, 마법의 호박밭에서 시작된 클리커 모험. 호박을 클릭해 사탕을 수집하고 25단계의 호박을 진화시킵니다.</p>
-          <div class="project-tags">
-            <span class="project-tag">Unity</span>
-            <span class="project-tag">C#</span>
-            <span class="project-tag">Clicker</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="webnovel">
-        <div class="project-thumb">
-          <img src="images/red-moon-night-thumbnail.png" alt="붉은달의 밤 썸네일">
-        </div>
-        <div class="project-info">
-          <h4>붉은달의 밤</h4>
-          <p>인터랙티브 웹소설 시뮬레이터. 선택지에 따라 스토리가 분기하는 웹 기반 비주얼 노벨.</p>
-          <div class="project-tags">
-            <span class="project-tag">JavaScript</span>
-            <span class="project-tag">HTML5</span>
-            <span class="project-tag">Web</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="todolist">
-        <div class="project-thumb">
-          <img src="images/todo-list-icon.jpeg" alt="Todo List 앱 아이콘">
-        </div>
-        <div class="project-info">
-          <h4>Todo List</h4>
-          <p>할 일을 관리하는 앱. 추가, 수정, 삭제, 완료 체크 기능과 카테고리/우선순위 분류, 필터링 지원.</p>
-          <div class="project-tags">
-            <span class="project-tag">JavaScript</span>
-            <span class="project-tag">Web</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="javascript:void(0)" class="project-item" data-project="board">
-        <div class="project-thumb">
-          <img src="https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/community-board-thumbnail.jpeg" alt="게시판 썸네일">
-        </div>
-        <div class="project-info">
-          <h4>게시판</h4>
-          <p>React + Supabase 기반 풀스택 게시판. 회원가입/로그인, 게시글 CRUD, 대댓글, 실시간 알림, 관리자 패널 지원.</p>
-          <div class="project-tags">
-            <span class="project-tag">React</span>
-            <span class="project-tag">Supabase</span>
-            <span class="project-tag">Web</span>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <div class="section-title">Skills</div>
-    <div class="skills-grid">
-      <div class="skill-box">
-        <div class="skill-icon">🎮</div>
-        <div class="skill-name">Unity</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">🚀</div>
-        <div class="skill-name">Godot</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">#</div>
-        <div class="skill-name">C#</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">⚡</div>
-        <div class="skill-name">GDScript</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">🌿</div>
-        <div class="skill-name">Git</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">🎨</div>
-        <div class="skill-name">Aseprite</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">📜</div>
-        <div class="skill-name">JavaScript</div>
-      </div>
-      <div class="skill-box">
-        <div class="skill-icon">🗺️</div>
-        <div class="skill-name">2D Game Design</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <div class="section-title">About</div>
-    <div class="about-text">
-      퍼즐과 액션 게임을 좋아하는 클라이언트 개발자입니다.<br>
-      유니티와 고도 엔진을 활용해 2D 게임을 직접 만들며,<br>
-      직관적인 모바일 UX와 게임 플레이에 집중하고 있습니다.<br>
-      현재 팀 프로젝트 Ovum-Rumble을 개발 중입니다.
-    </div>
-    <div class="contact-links">
-      <a href="https://github.com/tpgns3353-ctrl" target="_blank">GitHub →</a>
-      <a href="mailto:email@example.com">Email →</a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="container">© 2026 임세훈. Built with passion for games.</div>
-</footer>
+</main>
 
 <script src="js/main.js"></script>
 </body>
