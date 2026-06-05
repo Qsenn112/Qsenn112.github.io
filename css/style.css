@@ -406,7 +406,7 @@ footer { text-align: center; padding: 40px 0; color: #444; font-size: 13px; bord
   margin-bottom: 10px;
 }
 
-.detail-text { color: #bbb; font-size: 15px; line-height: 1.7; }
+.detail-text { color: #bbb; font-size: 15px; line-height: 1.7; white-space: pre-line; }
 
 .detail-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .detail-tag { font-size: 12px; padding: 5px 12px; border-radius: 6px; background: var(--bg-elevated); color: #aaa; border: 1px solid #333; }
