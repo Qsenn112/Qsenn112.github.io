@@ -1,0 +1,13 @@
+name = "tpgns3353"
+main = "index.js"
+compatibility_date = "2026-05-29"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./"
+html_handling = "auto-trailing-slash"
+exclude = ["**/*.apk", "**/*.wasm"]
+
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "sehun-portfolio"
