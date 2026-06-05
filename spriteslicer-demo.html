@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprite Sheets Slicer — Results</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a12;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(135deg, #0d2d35 0%, #052530 100%);
+    border-bottom: 2px solid #0891b2;
+  }
+  .hero h1 { font-size: 32px; font-weight: bold; color: #22d3ee; margin-bottom: 8px; }
+  .hero p { font-size: 16px; font-weight: bold; color: #94a3b8; max-width: 600px; margin: 0 auto; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section-title {
+    font-size: 20px; font-weight: bold;
+    color: #22d3ee;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  /* Tool UI Screenshot */
+  .tool-shot {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .tool-shot img {
+    max-width: 100%;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+    box-shadow: 0 4px 24px rgba(8,145,178,0.15);
+  }
+
+  /* Before → After */
+  .comparison {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+  .comparison-col {
+    flex: 1;
+    text-align: center;
+  }
+  .comparison-label {
+    font-size: 14px; font-weight: bold;
+    color: #22d3ee;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .comparison-box {
+    background: #0f172a;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+    padding: 16px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .comparison-box.placeholder {
+    color: #64748b;
+    font-size: 14px; font-weight: bold;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comparison-box.placeholder .icon { font-size: 36px; }
+  .comparison-box img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+  }
+  .arrow {
+    font-size: 24px; font-weight: bold;
+    color: #22d3ee;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+  /* Sprite Grid */
+  .sprite-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  .sprite-card {
+    background: #0f172a;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+    padding: 12px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .sprite-card:hover {
+    border-color: #22d3ee;
+    transform: translateY(-2px);
+  }
+  .sprite-card img {
+    max-width: 100%;
+    max-height: 160px;
+    image-rendering: auto;
+    border-radius: 4px;
+  }
+  .sprite-card .label {
+    font-size: 12px; font-weight: bold;
+    color: #64748b;
+    margin-top: 8px;
+  }
+  .sprite-card .size {
+    font-size: 11px; font-weight: bold;
+    color: #475569;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #22d3ee;
+    text-decoration: none;
+    font-size: 14px; font-weight: bold;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: background 0.2s;
+  }
+  .back-link:hover { background: #1e293b; }
+
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: #475569;
+    font-size: 13px; font-weight: bold;
+  }
+
+  @media (max-width: 640px) {
+    .comparison { flex-direction: column; }
+    .arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Sprite Sheets Slicer</h1>
+  <p>스프라이트 시트 → 개별 Unity 스프라이트 자동 분할 결과물</p>
+</div>
+
+<div class="container">
+
+  <!-- Before → After -->
+  <div class="section-title">📸 Before → After</div>
+  <div class="comparison">
+    <div class="comparison-col">
+      <div class="comparison-label">Before</div>
+      <div class="comparison-box">
+        <img src="images/sprite-slicer-ui.png" alt="Sprite Sheets Slicer UI">
+      </div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="comparison-col">
+      <div class="comparison-label">After</div>
+      <div class="comparison-box">
+        <div class="sprite-grid" style="grid-template-columns:repeat(5,1fr);gap:8px;">
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_1.png" alt="Candy 1"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_2.png" alt="Candy 2"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_3.png" alt="Candy 3"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_4.png" alt="Candy 4"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_5.png" alt="Candy 5"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_6.png" alt="Candy 6"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_7.png" alt="Candy 7"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_8.png" alt="Candy 8"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_9.png" alt="Candy 9"></div>
+          <div class="sprite-card" style="padding:6px;"><img src="images/spriteslicer/candy5/sprite_10.png" alt="Candy 10"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Sprites Gallery -->
+  <div class="section-title">🍬 Candy_5 스프라이트 (10장)</div>
+  <div class="sprite-grid">
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_1.png" alt="sprite_1">
+      <div class="label">sprite_1</div>
+      <div class="size">266 × 318</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_2.png" alt="sprite_2">
+      <div class="label">sprite_2</div>
+      <div class="size">231 × 315</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_3.png" alt="sprite_3">
+      <div class="label">sprite_3</div>
+      <div class="size">255 × 288</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_4.png" alt="sprite_4">
+      <div class="label">sprite_4</div>
+      <div class="size">269 × 268</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_5.png" alt="sprite_5">
+      <div class="label">sprite_5</div>
+      <div class="size">285 × 283</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_6.png" alt="sprite_6">
+      <div class="label">sprite_6</div>
+      <div class="size">292 × 232</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_7.png" alt="sprite_7">
+      <div class="label">sprite_7</div>
+      <div class="size">123 × 320</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_8.png" alt="sprite_8">
+      <div class="label">sprite_8</div>
+      <div class="size">212 × 292</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_9.png" alt="sprite_9">
+      <div class="label">sprite_9</div>
+      <div class="size">269 × 282</div>
+    </div>
+    <div class="sprite-card">
+      <img src="images/spriteslicer/candy5/sprite_10.png" alt="sprite_10">
+      <div class="label">sprite_10</div>
+      <div class="size">500 × 500</div>
+    </div>
+  </div>
+
+  <a href="/" class="back-link">← Back to Portfolio</a>
+
+</div>
+
+<footer>
+  &copy; 2026 임세훈 — Sprite Sheets Slicer Demo
+</footer>
+
+</body>
+</html>

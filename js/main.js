@@ -91,7 +91,7 @@
     jumprace: {
       thumb: 'J',
       thumbClass: 'thumb-jump-lg',
-      thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/jump-racing-thumbnail.jpeg',
+      thumbImage: 'images/jump-racing-thumbnail.jpeg',
       title: '2D \uc810\ud504 \ub808\uc774\uc2f1',
       subtitle: '2D \u00b7 Arcade \u00b7 Godot',
       desc: '\uc2a4\ud398\uc774\uc2a4\ubc14\ub85c \uc810\ud504\ud558\ub294 2D \ub808\uc774\uc2f1 \uac8c\uc784. \uc7a5\uc560\ubb3c \ud68c\ud53c \ubc0f \ucf64\ubcf4 \uc810\uc218 \uc2dc\uc2a4\ud15c \uad6c\ud604.',
@@ -334,7 +334,7 @@
     board: {
       thumb: 'B',
       thumbClass: 'thumb-board-lg',
-      thumbImage: 'https://raw.githubusercontent.com/tpgns3353-ctrl/tpgns3353-ctrl.github.io/main/images/community-board-thumbnail.jpeg',
+      thumbImage: 'images/community-board-thumbnail.jpeg',
       title: '\uac8c\uc2dc\ud310',
       subtitle: 'Web App \u00b7 React \u00b7 Supabase',
       desc: 'React + Supabase \uae30\ubc18 \ud480\uc2a4\ud0dd \uac8c\uc2dc\ud310\uc785\ub2c8\ub2e4. \ud68c\uc6d0\uac00\uc785/\ub85c\uadf8\uc778, \uac8c\uc2dc\uae00 CRUD, \ub300\ub313\uae00, \uce74\ud14c\uace0\ub9ac \ubd84\ub958, \ud30c\uc77c \ucca8\ubd80, \uc2e4\uc2dc\uac04 \uc54c\ub9bc, \ub2e4\ud06c\ubaa8\ub4dc, \uad00\ub9ac\uc790 \ud328\ub110\uc744 \uc9c0\uc6d0\ud569\ub2c8\ub2e4.',
@@ -378,6 +378,12 @@
     jumprace: { src: '/games/jumprace/index.html', portrait: false },
     golgol: { src: 'https://itch.io/embed-upload/17035372?color=333333', portrait: false },
     pumpumkin: { src: 'https://itch.io/embed-upload/17699633?color=333333', portrait: true }
+  };
+
+  var RESEARCH_EMBEDS = {
+    spriteslicer:    { src: '/games/sprite-sheets-slicer/dist/index.html', portrait: false },
+    'spriteslicer-v2': { src: '/games/sprite-sheets-slicer-v2/dist/index.html', portrait: false },
+    'pixel-snapper': { src: '/games/pixel-snapper/dist/index.html', portrait: false }
   };
 
   // ===== RESEARCH DATA =====
@@ -428,10 +434,10 @@
       title: 'Pixel Snapper',
       subtitle: 'Tool \u00b7 Pixel Art \u00b7 AI Refinement',
       desc: 'AI로 생성된 이미지를 픽셀 아트로 정제하는 툴 개발 연구입니다. AI 생성 이미지의 노이즈와 흐릿한 경계를 제거하고 깔끔한 픽셀 아트로 변환하는 알고리즘을 연구했습니다.',
-      flow: 'AI 이미지 입력 → 색상 양자화 → 픽셀 그리드 스냅 → 경계 정리 → 픽셀 아트 출력',
+      flow: 'AI 이미지 입력 → 픽셀 그리드 스냅 → 경계 정리 → 픽셀 아트 출력',
       tags: ['Pixel Art', 'AI', 'Tool', 'Algorithm', 'JavaScript'],
       features: [
-        '색상 양자화 — AI 이미지의 과도한 색상을 제한된 팔레트로 축소',
+
         '픽셀 그리드 스냅 — 안티앨리어싱 제거, 픽셀 단위로 그리드 정렬',
         '경계 정리 — 흐릿한 외곽선을 선명한 픽셀 경계로 변환',
         'Web 기반 — 브라우저에서 바로 사용 가능한 웹 툴'
@@ -450,7 +456,7 @@
     },
     wfc: {
       title: 'WFC',
-      subtitle: 'Algorithm \u00b7 ProcGen \u00b7 Wave Function Collapse',
+      subtitle: 'Algorithm · ProcGen · Wave Function Collapse',
       desc: 'WFC는 Wave Function Collapse로 규칙에 따라 랜덤 구조를 생성하는 알고리즘이다.\n\n게임에서 던전 생성, 맵 생성, 아이템 배치 등에 사용된다.\nWFC는 규칙을 정할 수가 있다는 점에서 완전 랜덤 생성과 차이를 가진다.\n예를 들어 무작위 랜덤 생성 방식은 문 앞에 곧바로 벽이 생성 돼 앞으로 갈 수 없다던지, 플레이어 스폰 위치 주위로 물이 생성 돼 플레이어가 게임을 진행할 수 없게 된다는 문제가 발생한다.\n에셋을 미리 프리팹화 해 놓고 WFC 알고리즘을 이용한다면 자연스럽게 보이는 랜덤을 연출할 수 있다.',
       flow: '첫 번째 칸: 모든 오브젝트 후보 (물, 불, 풀, 돌) → 규칙 적용 → 물 선택 시 이웃 칸 후보는 불, 풀만 → 각 칸마다 규칙에 맞는 후보군 축소 → 붕괴/전파 반복 → 전체 맵 생성',
       tags: ['WFC', 'ProcGen', 'Algorithm', 'Research'],
@@ -491,6 +497,115 @@
       ],
       actions: [
         { label: 'WFC Explainer', class: 'btn-web', url: '/wfc-explainer.html', external: true }
+      ]
+    },
+    spriteslicer: {
+      title: 'Sprites Sheets Slicer',
+      subtitle: 'Tool · Google AI Studio · Unity · Sprite Pipeline',
+      heroImage: 'images/sprite-slicer-ui.png',
+      desc: '존재하는 스프라이트 시트를 자동으로 슬라이싱 하는 툴입니다. Google AI Studio를 활용해서 제작했습니다.\n일일이 자르고 따로 저장 후 배경을 제거하는 방식을 효율적으로 전환 시켜 보았습니다.\n\n또한 Unity에서 바로 사용 가능하도록 .meta 파일을 자동 생성하고 개별 스프라이트로 패키징하는 파이프라인도 개발했습니다.',
+      flow: '스프라이트 시트 업로드 → 그리드/오프셋/패딩 설정 → 실시간 프리뷰 확인 → 일괄 ZIP 내보내기 → Unity .meta 생성',
+      tags: ['Google AI Studio', 'Unity', 'Sprite', 'Tool', 'Automation'],
+      features: [
+        'Google AI Studio를 활용해 제작한 웹 기반 스프라이트 시트 슬라이싱 도구',
+        'Unity 호환 — 각 스프라이트마다 .meta 파일 자동 생성, Unity 프로젝트에 바로 임포트 가능',
+        '투명도 보존 — RGBA 알파 채널 유지, 개별 스프라이트에 불필요한 배경 없이 추출',
+        '일괄 처리 — 여러 스프라이트를 한 번에 처리하고 .zip으로 패키징'
+      ],
+      extraSections: [
+        {
+          label: 'V1',
+          items: [
+            '이미지 업로드 — 드래그 앤 드롭 또는 클릭으로 스프라이트 시트(PNG, JPG, WebP) 불러오기',
+            '그리드 슬라이싱 — 셀 너비/높이, 오프셋(Offset), 패딩(Padding) 설정으로 정교하게 자르기',
+            '실시간 프리뷰 — 캔버스 위 빨간색 가이드라인으로 자르기 설정 즉시 확인',
+            '스마트 감지 — 그리드 내 내용이 없는(완전 투명한) 셀은 자동 제외, 유효한 스프라이트만 추출',
+            '확대/축소 — 줌 인/아웃 및 초기화 기능으로 세밀한 픽셀 단위 조정 가능',
+            '일괄 내보내기 — 모든 스프라이트를 ZIP 파일로 압축 다운로드, 개별 저장도 가능',
+            '픽셀 아트 최적화 — image-rendering: pixelated로 저해상도 픽셀 아트도 선명하게 표시'
+          ]
+        },
+        {
+          label: 'V1 사용 방법',
+          items: [
+            '1. 상단의 Upload Sheet 버튼을 눌러 이미지를 선택',
+            '2. 좌측 Slice Settings에서 스프라이트의 크기와 간격을 조절',
+            '3. 우측 Preview 영역에서 생성된 스프라이트들을 확인',
+            '4. Export All 버튼을 눌러 모든 결과물을 ZIP 파일로 저장'
+          ]
+        },
+        {
+          label: 'V2',
+          items: [
+            '비격자형 자유 배치 자동 감지 — 스프라이트가 격자 형태가 아니거나 크기/간격이 불규칙해도 개별 이미지 영역의 경계를 탐색하여 완벽하게 자동으로 찾아내 잘라냄',
+            '패딩 설정 및 최소 크기 필터 — 잘라낸 스프라이트 가장자리에 여백(px) 설정, 미세한 노이즈나 점을 무시할 수 있는 가로/세로 최소 제한 필터',
+            '실시간 마스크 디버그 뷰 (Mask View) — 눈 감기 아이콘 활성화 시 검은색(추출 대상)/흰색(배경) 마스킹 레이어 전환으로 수치 튜닝이 직관적',
+            '간편한 일괄 압축 ZIP 내보내기 — 감지된 모든 스프라이트를 ZIP으로 압축 다운로드, 개별 PNG 저장 및 선택 삭제도 지원'
+          ]
+        },
+        {
+          label: 'V1 대비 개선점',
+          items: [
+            '가장자리 찢어짐/계단 현상 제거 — 알고리즘 페더링 적용으로 투명 경계 부분이 찢어지거나 깨지는 Alias 현상 완전 방지, 부드러운 곡선 가장자리 연출',
+            '8방향 정밀 영역 탐색 (8-connectivity) — 대각선으로 겹치거나 흐르듯 연결된 도트 아트까지 8가지 각도에서 빈틈없이 역추적, 세밀한 선/파편 무늬도 손실 없이 캡처',
+            '스포이트 배경색 채취 (Pipette Color Pick) — 캔버스 위 원하는 부분을 클릭하여 즉각 RGB를 투명화 컬러로 치환, 0,0 좌표 고정 방식 탈피',
+            '샘플 샌드박스 탑재 — 두 번의 터치로 환경을 체험할 수 있는 테스트용 샘플 슬라이스 엔진 내장'
+          ]
+        },
+        {
+          label: 'Candy_5 스프라이트 추출 결과',
+          items: [
+            'Unity Sprite Slicer로 할로윈 아이콘 모음에서 Candy_5 스프라이트 10장 추출',
+            '개별 .meta 파일 자동 생성, Unity 프로젝트에 바로 드래그 앤 드롭 가능',
+            '원본 해상도 유지, 알파 채널 보존'
+          ]
+        }
+      ],
+      actions: [
+        { label: 'V1 테스트하기', class: 'btn-web', url: '#', external: false },
+        { label: 'V2 테스트하기', class: 'btn-web-v2', url: '#', external: false },
+        { label: '결과물 보기', class: 'btn-web', url: '/spriteslicer-demo.html', external: false }
+      ]
+    },
+    'procedural-skybox': {
+      title: 'Procedural Skybox',
+      subtitle: 'Research \u00b7 Unity \u00b7 Shader \u00b7 Blender \u00b7 AI',
+      desc: '프로시저럴 스카이박스\\n\\nOvum_Rumble의 하늘 디자인에 대해서 고민하고 있던 중 회의를 통해 두가지 방향으로 협의 됐다. 단색 이미지를 채워 캐주얼함을 극대화 하자는 것과 프로시저럴 스카이박스를 해보자는 것. 귀여움으로 봤을 때는 단색 이미지를 넣는 것이 더 어울린다고 생각한다. 그러나 나는 새로운 개념을 적용해보고 도전하는 것을 좋아하는 성격이기에 지금 아니면 언제 또 해보겠냐는 생각으로 프로시저럴 스카이박스로 진행하자고 팀원들을 설득했다.\\n\\n프로시저럴 스카이박스라는 개념을 처음 알았다. 검색 해 보니 수학적 계산을 통해 하늘을 실시간으로 생성하고 보정하는 방식이라고 한다.\\n대표적으로 원신 같은 게임에서 사용되는 방식이며, 날씨 변화, 태양의 방향, 시간의 흐름 등을 자연스럽게 표현할 수 있다는 장점이 있다.\\n\\n해당 기능을 프로젝트에 적용하기 위해 필요한 준비물은 다음과 같았다.\\n\\n구름 아트 이미지\\n블랜더를 통해 제작한 카드 모델\\n코딩 및 쉐이더 적용\\n\\n작업을 진행하기 전, 현실적으로 내가 가능한 일과 불가능한 일을 먼저 구분했다.\\n내 한계를 마주보는 일은 가슴 아팠지만, 발전하기 위해서 그리고 목적을 완수하기 위해서는 반드시 필요한 과정이라고 생각했다.\\n\\n나는 비전공자였기 때문에 요구되는 모든 능력이 부족했다.\\n하지만 AI라는 툴의 한계와 나의 한계를 어디까지 부딪혀볼 수 있는지 확인해보고 싶었다.\\n\\n내가 직접 수행 가능했던 영역은 블랜더를 통한 카드 모델 제작이었다.\\n\\n다행히 해당 프로젝트는 오픈소스로 공개되어 있었기 때문에 구름 아트 이미지와 코드 일부를 깃허브 리포지터리에서 구할 수 있었다.\\n나는 해당 리포지터리 링크를 AI에게 전달하고, 이 기능을 현재 프로젝트에 맞게 적용하고 싶다고 요청했다.\\n\\n원본 깃허브 프로젝트는 시간이 흐르며 아침 → 낮 → 밤으로 변화하는 구조였다.\\n하지만 내가 진행하던 프로젝트에서는 시간의 흐름 시스템을 제거하고, 각각의 맵에 아침 / 낮 / 밤 상태를 고정 적용하는 방식으로 방향을 수정했다.\\n\\n리포지터리 내부를 확인해보니 폴더 이름과 구조가 상당히 정리되지 않은 상태였다.\\n아마 원작자가 개인적으로 사용하던 프로젝트를 이후에 공개한 것으로 보였다.\\n\\n따라서 깃 내부의 파일들을 전부 직접 열람하면서 어떤 기능이 실제로 필요한지 하나씩 확인했고, 프로젝트에 적용 가능한 구조인지 AI에게 분석을 요청했다.\\n이 과정을 통해 계획을 수정했고, 최종적으로는 깃허브에서 SkyboxSphere과 쉐이더를 획득해 프로젝트에 적용할 수 있었다.\\n\\n사진에서는 CloudsCards도 리포지터리의 모델을 사용한 것처럼 보이지만, 실제로는 모양이 마음에 들지 않아서 내가 직접 만든 카드 모델로 교체했다.\\n\\n이때 중요한 점은 \"내가 제작한 카드 모델을 사용해서 진행한다\"는 것을 AI에게 반드시 명시해야 한다는 점이다.\\n\\nAI는 기본적으로 기존 리포지터리 구조를 유지하려는 성향이 강했기 때문에, 이 부분을 정확하게 설명하지 않으면 기존 모델 기준으로 작업을 계속 진행하려 했다.\\n\\n카드 모델 제작은 블랜더를 통해 진행했다.\\n구름 이미지를 미리 준비해두었다면 블랜더 UV에 직접 적용하면서 배치 작업을 진행하는 방법도 있다.\\n\\n나는 다른 방식으로 작업했지만, 개인적으로는 UV에 바로 확인하면서 진행하는 방식을 추천한다.\\n배치 상태와 구름의 배치 상태를 실시간으로 확인할 수 있다는 장점이 있기 때문이다.\\n\\n추가로 작업하면서 알게 된 팁이 하나 있다.\\n\\n카드 모델이 뒤집혀 있는 상태로 유니티에 임포트되면 뒷면은 렌더링되지 않는다.\\n따라서 블랜더 우측 상단의 Viewport Overlay → Face Orientation 기능을 활성화해서 앞면과 뒷면(붉은색 표시)을 반드시 확인하면서 작업하는 것을 추천한다.\\n\\n나도 알고 싶지 않았다...\\n\\n블랜더에서 카드 모델 작업이 끝난 뒤에는 유니티로 임포트한 후, AI에게 \"기존 깃의 구조와 기능을 최대한 유지하면서 프로젝트를 진행한다\"는 점을 다시 명시했다.\\n\\n이후 AI가 작업 완료 여부를 물어봤고, 완료됐다고 답하자 아래의 3가지 Tool이 자동으로 제작됐다.\\n\\n<br><img src=\"images/procedural-skybox-irradiancemap.webp\" alt=\"Generate IrradianceMap\" style=\"max-width:100%;border-radius:8px;margin:6px 0;\"><br><small style=\"color:#888;\">▲ Generate IrradianceMap</small><br><br><img src=\"images/procedural-skybox-creatematerials.webp\" alt=\"Create All Materials\" style=\"max-width:100%;border-radius:8px;margin:6px 0;\"><br><small style=\"color:#888;\">▲ Create All Materials</small><br><br><img src=\"images/procedural-skybox-setupscene.webp\" alt=\"Setup Skybox System in Scene\" style=\"max-width:100%;border-radius:8px;margin:6px 0;\"><br><small style=\"color:#888;\">▲ Setup Skybox System in Scene</small>\\n\\n\\n\\nGenerate IrradianceMap : 픽셀 그라데이션 텍스처 1개 생성. \\n이 텍스처는 스카이 셰이더가 하늘의 수직 분포 (천정→지평선 그라데이션 + 태양 추가 분포)를 계산할 때 사용합니다. R채널 = 수직 그라데이션, G채널 = 태양 추가 영역.\\n\\n\\n\\nCreate All Materials 단계 : 기존의 셰이더와 텍스쳐를 조합해서 메터리얼 6개 생성. \\n셰이더 할당: Sky_Day → GenshinSky, Cloud_Day → GenshinCloud\\n텍스처 할당: IrradianceMap, MoonTex, CloudMap 등\\n색상/수치 설정: 해 크기, 산란 강도, 별 밝기, 구름 색상 등을 코드로 일괄 세팅\\n\\n\\n\\nSetup Skybox System in Scene 단계 : 씬에 게임오브젝트 계층을 생성하고, 도구 2에서 만든 매터리얼을 연결\\n \\n\\n\\n스카이 박스와 구름 카드의 위치와 크기를 맞춰주면 작업이 끝난다. 프로젝트에 적용 완료 했고 Ovum_Rumble 게임에서 확인 할 수 있다. \\n\\n\\n신기했던 점은 나는 툴을 만들어 달라고 요청한 적이 없었다는 것이다.\\n하지만 AI는  셋업 과정을 자동화하기 위해 스스로 Tool을 제작했고, 결과적으로 작업 속도를 훨씬 단축시켜줬다.\\n\\n이번 작업을 통해 느낀 점은, AI는 단순히 코드를 대신 작성해주는 수준에서 끝나는 것이 아니라는 점이 놀라웟다.\\n내가 표현하고자하는 방향성과 의도를 전달할 수만 있다면, 작업 구조 자체를 보조하거나 자동화하는 방향으로도 활용 가능하다.\\n\\n📎 참고 자료\\n<a href=\"https://techartnomad.tistory.com/695\" target=\"_blank\" style=\"color:#60a5fa;\">techartnomard 블로그</a> — Procedural Skybox 개념 및 구현 참조\\n<a href=\"https://github.com/xinyangaa/Unity_URP_Genshin_Impact_Programmed_Skybox\" target=\"_blank\" style=\"color:#60a5fa;\">xinyangaa GitHub 리포지터리</a> — 원본 오픈소스 프로젝트',
+      flow: '회의로 방향 결정 → 개념 연구 → 가능역량 판단 → GitHub 오픈소스 분석 → AI 커스터마이징 → Blender 카드모델 제작 → Unity 임포트 → AI Tool 자동생성(3종) → Ovum_Rumble 적용',
+      tags: ['Procedural Skybox', 'Unity', 'Shader', 'Blender', 'AI', 'Research'],
+      features: [
+        '실시간 하늘 렌더링 — 수학적 계산으로 날씨·태양·시간 흐름을 자연스럽게 표현',
+        'GitHub 오픈소스 분석 — 필요 부분만 추출하여 프로젝트에 맞게 커스터마이징',
+        'Blender 직접 모델링 — 구름 카드 모델 제작, UV 매핑, Face Orientation 확인',
+        'AI 자동 Tool 생성 — IrradianceMap·Materials·Scene Setup 3종 자동 제작',
+        'Ovum_Rumble 실제 적용 완료'
+      ],
+      extraSections: [
+        {
+          label: 'AI가 자동 제작한 3가지 Tool',
+          items: [
+            'Generate IrradianceMap — 픽셀 그라데이션 텍스처 생성 (R=수직그라데이션, G=태양영역)',
+            'Create All Materials — 셰이더+텍스처 조합 6종 메터리얼 생성 (색상/수치 일괄 세팅)',
+            'Setup Skybox System in Scene — 씬 계층 생성 및 메터리얼 자동 연결'
+          ]
+        },
+        {
+          label: 'Blender 작업 팁',
+          items: [
+            '뒤집힌 카드 모델은 유니티에서 뒷면 렌더링 안 됨 → Face Orientation(앞=파랑/뒤=빨강) 확인 필수',
+            'UV에 구름 이미지 직접 적용하면서 배치하면 실시간 확인 가능 — 추천 방식'
+          ]
+        },
+        {
+          label: 'AI 협업 인사이트',
+          items: [
+            'AI는 기존 구조 유지 성향이 강함 → \"내 모델 사용\" 명시 필수',
+            'Tool 제작 요청 없이도 AI가 자동화 Tool을 스스로 생성 — 작업 속도 대폭 단축',
+            '방향성만 정확히 전달하면 비전공자도 고급 기능 구현 가능'
+          ]
+        }
+      ],
+      actions: [
       ]
     }
   };
@@ -596,6 +711,11 @@
     var tagsHTML = research.tags.map(function(t) { return '<span class="detail-tag">' + t + '</span>'; }).join('');
     var featuresHTML = research.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
 
+    var heroHTML = '';
+    if (research.heroImage) {
+      heroHTML = '<div class="detail-hero"><img src="' + research.heroImage + '" alt="' + research.title + '" style="max-width:100%;border-radius:12px;border:2px solid #1e293b;"></div>';
+    }
+
     var extraHTML = '';
     if (research.extraSections) {
       research.extraSections.forEach(function(section) {
@@ -616,6 +736,7 @@
       '<div class="detail-title-area"><h2 class="detail-title">' + research.title + '</h2><p class="detail-subtitle">' + research.subtitle + '</p></div>' +
       '</div>' +
       '<div class="detail-body">' +
+      heroHTML +
       '<div class="detail-section"><h4 class="detail-label">\uc124\uba85</h4><p class="detail-text">' + research.desc + '</p></div>' +
       '<div class="detail-section"><h4 class="detail-label">\ud50c\ub85c\uc6b0</h4><p class="detail-text">' + research.flow + '</p></div>' +
       '<div class="detail-section"><h4 class="detail-label">\uc0ac\uc6a9 \uae30\uc220</h4><div class="detail-tags">' + tagsHTML + '</div></div>' +
@@ -641,6 +762,7 @@
     if (!research) return;
 
     researchDetailPanel.innerHTML = buildResearchDetailHTML(research) +
+      '<div class="iframe-container" style="display:none;"><iframe id="research-iframe" width="100%" height="700" frameborder="0" allowfullscreen></iframe><button class="iframe-close">\u2715 Close</button></div>' +
       '<button class="detail-close">\u2190 Back to Research</button>';
     researchDetailPanel.style.display = 'block';
 
@@ -649,6 +771,41 @@
       closeBtn.addEventListener('click', function() {
         hideResearchDetail();
         setActiveSubitem(null);
+      });
+    }
+
+    // Iframe close button
+    var iframeWrap = researchDetailPanel.querySelector('.iframe-container');
+    var iframeBtn = researchDetailPanel.querySelector('.iframe-close');
+    if (iframeBtn && iframeWrap) {
+      iframeBtn.addEventListener('click', function() {
+        iframeWrap.style.display = 'none';
+        var gi = document.getElementById('research-iframe');
+        if (gi) gi.src = '';
+      });
+    }
+
+    // V1 button → RESEARCH_EMBEDS[key]
+    var btnV1 = researchDetailPanel.querySelector('.btn-web');
+    if (btnV1 && RESEARCH_EMBEDS[key]) {
+      btnV1.addEventListener('click', function(e) {
+        e.preventDefault();
+        var gi = document.getElementById('research-iframe');
+        if (gi) gi.src = RESEARCH_EMBEDS[key].src;
+        var iw = researchDetailPanel.querySelector('.iframe-container');
+        if (iw) { iw.style.display = 'block'; iw.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    }
+
+    // V2 button → RESEARCH_EMBEDS[key + '-v2']
+    var btnV2 = researchDetailPanel.querySelector('.btn-web-v2');
+    if (btnV2 && RESEARCH_EMBEDS[key + '-v2']) {
+      btnV2.addEventListener('click', function(e) {
+        e.preventDefault();
+        var gi = document.getElementById('research-iframe');
+        if (gi) gi.src = RESEARCH_EMBEDS[key + '-v2'].src;
+        var iw = researchDetailPanel.querySelector('.iframe-container');
+        if (iw) { iw.style.display = 'block'; iw.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
     }
 
