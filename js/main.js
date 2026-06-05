@@ -75,17 +75,23 @@
       thumb: 'O',
       thumbClass: 'thumb-ovum-lg',
       title: 'Ovum-Rumble',
-      subtitle: 'Team Project \u00b7 2D Action \u00b7 URP',
-      desc: '\uacc4\ub780 \uce90\ub9ad\ud130\uac00 \uc804\uc7a5\uc744 \ub204\ube44\ub294 \ud300 \uae30\ubc18 2D \uc561\uc158 \uac8c\uc784. \uc720\ub2c8\ud2f0 URP \ud658\uacbd\uc5d0\uc11c \uc170\uc774\ub354 \ubc0f \ud50c\ub808\uc774\uc5b4 \ucee8\ud2b8\ub864 \uc2dc\uc2a4\ud15c\uc744 \ub2f4\ub2f9\ud558\uc5ec \ud300 \ud504\ub85c\uc81d\ud2b8\ub85c \uac1c\ubc1c \uc911\uc785\ub2c8\ub2e4.',
-      flow: '\uce90\ub9ad\ud130 \uc120\ud0dd \u2192 \uc2a4\ud14c\uc774\uc9c0 \uc9c4\uc785 \u2192 \uc804\ud22c(\uacf5\uaca9/\ud68c\ud53c/\uc2a4\ud0ac) \u2192 \ubcf4\uc2a4 \ucc98\uce58 \u2192 \ub2e4\uc74c \uc2a4\ud14c\uc774\uc9c0',
-      tags: ['Unity', 'C#', 'URP', 'Shader', 'Team Project'],
+      subtitle: '3D 턴제 물리 보드게임 \\u00b7 Unity \\u00b7 URP \\u00b7 Mirror',
+      desc: '공룡 알을 드래그해서 튕기고, 상대방의 알을 보드 밖으로 밀어내는 3D 턴제 물리 보드게임. 1~2인 플레이(핫시트/AI/VPS 릴레이 네트워크) 지원.\\\\n\\\\nCore → Rules → Presentation 단방향 계층, GameEvents 정적 이벤트 버스로 결합도 최소화. FeatureFlags ScriptableObject로 폭탄/바람/지진/공룡NPC/HP/4인 등 확장 On/Off.',
+      flow: 'Setup → Aiming → Resolving → CheckingResult → Result',
+      tags: ['Unity', 'C#', 'URP', 'Mirror', '턴제', '물리', '멀티플레이어', 'AI'],
       features: [
-        'URP \uc170\uc774\ub354 \u2014 \uacc4\ub780 \uce90\ub9ad\ud130 \uc804\uc6a9 Toon \uc170\uc774\ub354 \ubc0f \uc774\ud399\ud2b8 \uad6c\ud604',
-        '\ud50c\ub808\uc774\uc5b4 \ucee8\ud2b8\ub864 \u2014 Rigidbody2D \uae30\ubc18 \uc774\ub3d9, \uc810\ud504, \ub300\uc2dc, \uacf5\uaca9 \ucf64\ubcf4 \uc2dc\uc2a4\ud15c',
-        '\ud300 \ud611\uc5c5 \u2014 Git\uc73c\ub85c \ubc84\uc804 \uad00\ub9ac, PR \ub9ac\ubdf0, \uc52c \uba38\uc9c0 \ucda9\ub3cc \ucd5c\uc18c\ud654',
-        '2D \uc561\uc158 \u2014 \ud53c\uaca9 \ud310\uc815, \ubb34\uc801 \ud504\ub808\uc784, \ub109\ubc31, \ud53c\ub4dc\ubc31 \uc774\ud399\ud2b8'
+        '플릭(드래그) 조작 — 알을 클릭→드래그→놓기로 방향/힘 제어, 궤적 시각화',
+        '턴제 시스템 — TurnController가 P1↔P2 교대 진행, 발사 중 입력 잠금',
+        '물리 시뮬레이션 — MotionResolver가 알 정지 감시, fixedDeltaTime 조절로 2.5배속 처리',
+        'AI 대전 — KNOCKOUT/NUDGE/DEFENSE/SETUP 4단계 전략, 지형 분석 포함',
+        '멀티플레이어 — VPS 릴레이 네트워크 (룸 코드 생성/입력), 상태 동기화',
+        '맵 시스템 — IBoardSurface 인터페이스로 다양한 지형 지원, StaticBoardLoader 로드',
+        '확장 모듈 — FeatureFlags로 폭탄/바람/지진/공룡NPC/HP/4인 등 On/Off'
       ],
-      actions: [{ label: 'Go to GitHub', class: 'btn-web', url: 'https://github.com/BomB1961/Ovum-Rumble', external: true }]
+      actions: [
+        { label: '플레이하기', class: 'btn-play', url: 'https://qsenn112.github.io/ovum-rumble-webgl/', external: true },
+        { label: 'GitHub', class: 'btn-web', url: 'https://github.com/BomB1961/Ovum-Rumble', external: true }
+      ]
     },
 
     jumprace: {
