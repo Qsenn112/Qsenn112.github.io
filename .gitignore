@@ -5,3 +5,9 @@ wrangler.toml
 index.js
 .wrangler/
 node_modules/
+.github/
+*.zip
+*.data.br
+*.data.unityweb
+*.framework.js.unityweb
+*.wasm.unityweb
