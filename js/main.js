@@ -76,7 +76,7 @@
       thumbClass: 'thumb-ovum-lg',
       title: 'Ovum-Rumble',
       subtitle: '3D 턴제 물리 보드게임 \\u00b7 Unity \\u00b7 URP \\u00b7 Mirror',
-      desc: '공룡 알을 드래그해서 튕기고, 상대방의 알을 보드 밖으로 밀어내는 3D 턴제 물리 보드게임. 1~2인 플레이(핫시트/AI/VPS 릴레이 네트워크) 지원.\\\\n\\\\nCore → Rules → Presentation 단방향 계층, GameEvents 정적 이벤트 버스로 결합도 최소화. FeatureFlags ScriptableObject로 폭탄/바람/지진/공룡NPC/HP/4인 등 확장 On/Off.',
+      desc: '공룡 알을 드래그해서 튕기고, 상대방의 알을 보드 밖으로 밀어내는 3D 턴제 물리 보드게임. 1~2인 플레이(핫시트/AI/VPS 릴레이 네트워크) 지원.\\n\\nCore → Rules → Presentation 단방향 계층, GameEvents 정적 이벤트 버스로 결합도 최소화. FeatureFlags ScriptableObject로 폭탄/바람/지진/공룡NPC/HP/4인 등 확장 On/Off.',
       flow: 'Setup → Aiming → Resolving → CheckingResult → Result',
       tags: ['Unity', 'C#', 'URP', 'Mirror', '턴제', '물리', '멀티플레이어', 'AI'],
       features: [
